@@ -1,0 +1,6 @@
+// export const api = 'http://192.168.30.56:8080'
+// export const api = 'http://192.168.40.142:3100'
+// export const api = 'http://192.168.34.243:3100'
+// export const api = 'http://192.168.30.16:3100'
+export const api = 'http://accounting-api.laodeveloper.com'
+// export const api = 'https://api.phongsavanhgroup.com'
