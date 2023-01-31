@@ -390,7 +390,7 @@ export default function Journal() {
                 }}>
                     <ToastShow1 show={showToast} setShow={setShowToast} iconNmame={<CheckCircle size={24} style={{ marginTop: 20, color: "#EC7380" }} />} />
                 </div>
-                {/* {JSON.stringify(data)} */}
+                {JSON.stringify(data)}
                 {/* {JSON.stringify(netTotalCrebit)} */}
                 {
                     something == true ? (

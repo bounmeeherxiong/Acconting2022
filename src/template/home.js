@@ -38,6 +38,7 @@ import { Button } from "@material-ui/core";
 import AttachFileIcon from '@material-ui/icons/AttachFile';
 import Journal from "../components/Journal";
 import EditJournalbyReferent from "../components/EditJournalbyReferent";
+import { Alert } from '@material-ui/lab';
 const drawerWidth = 240;
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -110,23 +111,28 @@ export default function Home(props) {
   const [open, setOpen] = useState(false);
   const [listOpent, setListOpent] = useState(false);
   const [show, setShow] = useState(false);
-  const [active, setActive] = useState("");
-  const [search, setSearch] = useState("");
-  const [searchResult, setSearchResult] = useState("");
-  const [hidden, sethidden] = useState(false);
-
-
   const handleShow = () => {
     setShow(true)
-    sethidden(false)
   };
-
   const {
-    list, listtransaction, id, showEditJournal, setShowEditJournal, showfullscreen, setShowfullscreen, showReferent, setShowReferent
+    listbank,
+    id,
+    showEditJournal,
+    data,
+    setData,
+    setShowEditJournal,
+    showfullscreen,
+    setShowfullscreen,
+    showReferent,
+    setShowReferent,
+    OnloadgainAndLoss,
+    OnLoadgainandlossTransaction,
+    OnLoadTotalgainAndLoss,
   } = useContext(LoginContext);
 
   const handleClose = () => {
     setShow(false);
+
   };
   const CloseShoFullScrreen = () => {
     setShowEditJournal(false)
@@ -146,18 +152,10 @@ export default function Home(props) {
   const handleClick = () => {
     setListOpent(!listOpent);
   };
-  const _onSearchList = (e) => {
-    setSearch(e)
-    let searchName = list.filter((el) => el.journal_no.includes(e));
-    if (!e) {
-      setSearchResult([]);
-    } else {
-      setSearchResult([...searchName]);
-    }
-  }
-  const gotojournal = (id) => {
+
+  const gotoUnrealisedGainsAndLoss = () => {
     handleClose(false)
-    Navigate(`/Journalpage/${id}`);
+    Navigate('/UnrealisedGainsAndLosses');
   }
   return (
     <>
@@ -208,98 +206,18 @@ export default function Home(props) {
                   </div>
                 </Toolbar>
               </AppBar>
-              <Modal show={show} onHide={handleClose} style={{ paddingTop: 50, marginLeft: 520 }} >
-                <Modal.Header closeButton>
-                  <Modal.Title>
-                    <div style={{
-                      display: 'flex',
-                      flexDirection: 'row',
-                      width: '100%',
-                      justifyContent: "space-between"
-                    }}
-                    >
-                      < SearchIcon style={{ position: "absolute", paddingTop: 5 }} />
-                      {/* <input
-                        style={{
-                          border: '1px solid #ccc',
-                          height: 30,
-                          borderRadius: 3,
-                          width: 300,
-                          paddingLeft: 10,
-                          outline: 'none',
-                          paddingLeft: 30,
-                          fontSize: 12
-                        }}
-                        onChange={(e) => _onSearchList(e.target.value)}
-                        value={search}
-                        onClick={() => sethidden(true)}
-                      /> */}
-                    </div>
-                  </Modal.Title>
-                </Modal.Header>
-                <Modal.Body>
-                  {hidden && (
-                    <div
-                      style={{
-                        overflowY: "scroll",
-                        height: 100,
-                        paddingTop: 5,
-                        paddingLeft: 10,
-                      }}
-                    >
-                      {searchResult.length > 0 ? (
-                        <>
-                          {searchResult.map((data, index) => {
-                            const datetimes = moment(data?.datetimes).format("YYYY-MM-DD")
-                            return (
-                              <>
-                                <span
-                                  key={index}
-                                  style={{
-                                    cursor: "pointer",
-                                    fontWeight:
-                                      active === data?.journal_no ? "bold" : "",
-                                  }}
-                                  onClick={() => gotojournal(data?.tr_id)}
-                                  onMouseOver={() => setActive(data?.journal_no)}
-                                  onMouseLeave={() => setActive(null)}
-                                >
-                                  Journal Entry {data?.journal_no} | {datetimes}
-                                </span>
-                                <br />
-                              </>
-                            );
-                          })}
-                        </>
-                      ) : (
-                        <>
-                          {list.map((data, index) => {
-                            const datetimes = moment(data?.datetimes).format("YYYY-MM-DD")
-                            return (
-                              <>
-                                <span
-                                  key={index}
-                                  style={{
-                                    cursor: "pointer",
-                                    fontWeight:
-                                      active === data?.journal_no ? "bold" : "",
-                                  }}
-                                  onClick={() => gotojournal(data?.tr_id)}
-                                  onMouseOver={() => setActive(data?.journal_no)}
-                                  onMouseLeave={() => setActive(null)}
-                                >
-                                  Journal Entry {data?.journal_no} | {datetimes}
-                                </span>
-                                <br />
-                              </>
-                            );
-                          })}
-                        </>
-                      )}
-                    </div>
-                  )}
-                </Modal.Body>
-              </Modal>
+              < ComponentBoxGainsAndLosses
+                handleClose={handleClose}
+                show={show}
+                data={data}
+                OnloadgainAndLoss={OnloadgainAndLoss}
+                OnLoadgainandlossTransaction={OnLoadgainandlossTransaction}
+                setData={setData}
+                OnLoadTotalgainAndLoss={OnLoadTotalgainAndLoss}
+                Navigate={Navigate}
+                gotoUnrealisedGainsAndLoss={gotoUnrealisedGainsAndLoss}
+                listbank={listbank}
+              />
               <Drawer
                 variant="permanent"
                 className={clsx(classes.drawer, {
@@ -419,6 +337,20 @@ export default function Home(props) {
                     BalanceSheet
                     <ListItemText />
                   </ListItem>
+                  <ListItem button onClick={() => Navigate("Profitandloss")} >
+                    <ListItemIcon>
+                      <BarChartIcon />
+                    </ListItemIcon>
+                    Profit and loss
+                    <ListItemText />
+                  </ListItem>
+                  <ListItem button onClick={() => { handleShow() }} >
+                    <ListItemIcon>
+                      <BarChartIcon />
+                    </ListItemIcon>
+                    Unrealised Gains & Losses
+                    <ListItemText />
+                  </ListItem>
                 </List>
               </Drawer>
               <main className={classes.content}>
@@ -435,6 +367,7 @@ export default function Home(props) {
 
 
 function EditComponentJournal({ id, CloseShoFullScrreen }) {
+  const classes = useStyles();
 
   const [data, setData] = useState([
     { name: '', debit: '', credit: '', description: '', Tax: '', Employee: '' },
@@ -484,6 +417,9 @@ function EditComponentJournal({ id, CloseShoFullScrreen }) {
   const [showpicture, setShowpicture] = useState(false)
   const [checkCurrency, setCheckCurrency] = useState('')
   const [hiddenNetTotall, setHiddenNetTotall] = useState(false)
+  const [getcheckcurrency, setGetcheckcurrency] = useState("")
+  const [editcurrency, setEditcurrency] = useState("")
+  const [errInforCurrency, setErrInforCurrency] = useState("");
 
   const handleClosedel = () => {
     setShows(false);
@@ -615,6 +551,7 @@ function EditComponentJournal({ id, CloseShoFullScrreen }) {
           setCheckCurrency('')
         }
         setUid([...data?.data?.transactions][0].currency_uid)
+        setGetcheckcurrency([...data?.data?.transactions][0].currency_uid)
         let money_rate = [...data?.data?.transactions][0].rate
         let format_number = new Intl.NumberFormat("en-US", { style: 'currency', currency: 'USD' }).format(money_rate)
         let rate = format_number.replaceAll('$', '')
@@ -626,7 +563,7 @@ function EditComponentJournal({ id, CloseShoFullScrreen }) {
         setUsd(rate)
         setThb(rate)
         setJournalNo([...data?.data?.transactions][0].journal_no)
-        setCurrency([...data?.data?.transactions][0].currency_status)
+        setEditcurrency([...data?.data?.transactions][0].currency_status)
         setTr_id([...data?.data?.transactions][0].tr_id)
         setDefaultValue(moment(dateIn).format("DD-MM-YYYY"))
         let keys = ['currency_code'];
@@ -648,10 +585,12 @@ function EditComponentJournal({ id, CloseShoFullScrreen }) {
     })
   }
   const deleteTransaction = (e) => {
+    console.log("e=", e)
     const transitionID = e
     let data = {
       tr_id: transitionID
     }
+
     axios.put("/accounting/api/journal-entries/delete", data).then((data) => {
       CloseShoFullScrreen(false)
     }).catch((err) => {
@@ -665,9 +604,15 @@ function EditComponentJournal({ id, CloseShoFullScrreen }) {
       console.log(err)
     })
   }
-  const OnloadSelectCurrencies = (e) => {
+  const OnloadSelectCurrencies = (e, uid) => {
     setHiddenNetTotall(!hiddenNetTotall)
-    setCurrency(e)
+    if (uid == e) {
+
+    } else {
+      setGetcheckcurrency(e)
+      setCurrency(e)
+    }
+
     axios.get(`/accounting/api/chartofaccounts/currency/${e}`).then((data) => {
       setCurrencystatus([...data?.data?.result][0].cy_code)
     }).catch((err) => {
@@ -789,11 +734,12 @@ function EditComponentJournal({ id, CloseShoFullScrreen }) {
   }
   useEffect(() => {
     _onLoad()
-    countnumber()
+
     currencies()
     _searchstartdate()
   }, [])
   const createdata = async () => {
+    let cure;
     let images
     const debit = sumData('debit')
     const credit = sumData('credit')
@@ -807,6 +753,11 @@ function EditComponentJournal({ id, CloseShoFullScrreen }) {
     } else {
       maincurrency = '1'
     }
+    // if (!currency) {
+    //   cure = uid
+    // } else {
+    //   cure = currency
+    // }
     if (!file) {
       images = 0
     } else {
@@ -822,29 +773,49 @@ function EditComponentJournal({ id, CloseShoFullScrreen }) {
     journaldata = {
       journal_no: journalNo,
       tr_date: defaultValue,
-      currency_code: uid,
+      currency_code: getcheckcurrency,
       money_rate: maincurrency,
       informdata: data,
       tr_id: tr_id,
       file_attachment: images
     }
+
     console.log("journaldata=", journaldata)
     if (debit != credit) {
       setIsLoading(false);
       setSomething(true)
     } else {
+
       axios.put("/accounting/api/journal-entries/update", journaldata).then((data) => {
-        countnumber();
         setThb('')
         setUsd('')
         setDefaultValue('')
         setShowToast(true);
       }).catch((err) => {
         console.log(err)
+        console.log(err)
+        let statusCode = err.response?.data?.statusCode
+        console.log("statusCode=", statusCode)
+        if (statusCode == '405') {
+          setErrInforCurrency('405')
+          return;
+        } else if (statusCode == '401') {
+          setErrInforCurrency('401')
+          return;
+        } else if (statusCode == '402') {
+          setErrInforCurrency('402')
+          return;
+        } else if (statusCode == '403') {
+          setErrInforCurrency('403')
+          return;
+        } else if (statusCode == '407') {
+          return;
+        }
       }).finally(() => {
         setIsLoading(false);
       })
     }
+
   }
   return (
     <>
@@ -914,6 +885,8 @@ function EditComponentJournal({ id, CloseShoFullScrreen }) {
                 <div style={{ width: "100%" }}>
                   {
                     listImage.map((item, index) => (
+
+
                       <div key={index}
                         style={{
                           position: "relative",
@@ -944,6 +917,19 @@ function EditComponentJournal({ id, CloseShoFullScrreen }) {
           marginLeft: 250
         }}>
           <ToastShow1 show={showToast} setShow={setShowToast} iconNmame={<CheckCircle size={24} style={{ marginTop: 20, color: "#EC7380" }} />} />
+        </div>
+        <div className={classes.root}>
+          {
+            errInforCurrency == '405' || errInforCurrency == '401' || errInforCurrency == '402' || errInforCurrency == '403' ?
+              (
+                <>
+                  <Alert variant="outlined" severity="error">
+                    Transactions can have only one foreign currency at a time
+                  </Alert>
+                </>) : (
+                <>
+                </>)
+          }
         </div>
         {/* {JSON.stringify(data)} */}
         {/* {JSON.stringify(netTotalCrebit)} */}
@@ -978,11 +964,11 @@ function EditComponentJournal({ id, CloseShoFullScrreen }) {
                 outline: 'none'
               }}
               onChange={(e) => {
-                OnloadSelectCurrencies(e.target.value);
+                OnloadSelectCurrencies(e.target.value, uid);
               }}
               value={currency}
             >
-              <option value="">{currency}</option>
+              <option value="">{editcurrency}</option>
               {listcurrency &&
                 listcurrency.map((data, index) => {
                   return (
@@ -1167,7 +1153,7 @@ function EditComponentJournal({ id, CloseShoFullScrreen }) {
             );
           })}
           <tr style={{ border: '1px solid #ccc', backgroundColor: '#f2f3f5', height: 50 }}>
-            <td colSpan={2} align="right" style={{ paddingRight: 25 }}>Total</td>
+            <td colSpan={3} align="right" style={{ paddingRight: 25 }}>Total</td>
             <td align="right" style={{ paddingRight: 25 }}>{debit.replaceAll('$', '')}</td>
             <td align="right" style={{ paddingRight: 25 }}>{credit.replaceAll('$', '')}</td>
             <td></td>
@@ -1180,7 +1166,7 @@ function EditComponentJournal({ id, CloseShoFullScrreen }) {
                 {currency_id == "THB" ? (
                   <>
                     <tr style={{ border: '1px solid #ccc', backgroundColor: '#f2f3f5', height: 50 }}>
-                      <td colSpan={2} align="right" style={{ paddingRight: 25 }}>TotalLAK</td>
+                      <td colSpan={3} align="right" style={{ paddingRight: 25 }}>TotalLAK</td>
                       <td align="right" style={{ paddingRight: 25 }}>{netTotalDebit.replaceAll('$', '')}</td>
                       <td align="right" style={{ paddingRight: 25 }}>{netTotalCrebit.replaceAll('$', '')}</td>
                       <td></td>
@@ -1194,7 +1180,7 @@ function EditComponentJournal({ id, CloseShoFullScrreen }) {
                   currency_id == "USD" ? (
                     <>
                       <tr style={{ border: '1px solid #ccc', backgroundColor: '#f2f3f5', height: 50 }}>
-                        <td colSpan={2} align="right" style={{ paddingRight: 25 }}>TotalLAK</td>
+                        <td colSpan={3} align="right" style={{ paddingRight: 25 }}>TotalLAK</td>
                         <td align="right" style={{ paddingRight: 25 }}>{netTotalDebit.replaceAll('$', '')}</td>
                         <td align="right" style={{ paddingRight: 25 }}>{netTotalCrebit.replaceAll('$', '')}</td>
                         <td></td>
@@ -1212,7 +1198,7 @@ function EditComponentJournal({ id, CloseShoFullScrreen }) {
                 {currency_id == "THB" ? (
                   <>
                     <tr style={{ border: '1px solid #ccc', backgroundColor: '#f2f3f5', height: 50 }}>
-                      <td colSpan={2} align="right" style={{ paddingRight: 25 }}>TotalLAK</td>
+                      <td colSpan={3} align="right" style={{ paddingRight: 25 }}>TotalLAK</td>
                       <td align="right" style={{ paddingRight: 25 }}>{netTotalDebit.replaceAll('$', '')}</td>
                       <td align="right" style={{ paddingRight: 25 }}>{netTotalCrebit.replaceAll('$', '')}</td>
                       <td></td>
@@ -1226,7 +1212,7 @@ function EditComponentJournal({ id, CloseShoFullScrreen }) {
                   currency_id == "USD" ? (
                     <>
                       <tr style={{ border: '1px solid #ccc', backgroundColor: '#f2f3f5', height: 50 }}>
-                        <td colSpan={2} align="right" style={{ paddingRight: 25 }}>TotalLAK</td>
+                        <td colSpan={3} align="right" style={{ paddingRight: 25 }}>TotalLAK</td>
                         <td align="right" style={{ paddingRight: 25 }}>{netTotalDebit.replaceAll('$', '')}</td>
                         <td align="right" style={{ paddingRight: 25 }}>{netTotalCrebit.replaceAll('$', '')}</td>
                         <td></td>
@@ -1508,6 +1494,7 @@ function RowComponentEdit({ changeText, deletechange, item, index, data, blurHan
             setNetTotalDebit(convertdebit)
           }
         }
+        data[index]['lg_id'] = ''
         data[index]['c_id'] = respone?.data?.message[0].c_id
         data[index]['c_uid'] = respone?.data?.message[0].c_uid
         data[index]['account_id'] = respone?.data.message[0].account_id
@@ -1723,3 +1710,289 @@ function ToastShow1({ show, setShow, iconNmame }) {
 
   );
 }
+function ComponentBoxGainsAndLosses({ show, handleClose, data, setData, OnloadgainAndLoss, Navigate, OnLoadgainandlossTransaction, OnLoadTotalgainAndLoss, gotoUnrealisedGainsAndLoss, listbank }) {
+  const [defaultValue, setDefaultValue] = useState("")
+  const [exchange, setExchange] = useState([])
+  const [bank_id, setBank_id] = useState("")
+  const [errdate, setErrdate] = useState(false)
+  const [errbank, setErrbank] = useState(false)
+  const [isLoading, setIsLoading,] = useState(false);
+  const [clearData, setClearData] = useState([
+    { name: 'USD', rate: '' },
+    { name: 'THB', rate: '' },
+  ])
+  const EnterDate = (e) => {
+    setDefaultValue(moment(e).format("DD/MM/YYYY"))
+    setErrdate(false)
+    axios.get(`/accounting/api/loss-gain/getdate/${moment(e).format("DD-MM-YYYY")}`).then((data) => {
+      if (data?.data?.result == 0) {
+        setData([...clearData])
+      } else {
+        setData([...data?.data?.result])
+        setExchange([...data?.data?.result])
+      }
+    }).catch((err) => {
+      console.log(err)
+    })
+  }
+  const onbank = (e) => {
+    setBank_id(e)
+    setErrbank(false)
+  }
+  const insert = () => {
+    if (!defaultValue) {
+      setErrdate(true)
+      return;
+    }
+    if (!bank_id) {
+      setErrbank(true)
+      return;
+    }
+    setIsLoading(true);
+    let informdata = {
+      data,
+      defaultValue,
+      bank_id
+    }
+    axios.post('/accounting/api/loss-gain/createlossandgain', informdata).then((data) => {
+      OnloadgainAndLoss()
+      OnLoadgainandlossTransaction()
+      OnLoadTotalgainAndLoss();
+      setBank_id('');
+      Navigate("/UnrealisedGainsAndLosses")
+      setData([...clearData])
+      setDefaultValue('')
+      handleClose(false)
+    }).catch((err) => {
+      console.log(err)
+    }).finally(() => {
+      setIsLoading(false);
+    })
+  }
+  return (
+    <>
+      <Modal show={show} onHide={handleClose} style={{ paddingTop: 50 }} >
+        <Modal.Header closeButton >
+          <Modal.Title>
+            Enter Exchange Rate
+          </Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+            <small>Enter Date</small>
+            <input
+              type="text"
+              placeholder="dd/MM/yyyy"
+              value={defaultValue}
+              onChange={(e) => setDefaultValue(e.target.value)}
+              style={{
+                border: '1px solid #ccc',
+                height: 30,
+                borderRadius: 3,
+                width: 100,
+                paddingLeft: 10,
+                marginLeft: 25,
+                textAlign: "right",
+                borderRight: "none",
+              }}
+            />
+            <input
+              type="date"
+              style={{
+                border: '1px solid #ccc',
+                height: 30,
+                borderRadius: 3,
+                width: 30,
+                paddingLeft: 10,
+              }}
+              onChange={(e) => EnterDate(e.target.value)}
+            />
+
+          </div>
+          <div style={{ height: 20, marginLeft: 210 }}>
+            {
+              errdate === true ? (
+                <>
+                  < small style={{ position: "absolute", fontSize: 14, color: "red" }}>Please Inter date</small>
+                </>
+              ) : null
+            }
+          </div>
+          <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+            <small style={{ marginLeft: 100 }}>SELECT BANK</small>
+            <select
+              style={{
+                border: '1px solid #ccc',
+                height: 30,
+                borderRadius: 3,
+                width: 130,
+                marginRight: 125
+              }}
+              onChange={(e) => {
+                onbank(e.target.value);
+              }}
+              value={bank_id}
+            >
+              <option>SELECT BANK</option>
+              {listbank &&
+                listbank.map((data, index) => {
+                  return (
+                    <option key={index} value={data?.bank_id}>
+                      {data?.bank_name}
+                    </option>
+                  );
+                })}
+            </select>
+
+          </div>
+          <div style={{marginLeft: 210}}>
+            {
+              errbank === true ? (
+                <>
+                  < small style={{ position: "absolute", fontSize: 14, color: "red" }}>Please select bank</small>
+                </>
+              ) : null
+            }
+
+          </div>
+          {/* {JSON.stringify(data)} */}
+          <div style={{ height: 20 }}></div>
+          <table width={"100%"} border="1">
+            <tr style={{ border: '1px solid #ccc', height: 30 }}>
+              <td style={{ paddingLeft: 55 }}>Currency</td>
+              <td align="right" style={{ paddingRight: 55 }}>Exchange Rate</td>
+            </tr>
+            {
+              exchange.length == 0 ? (
+                <>
+                  {
+                    data && data.map((item, index) => {
+                      return (
+
+                        <ComponentRateShow
+                          key={index}
+                          index={index}
+                          data={data}
+                          setData={setData}
+                          item={item}
+                        />
+
+                      )
+                    })
+                  }
+                </>) : (<>
+                  {
+                    data && data.map((item, index) => {
+                      return (
+                        <ComponentRate
+                          key={index}
+                          index={index}
+                          data={data}
+                          setData={setData}
+                          item={item}
+                        />
+                      )
+                    })
+                  }
+                </>)
+            }
+          </table>
+          <div style={{ height: 20 }}></div>
+          <div style={{ display: 'flex', flexDirection: "row", justifyContent: 'space-between' }}>
+            <Button variant="contained" onClick={() => { gotoUnrealisedGainsAndLoss() }}>Skip</Button>
+            <Button variant="contained" color="primary" onClick={() => { insert() }}>
+              {!isLoading ? (
+                <>
+                  Continue
+                </>
+              ) : (
+                <>
+                  {
+                    <Spinner animation="border" variant="light" size='sm' />
+                  }
+                </>)
+              }
+            </Button>
+          </div>
+        </Modal.Body>
+      </Modal>
+    </>
+  )
+}
+function ComponentRate({ item, data, index, setData }) {
+  const [currency, setCurrency] = useState('')
+  const changeText = (value, key, index) => {
+    const object = { ...data[index] };
+    object[key] = value;
+    const cloneData = [...data];
+    cloneData[index] = { ...object };
+    setData([...cloneData]);
+  };
+  return (
+    <>
+      <tr style={{ border: '1px solid #ccc', height: 50 }}>
+        <td style={{ paddingLeft: 55 }}>
+          <input type="hidden"
+            onChange={(e) => setCurrency(e.target.value)}
+            value={data?.name} />
+          {item?.name}
+        </td>
+        <td align="right" style={{ paddingRight: 20 }}>
+          <input
+            type="text"
+     
+            value={item?.rate}
+            onChange={(e) => changeText(e.target.value, "rate", index)}
+            style={{
+              border: '0.1px solid #ccc',
+              outline: 'none',
+              paddingLeft: 10,
+              borderRadius: 3,
+              height: 35,
+              textAlign: "right"
+            }}
+          /></td>
+      </tr>
+    </>
+  )
+}
+
+function ComponentRateShow({ item, data, index, setData }) {
+  const [currency, setCurrency] = useState('')
+  const changeText = (value, key, index) => {
+    const object = { ...data[index] };
+    object[key] = value;
+    const cloneData = [...data];
+    cloneData[index] = { ...object };
+    setData([...cloneData]);
+  };
+  return (
+    <>
+      <tr style={{ border: '1px solid #ccc', height: 50 }}>
+        <td style={{ paddingLeft: 55 }}>
+          <input type="hidden"
+            onChange={(e) => setCurrency(e.target.value)}
+            value={data?.name} />
+          {item?.name}
+        </td>
+        <td align="right" style={{ paddingRight: 20 }}>
+          <input
+            type="text"
+            value={item?.rate}
+            onChange={(e) => changeText(e.target.value, "rate", index)}
+            style={{
+              border: '0.1px solid #ccc',
+              outline: 'none',
+              paddingLeft: 10,
+              borderRadius: 3,
+              height: 35,
+              textAlign: "right"
+            }}
+          /></td>
+      </tr>
+    </>
+  )
+}
+
+
+

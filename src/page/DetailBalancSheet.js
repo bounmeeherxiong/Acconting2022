@@ -22,10 +22,10 @@ const useStyles = makeStyles({
     minWidth: 650,
   },
 });
-export default function ReportGL() {
+export default function DetailBalancSheet() {
   const navigate = useNavigate();
   const goback = () => {
-    navigate("/ChartAccount");
+    navigate("/BalanceSheet");
   }
   const classes = useStyles();
   const [open, setOpen] = useState(true);
@@ -65,9 +65,7 @@ export default function ReportGL() {
     window.location.reload();
   }
   const _onShow = (e) => {
-
     if (e == "today") {
-
       const e1 = new Date()
       const startToday = moment(e1).format("DD-MM-YYYY")
       const endToday = moment(e1).format("DD-MM-YYYY")
@@ -141,7 +139,7 @@ export default function ReportGL() {
         <ChevronLeftIcon style={{ color: "#3f51b5", cursor: "pointer" }} />
         <span style={{ color: "#3f51b5", cursor: "pointer" }}
           onClick={() => { goback() }}
-        >Back to Chart of Accounts</span><br />
+        >Back to Balance Sheet</span><br />
       </div>
       <span>Report period</span><br />
       <div style={{ display: 'flex', flexDirection: "row", width: "100%" }} >
@@ -352,11 +350,11 @@ function SecondRowComponent({ children, name_eng, level, amout, onGotoEditjourna
                 {
                   data?.begining_balance == 0 ?
                     (<>
-                      <TableCell align="left" style={{ cursor: "pointer" }}
+                      <TableCell align="right" style={{ cursor: "pointer" }}
                         onClick={() => { onGotoEditjournal(data?.tr_id) }}></TableCell>
                     </>) :
                     (<>
-                      <TableCell align="left" style={{ cursor: "pointer" }}
+                      <TableCell align="right" style={{ cursor: "pointer" }}
                         onClick={() => { onGotoEditjournal(data?.tr_id) }}>
                         {getFormatNumber(data?.amout)} ₭</TableCell>
 
@@ -379,7 +377,7 @@ function SecondRowComponent({ children, name_eng, level, amout, onGotoEditjourna
         <TableCell align="left"></TableCell>
         <TableCell align="left"></TableCell>
         <TableCell align="left"></TableCell>
-        <TableCell align="left">{getFormatNumber(total1)} ₭</TableCell>
+        <TableCell align="right">{getFormatNumber(total1)} ₭</TableCell>
         <TableCell align="left"></TableCell>
       </TableRow>
     </>

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext } from "react";
+import React, { useState, useEffect, useContext, useRef } from "react";
 import { makeStyles } from '@material-ui/core/styles';
 import Table from '@material-ui/core/Table';
 import TableBody from '@material-ui/core/TableBody';
@@ -18,7 +18,8 @@ import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
 import Typography from '@mui/material/Typography';
 import { CardActionArea } from '@mui/material';
-
+import ReactToPrint from "react-to-print";
+import PrintIcon from '@material-ui/icons/Print';
 
 const useStyles = makeStyles({
     table: {
@@ -26,30 +27,30 @@ const useStyles = makeStyles({
     },
 });
 export default function ReportTrialbalances() {
+    let componentRef = useRef(null)
     const navigate = useNavigate();
     const {
         listaccountname
     } = useContext(LoginContext);
+    let debitAllTotal = 0
+    let creditAllTotal = 0;
 
     const [start_date, setStart_date] = useState(new Date());
-    const [end, setEnd] = useState(new Date());
+   
     const [showdate, setShowdate] = useState(false)
     const [getvalues, setGetvalues] = useState([]);
-    const [listTrailbalance, setListTrailbalance] = useState([])
+    const [listTrailbalance, setListTrailbalance] = useState({})
     const today = new Date();
     const [defaultValue, setDefaultValue] = useState("")
     const [defaultValue1, setDefaultValue1] = useState("")
     const date = moment(new Date).format("DD-MM-YYYY")
-    const [debit, setDebit] = useState("0")
-    const [credit, setCredit] = useState("0")
+
     const [nameShow, setNameShow] = useState("");
     const [searchResult, setSearchResult] = useState([]);
     const [showBox, setShowBox] = useState(false);
     const [open, setOpen] = useState(true);
     const [ch_id, setCh_id] = useState("");
     const [active, setActive] = useState("");
-    
-
     const handleClick = () => {
         setOpen(!open);
     };
@@ -60,13 +61,10 @@ export default function ReportTrialbalances() {
     }
     const Gotodetailaccount = (id) => {
         navigate(`/DetailReportTrialbalances/${id}`);
-      }
+    }
     const onloadreportTrailbalance = () => {
         axios.get("/accounting/api/reportbydate/reporttrailbalance").then((data) => {
-            console.log("data=",[...data?.data?.result])
-            setListTrailbalance([...data?.data?.result])
-            setDebit([...data?.data.total][0].debit)
-            setCredit([...data?.data.total][0].credit)
+            setListTrailbalance({...data?.data})
         })
     }
     const _onShow = (e) => {
@@ -83,9 +81,9 @@ export default function ReportTrialbalances() {
                 end
             }
             axios.post("/accounting/api/reportbydate/searchreport", data).then((data) => {
-                setListTrailbalance([...data?.data.result])
-                setDebit([...data?.data.searchtotal][0].debit)
-                setCredit([...data?.data.searchtotal][0].credit)
+                // setListTrailbalance([...data?.data.result])
+                setListTrailbalance({...data?.data})
+     
             }).catch((err) => {
                 console.log(err)
             })
@@ -138,15 +136,12 @@ export default function ReportTrialbalances() {
                 start,
                 end
             }
-            axios.post("/accounting/api/reportjournal-entries/reportBydate", data).then((data) => {
-                setListTrailbalance([...data?.data.result])
-                setDebit([...data?.data.searchtotal][0].debit)
-                setCredit([...data?.data.searchtotal][0].credit)
+            axios.post("/accounting/api/reportbydate/searchreport", data).then((data) => {
+                setListTrailbalance({...data?.data})
             }).catch((err) => {
                 console.log(err)
             })
         }
-
     }
     const Onloadreset = () => {
         window.location.reload();
@@ -164,13 +159,11 @@ export default function ReportTrialbalances() {
             }
         });
     };
-
     useEffect(() => {
         onloadreportTrailbalance()
         _searchstartdate();
         _searchbydate();
     }, [])
-
     return (
         <>
             <div>
@@ -196,7 +189,7 @@ export default function ReportTrialbalances() {
                     <option value="all">All Dates</option>
                     <option value="custom">Custom</option>
                     <option value="today">Today</option>
-                    <option value="account">Report by Account</option>
+        
                 </select>
                 <input
                     type="text"
@@ -261,34 +254,7 @@ export default function ReportTrialbalances() {
                         </>
                     )
                 }
-                {/* <input
-                    type="text"
-                    onChange={(e) => _onSearchList(e.target.value)}
-                    value={nameShow}
-                    style={{
-                        border: "1px solid #ccc",
-                        borderTopLeftRadius: 4,
-                        borderBottomLeftRadius: 4,
-                        borderRight: "none",
-                        height: 30,
-                        outline: "none",
-                        paddingLeft: 10,
-                        marginLeft: 20,
-                        width: 500
-                    }}
-                    onClick={() => setShowBox(true)}
-                />
-                <div
-                    style={{
-                        border: "1px solid #ccc",
-                        borderLeft: "none",
-                        borderTopRightRadius: 4,
-                        borderBottomRightRadius: 4,
-                    }}
-                    onClick={() => { handleClick(); setShowBox(!showBox); }}
-                >
-                    {open ? <ExpandLess /> : <ExpandMore />}
-                </div> */}
+                
                 <button
                     style={{
                         backgroundColor: "#3f51b5",
@@ -321,6 +287,28 @@ export default function ReportTrialbalances() {
                 >
                     Reset
                 </button>
+
+                <ReactToPrint
+                    trigger={() => <button
+                        style={{
+                            backgroundColor: "#3f51b5",
+                            border: "none",
+                            height: 30,
+                            borderRadius: 2,
+                            paddingLeft: 10,
+                            paddingRight: 10,
+                            color: "white",
+                            alignItems: "center",
+                            marginLeft: 10,
+                        }}
+
+                    >
+                        < PrintIcon />
+                    </button>}
+                    content={() => componentRef}
+                    style={{ marginRight: 10 }}
+                />
+
             </div>
             {showBox && (
                 <>
@@ -388,62 +376,164 @@ export default function ReportTrialbalances() {
                 </>
             )}
             <div style={{ height: 20 }}></div>
-            <TableContainer component={Paper}>
-                <Table className={classes.table} aria-label="simple table" size="small">
+            <TableContainer component={Paper} ref={(el) => (componentRef = el)}>
+                <Table className={classes.table} aria-label="simple table">
                     <TableHead>
                         <TableRow>
                             <TableCell>Account</TableCell>
-                            <TableCell align="left">Debit</TableCell>
-                            <TableCell align="left">Credit</TableCell>
+                            <TableCell align="right">Debit</TableCell>
+                            <TableCell align="right">Credit</TableCell>
+
                         </TableRow>
                     </TableHead>
                     <TableBody>
-                        {listTrailbalance && listTrailbalance.map((data, index) => {                   
-                            return (
-                                <>
-                                    <TableRow key={index}>
-                                        <TableCell onClick={()=>{Gotodetailaccount(data?.c_uid)}}  style={{cursor:"pointer"}}>{data?.name_eng}</TableCell>
-                                        <TableCell onClick={()=>{Gotodetailaccount(data?.c_uid)}}  style={{cursor:"pointer"}}>
-                                            {
-                                                data?.debit == "0.00" ?
-                                                    (
-                                                        <>
-                                                            0.00
-                                                        </>
-                                                    ) : (
-                                                        <>
-                                                            {getFormatNumber(data?.debit)} ₭
-                                                        </>
-                                                    )
-                                            }
+                        {
+                            listTrailbalance.result && listTrailbalance.result.map((data, index) => {
+                                let balance = data?.balances
+                                let usingObjectAssign = Object.assign([], balance);
+                                let condition = usingObjectAssign[0]
+                                let createstatus = data?.createstatus
+                                if (createstatus == 'As' || createstatus == 'Ex') {
 
-                                        </TableCell>
-                                        <TableCell onClick={()=>{Gotodetailaccount(data?.c_uid)}}  style={{cursor:"pointer"}}>
+                                    if (condition == "-") {
+                                        creditAllTotal += parseFloat(data?.balances.replace('-', ''))
+                                    } else {
+
+                                        debitAllTotal += parseFloat(data?.balances)
+                                    }
+                                } else {
+                                    if (condition != "-") {
+                                        creditAllTotal += parseFloat(data?.balances.replace('-', ''))
+                                    } else {
+
+                                        debitAllTotal += parseFloat(data?.balances.replace('-', ''))
+                                    }
+
+                                }
+                                return (
+                                    <>
+                                        <TableRow key={index}>
+                                            <TableCell style={{cursor:'pointer'}} onClick={()=>{Gotodetailaccount(data?.c_uid)}}>
+                                                <ComponentTableCell
+                                                    secondFloor={listTrailbalance.secondFloor}
+                                                    id={data?.parents}
+                                                />
+                                                : {data.name_eng.slice(0, 20)}
+                                            </TableCell>
                                             {
-                                                data?.credit == "0.00" ? (
-                                                    <>
-                                                        0.00
-                                                    </>) : (<>
-                                                        {getFormatNumber(data?.credit)}₭
-                                                    </>)
+                                                createstatus == "As" || createstatus == "Ex" ? (<>
+                                                    {
+                                                        condition !== '-' ? (
+                                                            <>
+                                                                <TableCell style={{cursor:'pointer'}} onClick={()=>{Gotodetailaccount(data?.c_uid)}} align="right">{getFormatNumber(data?.balances)}</TableCell>
+                                                                <TableCell onClick={()=>{Gotodetailaccount(data?.c_uid)}} align="right">0.00</TableCell>
+                                                            </>) : (
+                                                            <>
+                                                                <TableCell onClick={()=>{Gotodetailaccount(data?.c_uid)}} align="right">0.00</TableCell>
+                                                                <TableCell style={{cursor:'pointer'}} onClick={()=>{Gotodetailaccount(data?.c_uid)}} align="right">{getFormatNumber(data?.balances).replace('-', '')}</TableCell>
+                                                            </>
+                                                        )
+                                                    }
+                                                </>) : (<>
+                                                    {
+                                                        condition != '-' ? (
+                                                            <>
+
+                                                                <TableCell onClick={()=>{Gotodetailaccount(data?.c_uid)}} align="right">0.00</TableCell>
+                                                                <TableCell style={{cursor:'pointer'}} onClick={()=>{Gotodetailaccount(data?.c_uid)}} align="right">{getFormatNumber(data?.balances)}</TableCell>
+                                                            </>) : (
+                                                            <>
+
+                                                                <TableCell style={{cursor:'pointer'}} onClick={()=>{Gotodetailaccount(data?.c_uid)}} align="right">{getFormatNumber(data?.balances).replace('-', '')}</TableCell>
+                                                                <TableCell onClick={()=>{Gotodetailaccount(data?.c_uid)}} align="right">0.00</TableCell>
+                                                            </>
+                                                        )
+                                                    }
+                                                </>)
                                             }
-                                        </TableCell>
-                                    </TableRow>
-                                </>
-                            )
-                        })}
+                                        </TableRow>
+                                    </>
+                                )
+                            })}
                     </TableBody>
                     <TableHead>
                         <TableRow>
                             <TableCell>Total:</TableCell>
-                            <TableCell align="left">{getFormatNumber(debit)} ₭ </TableCell>
-                            <TableCell align="left">{getFormatNumber(credit)}₭ </TableCell>
+                            <TableCell align="right">{getFormatNumber(debitAllTotal)} ₭</TableCell>
+                            <TableCell align="right">{getFormatNumber(creditAllTotal)}₭</TableCell>
                         </TableRow>
                     </TableHead>
                 </Table>
             </TableContainer>
         </>
     )
-
 }
-
+function ComponentTableCell({ secondFloor, id }) {
+    if (secondFloor === null) return <></>
+    const filter = secondFloor.filter((el) => el.c_id == id);
+    return (
+        <>
+            {
+                filter.map((data, index) => {
+                    return (
+                        <>
+                            <ComponentTableCell1
+                                id={data?.parents}
+                                secondFloor={secondFloor}
+                            />
+                            <small key={index}>
+                                :{data?.name_eng.slice(0, 15)}
+                            </small>
+                        </>
+                    )
+                })
+            }
+        </>
+    )
+}
+function ComponentTableCell1({ secondFloor, id }) {
+    if (secondFloor === null) return <></>
+    const filter = secondFloor.filter((el) => el.c_id == id);
+    return (
+        <>
+            {
+                filter.map((data, index) => {
+                    return (
+                        <>
+                            <ComponentTableCell2
+                                id={data?.parents}
+                                secondFloor={secondFloor}
+                            />
+                            <small key={index}>
+                                {data?.name_eng.slice(0, 30)}
+                            </small>
+                        </>
+                    )
+                })
+            }
+        </>
+    )
+}
+function ComponentTableCell2({ secondFloor, id }) {
+    if (secondFloor === null) return <></>
+    const filter = secondFloor.filter((el) => el.c_id == id);
+    return (
+        <>
+            {
+                filter.map((data, index) => {
+                    return (
+                        <>
+                            <ComponentTableCell1
+                                id={data?.parents}
+                                secondFloor={secondFloor}
+                            />
+                            <small key={index}>
+                                :{data?.name_eng.slice(0, 30)}
+                            </small>
+                        </>
+                    )
+                })
+            }
+        </>
+    )
+}

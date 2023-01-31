@@ -25,7 +25,10 @@ import Cookies from 'js-cookie';
 import Login from "./page/Login";
 
 import setAuthToken from "./setAuthToken"
-
+import UnrealisedGainsAndLosses from "./page/UnrealisedGainsAndLosses";
+import Profitandloss from "./page/Profitandloss";
+import DetailBalancSheet from "./page/DetailBalancSheet";
+import DetailFitandLoss from "./page/DetailFitandLoss";
 axios.defaults.baseURL = api;
 function App() {
   const [listaccount, setListaccount] = useState([]);
@@ -41,6 +44,14 @@ function App() {
   const [showReferent, setShowReferent] = useState(false)
   const [login, setLogin] = useState(false);
   const [list, setList] = useState([])
+  const [listgandl,setListgandl]=useState([])
+  const [listgain,setListgain]=useState([])
+  const [listgl, setListgl] = useState({})
+  const [totalgain,setTotalgain]=useState([])
+  const [listbank,setListbank]=useState([])
+  const [data, setData] = useState([
+    { name:'',rate:''},
+  ]);
   const onloadaccount = () => {
     axios
       .get("/accounting/api/accounts")
@@ -103,7 +114,49 @@ function App() {
     }).catch((err) => {
         console.log(err)
     })
- 
+}
+const onLoadExchangeRates = () => {
+  axios.get('/accounting/api/loss-gain/getrate').then((data) => {
+    setData([...data?.data.result])
+  }).catch((err) => {
+    console.log(err)
+  })
+}
+const OnloadgainAndLoss = () => {
+  axios
+    .get("/accounting/api/loss-gain/getgainAndLoss")
+    .then((data) => {
+      
+      setListgandl([...data?.data?.result])
+    })
+    .catch((err) => {
+      console.log(err);
+    });
+};
+const OnLoadgainandlossTransaction = () => {
+  axios.get('/accounting/api/loss-gain/transaction').then((data) => {
+    setListgain([...data?.data?.result])
+  }).catch((err) => {
+    console.log(err)
+  })
+}
+const OnLoadTotalgainAndLoss=()=>{
+  axios.get('/accounting/api/loss-gain/getTotal/').then((data)=>{
+    setTotalgain([...data?.data?.result][0].gain_Loss)
+  })
+}
+const onloadbank = () => {
+  axios.get("/accounting/api/bank/all").then((data) => {
+    setListbank([...data?.data?.result])
+
+  }).catch((err) => {
+    console.log(err)
+  })
+}
+const onloadreportGl = () => {
+  axios.get("/accounting/api/report/reportGl").then((data) => {
+    setListgl({ ...data?.data })
+  })
 }
   useEffect(() => {
     let users = Cookies.get("user");
@@ -121,8 +174,14 @@ function App() {
     onloadaccountlistname();
     onloadreportjournalentries();
     onloadtransaction();
-  }, []); 
+    onLoadExchangeRates();
+    OnloadgainAndLoss();
+    OnLoadgainandlossTransaction()
+    OnLoadTotalgainAndLoss();
+    onloadbank();
+    onloadreportGl();
 
+  }, []); 
   return (
     <div>
       <LoginContext.Provider
@@ -150,7 +209,19 @@ function App() {
           showReferent,
           setShowReferent,
           onloadtransaction,
-          list
+          list,
+          data,
+          setData,
+          listgandl,
+          OnloadgainAndLoss,
+          listgain,
+          OnLoadgainandlossTransaction,
+          OnLoadTotalgainAndLoss,
+          totalgain,
+          listbank,
+          listgl,
+          setListgl,
+          onloadreportGl
         }}
       >
         <Router>
@@ -174,7 +245,10 @@ function App() {
               <Route exact path="/ReportTest" element={< ReportTest />}></Route>
               <Route exact path="/BalanceSheet" element={< BalanceSheet />}></Route>
               <Route exact path="/DetailReportTrialbalances/:id" element={< DetailReportTrialbalances />}></Route>
-
+              <Route exact path="/UnrealisedGainsAndLosses" element={< UnrealisedGainsAndLosses/>}></Route>
+              <Route exact path="/Profitandloss" element={< Profitandloss/>}></Route>
+              <Route exact path="/DetailBalancSheet/:id" element={< DetailBalancSheet / >}></Route>
+              <Route exact path="/DetailFitandLoss/:id" element={<DetailFitandLoss />}></Route>
             </Routes>
           </Home>
         </Router>

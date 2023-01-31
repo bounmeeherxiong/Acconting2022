@@ -22,10 +22,10 @@ const useStyles = makeStyles({
     minWidth: 650,
   },
 });
-export default function ReportGL() {
+export default function DetailFitandLoss() {
   const navigate = useNavigate();
   const goback = () => {
-    navigate("/ChartAccount");
+    navigate("/Profitandloss");
   }
   const classes = useStyles();
   const [open, setOpen] = useState(true);
@@ -65,9 +65,7 @@ export default function ReportGL() {
     window.location.reload();
   }
   const _onShow = (e) => {
-
     if (e == "today") {
-
       const e1 = new Date()
       const startToday = moment(e1).format("DD-MM-YYYY")
       const endToday = moment(e1).format("DD-MM-YYYY")
@@ -141,7 +139,7 @@ export default function ReportGL() {
         <ChevronLeftIcon style={{ color: "#3f51b5", cursor: "pointer" }} />
         <span style={{ color: "#3f51b5", cursor: "pointer" }}
           onClick={() => { goback() }}
-        >Back to Chart of Accounts</span><br />
+        >Back to Profit and loss</span><br />
       </div>
       <span>Report period</span><br />
       <div style={{ display: 'flex', flexDirection: "row", width: "100%" }} >

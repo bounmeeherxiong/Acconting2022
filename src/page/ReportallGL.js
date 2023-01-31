@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext } from "react";
+import React, { useState, useEffect, useContext, useRef } from "react";
 import axios from "axios";
 import { makeStyles } from '@material-ui/core/styles';
 import Table from '@material-ui/core/Table';
@@ -19,6 +19,10 @@ import Typography from '@mui/material/Typography';
 import { CardActionArea } from '@mui/material';
 import { LoginContext } from "./contexts/LoginContext";
 import { useNavigate } from "react-router-dom";
+import PrintIcon from '@material-ui/icons/Print';
+import ReactToPrint from "react-to-print";
+import SettingsIcon from "@material-ui/icons/Settings";
+import { Form } from "react-bootstrap";
 
 const useStyles = makeStyles({
   table: {
@@ -26,21 +30,22 @@ const useStyles = makeStyles({
   },
 });
 export default function ReportallGL() {
+  let componentRef = useRef(null)
   const navigate = useNavigate();
   const {
-    listaccountname, EditJournal
+    listaccountname, EditJournal,listgl,setListgl,onloadreportGl
   } = useContext(LoginContext);
   const goback = () => {
     navigate("/ChartAccount");
   }
-  const [listgl, setListgl] = useState({})
-  const [firstFloor, setFirstFloor] = useState([])
+
   const classes = useStyles();
   const [getvalues, setGetvalues] = useState([]);
   const [start_date, setStart_date] = useState("");
   const [showBox, setShowBox] = useState(false);
   const [searchResult, setSearchResult] = useState([]);
   const [active, setActive] = useState("");
+  const [Leave, setLeave] = useState(0);
   const [nameShow, setNameShow] = useState("");
   const [defaultValue, setDefaultValue] = useState("")
   const [defaultValue1, setDefaultValue1] = useState("")
@@ -50,7 +55,12 @@ export default function ReportallGL() {
   const [ch_id, setCh_id] = useState("")
   const [open, setOpen] = useState(true);
   const [account, setAccount] = useState(false)
+  const [journal, setJournal] = useState(false)
+  const [getjournal, setGetjournal] = useState('')
   const [err, setErr] = useState("0")
+  const [showSetting, setShowSetting] = useState(false)
+  const [showdebit, setShowdebit] = useState(false)
+  const [showcredit, setshowcredit] = useState(false)
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const handleChangePage = (event, newPage) => {
@@ -60,6 +70,26 @@ export default function ReportallGL() {
     setRowsPerPage(+event.target.value);
     setPage(0);
   };
+  const Setting = () => {
+    setShowSetting(!showSetting)
+  }
+  const onBlurSetting = (Leave) => {
+    if (Leave === 0) {
+      setShowSetting(false)
+    }
+  }
+  const onBlurCredit = () => {
+    setShowSetting(false)
+  }
+  const Ondebit = () => {
+    setLeave(0)
+    setShowdebit(!showdebit)
+  }
+  const Oncredit = () => {
+    setLeave(0)
+    setshowcredit(true)
+
+  }
   const handleClicks = () => {
     setShowBox(!showBox);
   };
@@ -102,7 +132,11 @@ export default function ReportallGL() {
         console.log(err)
       })
     } else if (e == "account") {
+      setJournal(false)
       setAccount(true)
+    } else if (e == "journal_no") {
+      setAccount(false)
+      setJournal(true)
     }
     setGetvalues(e)
   }
@@ -140,11 +174,18 @@ export default function ReportallGL() {
         end,
         ch_id
       }
-      console.log("dataid=",data)
       axios.post("/accounting/api/report/reportbyaccount", data).then((data) => {
-    
+     
         setListgl({ ...data?.data })
-
+      }).catch((err) => {
+        console.log(err)
+      })
+    } else if (getvalues === 'journal_no') {
+      let data = {
+        journal_no: getjournal
+      }
+      axios.post("/accounting/api/report/reportGlbyJournalno", data).then((data) => {
+        setListgl({ ...data?.data })
       }).catch((err) => {
         console.log(err)
       })
@@ -156,19 +197,17 @@ export default function ReportallGL() {
         end
       }
       axios.post("/accounting/api/report/reportGlbydate", data).then((data) => {
-        console.log("data", { ...data?.data })
         setListgl({ ...data?.data })
       }).catch((err) => {
         console.log(err)
       })
     }
   }
-  const onloadreportGl = () => {
-    axios.get("/accounting/api/report/reportGl").then((data) => {
-      console.log("dataGL=",{...data?.data})
-      setListgl({ ...data?.data })
-    })
-  }
+  // const onloadreportGl = () => {
+  //   axios.get("/accounting/api/report/reportGl").then((data) => {
+  //     setListgl({ ...data?.data })
+  //   })
+  // }
   const onGotoEditjournal = (id) => {
     const baseUrl = window.location.pathname;
     navigate(`/Journalpage/${id}`);
@@ -216,161 +255,267 @@ export default function ReportallGL() {
         >Back to report list</span><br />
       </div>
       <span>Report period</span><br />
-      <div style={{ display: 'flex', flexDirection: "row", width: "100%" }} >
-        <select
-          onChange={(e) => _onShow(e.target.value)}
-          value={getvalues}
-          style={{
-            border: '1px solid #ccc',
-            height: 30,
-            borderRadius: 3,
-            width: 200,
-            outline: 'none'
-          }}
-        >
-          <option value="all">All Dates</option>
-          <option value="today">Today</option>
-          <option value="custom">Custom</option>
-          <option value="account">Report by Account</option>
-        </select>
-        <input
-          type="text"
-          defaultValue={defaultValue}
-          onChange={(e) => setDefaultValue(e.target.value)}
-          style={{
-            border: '1px solid #ccc',
-            height: 30,
-            borderRadius: 3,
-            width: 100,
-            paddingLeft: 10,
-            marginLeft: 25,
-            textAlign: "right",
-            borderRight: "none",
-          }}
-        />
-        <input
-          type="date"
-          onChange={(e) => _searchstartdate(e.target.value)}
-          style={{
-            border: '1px solid #ccc',
-            height: 30,
-            borderRadius: 3,
-            width: 30,
-            paddingLeft: 10,
-          }}
-        />
-        <span style={{ marginLeft: 10, paddingTop: 5 }}>To</span>
-        <input
-          type="text"
-          defaultValue={defaultValue1}
-          onChange={(e) => setDefaultValue1(e.target.value)}
-          style={{
-            border: '1px solid #ccc',
-            height: 30,
-            borderRadius: 3,
-            width: 100,
-            paddingLeft: 10,
-            marginLeft: 25,
-            textAlign: "right",
-            borderRight: "none",
-          }}
-        />
-        <input
-          type="date"
-          onChange={(e) => _searchbydate(e.target.value)}
-          style={{
-            border: '1px solid #ccc',
-            height: 30,
-            borderRadius: 3,
-            width: 30,
-            paddingLeft: 10,
-          }}
-        />
-        {
-          account == true ?
-            (
+      <div style={{ display: 'flex', flexDirection: "row", width: "100%", justifyContent: 'space-between' }} >
+        <div style={{width:'100%',display:'flex',flexDirection:'row'}}>
+          <select
+            onChange={(e) => _onShow(e.target.value)}
+            value={getvalues}
+            style={{
+              border: '1px solid #ccc',
+              height: 30,
+              borderRadius: 3,
+              width: 200,
+              outline: 'none'
+            }}
+          >
+            <option value="all">All Dates</option>
+            <option value="today">Today</option>
+            <option value="custom">Custom</option>
+            <option value="account">Report by Account</option>
+            <option value="journal_no">Report by journal no</option>
+          </select>
+          <input
+            type="text"
+            defaultValue={defaultValue}
+            onChange={(e) => setDefaultValue(e.target.value)}
+            style={{
+              border: '1px solid #ccc',
+              height: 30,
+              borderRadius: 3,
+              width: 100,
+              paddingLeft: 10,
+              marginLeft: 25,
+              textAlign: "right",
+              borderRight: "none",
+            }}
+          />
+          <input
+            type="date"
+            onChange={(e) => _searchstartdate(e.target.value)}
+            style={{
+              border: '1px solid #ccc',
+              height: 30,
+              borderRadius: 3,
+              width: 30,
+              paddingLeft: 10,
+            }}
+          />
+          <span style={{ marginLeft: 10, paddingTop: 5 }}>To</span>
+          <input
+            type="text"
+            defaultValue={defaultValue1}
+            onChange={(e) => setDefaultValue1(e.target.value)}
+            style={{
+              border: '1px solid #ccc',
+              height: 30,
+              borderRadius: 3,
+              width: 100,
+              paddingLeft: 10,
+              marginLeft: 25,
+              textAlign: "right",
+              borderRight: "none",
+            }}
+          />
+          <input
+            type="date"
+            onChange={(e) => _searchbydate(e.target.value)}
+            style={{
+              border: '1px solid #ccc',
+              height: 30,
+              borderRadius: 3,
+              width: 30,
+              paddingLeft: 10,
+            }}
+          />
+          {
+            account == true ?
+              (
+                <>
+                  <div style={{ display: "flex", flexDirection: "column" }}>
+                    <div style={{ display: "flex", flexDirection: "row" }}>
+                      <input
+                        type="text"
+                        onChange={(e) => _onSearchList(e.target.value)}
+                        value={nameShow}
+                        style={{
+                          border: "1px solid #ccc",
+                          borderTopLeftRadius: 4,
+                          borderBottomLeftRadius: 4,
+                          borderRight: "none",
+                          height: 30,
+                          outline: "none",
+                          paddingLeft: 10,
+                          marginLeft: 20,
+                          width: 300
+                        }}
+                        onClick={() => setShowBox(true)}
+                      />
+                      <div
+                        style={{
+                          border: "1px solid #ccc",
+                          borderLeft: "none",
+                          borderTopRightRadius: 4,
+                          borderBottomRightRadius: 4,
+                        }}
+                        onClick={() => { handleClick(); setShowBox(!showBox); }}
+                      >
+                        {open ? <ExpandLess /> : <ExpandMore />}
+                      </div>
+                    </div>
+                    <div>
+                      {
+                        err == "102" ? (
+                          <>
+                            <small style={{ position: "absolute", marginLeft: 20, fontSize: 20, color: "red" }}>Please select account type</small>
+
+                          </>) : (<></>)
+                      }
+                    </div>
+                  </div>
+                </>
+              ) : null
+          }
+          {
+            journal === true ? (
               <>
                 <div style={{ display: "flex", flexDirection: "column" }}>
                   <div style={{ display: "flex", flexDirection: "row" }}>
                     <input
                       type="text"
-                      onChange={(e) => _onSearchList(e.target.value)}
-                      value={nameShow}
+                      onChange={(e) => setGetjournal(e.target.value)}
+                      value={getjournal}
                       style={{
                         border: "1px solid #ccc",
-                        borderTopLeftRadius: 4,
-                        borderBottomLeftRadius: 4,
-                        borderRight: "none",
+                        borderRadius: 4,
                         height: 30,
                         outline: "none",
                         paddingLeft: 10,
                         marginLeft: 20,
-                        width: 500
+                        width: 150
                       }}
-                      onClick={() => setShowBox(true)}
                     />
-                    <div
-                      style={{
-                        border: "1px solid #ccc",
-                        borderLeft: "none",
-                        borderTopRightRadius: 4,
-                        borderBottomRightRadius: 4,
-                      }}
-                      onClick={() => { handleClick(); setShowBox(!showBox); }}
-                    >
-                      {open ? <ExpandLess /> : <ExpandMore />}
-                    </div>
                   </div>
-                  <div>
-                    {
-                      err == "102" ? (
-                        <>
-                          <small style={{ position: "absolute", marginLeft: 20, fontSize: 20, color: "red" }}>Please select account type</small>
 
-                        </>) : (<></>)
-                    }
+                </div>
+
+              </>
+            ) : null
+          }
+          <button
+            style={{
+              backgroundColor: "#3f51b5",
+              border: "none",
+              height: 30,
+              borderRadius: 2,
+              paddingLeft: 10,
+              paddingRight: 10,
+              color: "white",
+              alignItems: "center",
+              marginLeft: 10,
+            }}
+            onClick={() => Search()}
+          >
+            {/* <SearchIcon /> */}
+            Run Report
+          </button>
+          <button
+            style={{
+              backgroundColor: "#3f51b5",
+              border: "none",
+              height: 30,
+              borderRadius: 2,
+              paddingLeft: 10,
+              paddingRight: 10,
+              color: "white",
+              alignItems: "center",
+              marginLeft: 10,
+            }}
+            onClick={() => Onloadreset()}
+          >
+            Reset
+          </button>
+          <ReactToPrint
+            trigger={() => <button
+              style={{
+                backgroundColor: "#3f51b5",
+                border: "none",
+                height: 30,
+                borderRadius: 2,
+                paddingLeft: 10,
+                paddingRight: 10,
+                color: "white",
+                alignItems: "center",
+                marginLeft: 10,
+              }}
+            >
+              < PrintIcon />
+            </button>}
+            content={() => componentRef}
+            style={{ marginRight: 10 }}
+          />
+        </div>
+        <div>
+          <button
+            onClick={() => { Setting() }}
+            onBlur={() => { onBlurSetting(Leave) }}
+            style={{
+              backgroundColor: "#3f51b5",
+              border: "none",
+              height: 30,
+              borderRadius: 2,
+              paddingLeft: 10,
+              paddingRight: 10,
+              color: "white",
+              alignItems: "center",
+              marginLeft: 10,
+            }}
+          >
+            <SettingsIcon style={{ cursor: 'pointer' }}
+            />
+          </button>
+          {showSetting ?
+            (
+              <>
+                <div style={{
+                  backgroundColor: 'white',
+                  position: 'absolute',
+                  right: 30,
+                  border: '1px solid #ccc',
+                  borderRadius: 3,
+                  width: 200,
+                  height: 200,
+                }}>
+                  <small>Display density</small>
+                  <div style={{ height: 20 }}></div>
+                  <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between' }}>
+                    <Form.Group className="mb-3" controlId="formBasicCheckbox"  >
+                      <Form.Check
+                        style={{ cursor: "pointer", marginLeft: 10 }}
+                        inline
+                        label="Debit"
+                        type="checkbox"
+                        onClick={() => { Ondebit() }}
+                        onMouseLeave={() => { setLeave(null) }}
+                      />
+                    </Form.Group>
+                    <Form.Group className="mb-3" controlId="formBasicCheckbox" >
+                      <Form.Check
+                        style={{ cursor: "pointer" }}
+                        inline
+                        label="Credit"
+                        type="checkbox"
+                        onClick={() => { Oncredit() }}
+                        onMouseLeave={() => { setLeave(null) }}
+                        onBlur={() => { onBlurCredit() }}
+                      />
+                    </Form.Group>
                   </div>
                 </div>
               </>
-            )
-            : (
-              <>
-              </>
-            )
-        }
-        <button
-          style={{
-            backgroundColor: "#3f51b5",
-            border: "none",
-            height: 30,
-            borderRadius: 2,
-            paddingLeft: 10,
-            paddingRight: 10,
-            color: "white",
-            alignItems: "center",
-            marginLeft: 10,
-          }}
-          onClick={() => Search()}
-        >
-          {/* <SearchIcon /> */}
-          Run Report
-        </button>
-        <button
-          style={{
-            backgroundColor: "#3f51b5",
-            border: "none",
-            height: 30,
-            borderRadius: 2,
-            paddingLeft: 10,
-            paddingRight: 10,
-            color: "white",
-            alignItems: "center",
-            marginLeft: 10,
-          }}
-          onClick={() => Onloadreset()}
-        >
-          Reset
-        </button>
+            ) : null
+          }
+        </div>
+
       </div>
       {showBox && (
         <>
@@ -438,7 +583,7 @@ export default function ReportallGL() {
         </>
       )}
       <div style={{ height: 20 }}></div>
-      <TableContainer component={Paper}>
+      <TableContainer component={Paper} ref={(el) => (componentRef = el)}>
         <Table className={classes.table} aria-label="simple table" size="small">
           <TableHead>
             <TableRow>
@@ -449,6 +594,17 @@ export default function ReportallGL() {
               <TableCell align="left" style={{ width: 300 }}>ACCOUNT</TableCell>
               <TableCell align="right" style={{ width: 200 }}>AMOUNT</TableCell>
               <TableCell align="right">BALANCE</TableCell>
+              {
+                showdebit === true ? (
+                  <TableCell align="right">Debit</TableCell>
+                ) : null
+              }
+              {
+                showcredit === true ? (
+                  <TableCell align="right">Credit</TableCell>
+                ) : null
+              }
+
             </TableRow>
           </TableHead>
           <TableBody>
@@ -468,6 +624,8 @@ export default function ReportallGL() {
                     defaultValue1={defaultValue1}
                     getvalues={getvalues}
                     ch_id={ch_id}
+                    showdebit={showdebit}
+                    showcredit={showcredit}
                   />
                 </>
               )
@@ -488,7 +646,7 @@ export default function ReportallGL() {
     </>
   )
 }
-function GLRowComponent({ name_eng, id, second, childrenFirstFloor, childrenSecondFloor, onGotoEditjournal, OnEditJournal, defaultValue, defaultValue1, getvalues, ch_id }) {
+function GLRowComponent({ name_eng, id, second, childrenFirstFloor, childrenSecondFloor, onGotoEditjournal, OnEditJournal, defaultValue, defaultValue1, getvalues, ch_id, showcredit, showdebit }) {
   const [open, setOpen] = useState(true);
   const [netTotal1, setNetTotal1] = useState("0")
   let total1 = 0;
@@ -540,6 +698,16 @@ function GLRowComponent({ name_eng, id, second, childrenFirstFloor, childrenSeco
         <TableCell align="left"></TableCell>
         <TableCell align="right"></TableCell>
         {
+          showdebit === true ? (<>
+            <TableCell align="left"></TableCell>
+          </>) : null
+        }
+        {
+          showcredit === true ? (<>
+            <TableCell align="left"></TableCell>
+          </>) : null
+        }
+        {
           open ? (
             <TableCell align="left"></TableCell>
           ) : (
@@ -557,6 +725,8 @@ function GLRowComponent({ name_eng, id, second, childrenFirstFloor, childrenSeco
             childrenFirstFloor={childrenFirstFloor}
             onGotoEditjournal={onGotoEditjournal}
             total1={total1}
+            showdebit={showdebit}
+            showcredit={showcredit}
           />
           < SecondFloorRowComponent
             OnEditJournal={OnEditJournal}
@@ -569,26 +739,38 @@ function GLRowComponent({ name_eng, id, second, childrenFirstFloor, childrenSeco
             defaultValue1={defaultValue1}
             getvalues={getvalues}
             ch_id={ch_id}
+            showdebit={showdebit}
+            showcredit={showcredit}
           />
         </>
-      ) : (
-        <>
-        </>
-      )}
+      ) : null
+      }
 
     </>
   )
 }
-function RowComponent({ id, name_eng, OnEditJournal, total1, childrenFirstFloor }) {
+function RowComponent({ id, name_eng, OnEditJournal, total1, childrenFirstFloor, showcredit, showdebit }) {
+
+  let debittotal = 0;
+  let credittoal = 0;
   const [active, setActive] = useState("");
   if (childrenFirstFloor === null) return <></>
   const filter = childrenFirstFloor.filter((el) => el.ch_id == id);
+  
   if (filter.length === 0) return <></>;
   return (
     <>
       {
         filter.map((data, index) => {
-          total1 += parseFloat(data.amout)
+          if (data?.begining_balance != 0) {
+            total1 += parseFloat(data?.amout)
+          }
+          if (data?.debit !== '0.00') {
+            debittotal += parseFloat(data?.debit)
+          }
+          if (data?.credit !== '0.00') {
+            credittoal += parseFloat(data?.credit)
+          }
           return (
             <>
               <TableRow key={index} >
@@ -614,10 +796,31 @@ function RowComponent({ id, name_eng, OnEditJournal, total1, childrenFirstFloor 
                   )
                 }
                 <TableCell align="left" style={{ cursor: "pointer" }} onClick={() => { OnEditJournal(data?.tr_id) }}>{data.journal_no}</TableCell>
-                <TableCell align="left" style={{ cursor: "pointer" }} onClick={() => { OnEditJournal(data?.tr_id) }}>{data.lg_desc}</TableCell>
+                <TableCell align="left" style={{ cursor: "pointer" }}>
+                  <ReadMore
+                    children={data?.lg_desc}
+                  /></TableCell>
                 <TableCell align="left" style={{ cursor: "pointer" }} onClick={() => { OnEditJournal(data?.tr_id) }}>{data.name_eng}</TableCell>
-                <TableCell align="right" style={{ cursor: "pointer" }} onClick={() => { OnEditJournal(data?.tr_id) }}>{getFormatNumber(data.amout)}₭</TableCell>
+                {
+                  data?.begining_balance === 0 ? (<>
+                    <TableCell align="right" style={{ cursor: "pointer" }} onClick={() => { OnEditJournal(data?.tr_id) }}></TableCell>
+                  </>) : (<>
+                    <TableCell align="right" style={{ cursor: "pointer" }} onClick={() => { OnEditJournal(data?.tr_id) }}>{getFormatNumber(data.amout)}₭</TableCell>
+                  </>)
+                }
+
                 <TableCell align="right" style={{ cursor: "pointer" }} onClick={() => { OnEditJournal(data?.tr_id) }}>{getFormatNumber(data.balances)}₭</TableCell>
+               
+                {
+                  showdebit === true ? (
+                    <TableCell align="right" style={{ cursor: "pointer" }} onClick={() => { OnEditJournal(data?.tr_id) }}>{getFormatNumber(data.debit)}₭</TableCell>
+                  ) : null
+                }
+                {
+                  showcredit === true ? (
+                    <TableCell align="right" style={{ cursor: "pointer" }} onClick={() => { OnEditJournal(data?.tr_id) }}>{getFormatNumber(data.credit)}₭</TableCell>
+                  ) : null
+                }
               </TableRow>
             </>
           )
@@ -631,13 +834,57 @@ function RowComponent({ id, name_eng, OnEditJournal, total1, childrenFirstFloor 
         <TableCell align="left"></TableCell>
         <TableCell align="right">{getFormatNumber(total1)} ₭</TableCell>
         <TableCell align="left"></TableCell>
+        {
+          showdebit === true ? (
+            <TableCell align="right">{getFormatNumber(debittotal)}</TableCell>
+          ) : null
+        }
+        {
+          showcredit === true ? (
+            <TableCell align="right">{getFormatNumber(credittoal)}</TableCell>
+          ) : null
+        }
       </TableRow>
-
     </>
   )
 }
-function SecondFloorRowComponent({ level, second, id, OnEditJournal, childrenSecondFloor, defaultValue, defaultValue1, getvalues, ch_id }) {
+function SecondFloorRowComponent({ level, second, id, OnEditJournal, childrenSecondFloor, defaultValue, defaultValue1, getvalues, ch_id, showcredit, showdebit }) {
+
+  if (second === null) return <></>
+  const filter = second.filter((el) => el.parents == id);
+  return (
+    <>
+      {
+        filter.map((data, index) => {
+          return (
+            <>
+              < TableCellComponent
+                data={data}
+                level={level}
+                index={index}
+                second={second}
+                OnEditJournal={OnEditJournal}
+                childrenSecondFloor={childrenSecondFloor}
+                defaultValue={defaultValue}
+                defaultValue1={defaultValue1}
+                getvalues={getvalues}
+                ch_id={ch_id}
+                showdebit={showdebit}
+                showcredit={showcredit}
+              />
+            </>
+          )
+        })
+      }
+    </>
+  )
+}
+function TableCellComponent({ data, level, index, second, OnEditJournal, childrenSecondFloor, ch_id, getvalues, defaultValue, defaultValue1, showcredit, showdebit }) {
+  const [open, setOpen] = useState(true);
   const [netTotal1, setNetTotal1] = useState("0")
+  const handleClick = () => {
+    setOpen(!open);
+  };
   const _onSearch = (c_id) => {
     if (getvalues == 'account') {
       let datas = {
@@ -665,43 +912,15 @@ function SecondFloorRowComponent({ level, second, id, OnEditJournal, childrenSec
       let data = {
         c_id
       }
+
       axios.post("/accounting/api/report/sumdata", data).then((data) => {
         setNetTotal1(data?.data?.result[0].balances)
+
       }).catch((err) => {
         console.log(err)
       })
     }
   }
-  if (second === null) return <></>
-  const filter = second.filter((el) => el.parents == id);
-  return (
-    <>
-      {
-        filter.map((data, index) => {
-          return (
-            <>
-              < TableCellComponent
-                netTotal1={netTotal1}
-                _onSearch={_onSearch}
-                data={data}
-                level={level}
-                index={index}
-                second={second}
-                OnEditJournal={OnEditJournal}
-                childrenSecondFloor={childrenSecondFloor}
-              />
-            </>
-          )
-        })
-      }
-    </>
-  )
-}
-function TableCellComponent({ data, level, index, netTotal1, _onSearch, second, conditions, OnEditJournal, childrenSecondFloor }) {
-  const [open, setOpen] = useState(true);
-  const handleClick = () => {
-    setOpen(!open);
-  };
   return (
     <>
       <TableRow key={index}>
@@ -712,6 +931,16 @@ function TableCellComponent({ data, level, index, netTotal1, _onSearch, second, 
         <TableCell align="left"></TableCell>
         <TableCell align="left"></TableCell>
         <TableCell align="left"></TableCell>
+        {
+          showdebit === true ? (<>
+            <TableCell align="left"></TableCell>
+          </>) : null
+        }
+        {
+          showcredit === true ? (<>
+            <TableCell align="left"></TableCell>
+          </>) : null
+        }
         {
           open ? (
             <TableCell align="left"></TableCell>
@@ -731,18 +960,21 @@ function TableCellComponent({ data, level, index, netTotal1, _onSearch, second, 
             level={level}
             OnEditJournal={OnEditJournal}
             childrenSecondFloor={childrenSecondFloor}
+            showdebit={showdebit}
+            showcredit={showcredit}
           />
           < SecondFloorRowComponent
             level={level * 1.5}
             second={second}
             id={data.c_id}
-            conditions={conditions}
             data={data}
             netTotal1={netTotal1}
             _onSearch={_onSearch}
             index={index}
             OnEditJournal={OnEditJournal}
             childrenSecondFloor={childrenSecondFloor}
+            showdebit={showdebit}
+            showcredit={showcredit}
           />
         </>
       ) : (
@@ -752,7 +984,9 @@ function TableCellComponent({ data, level, index, netTotal1, _onSearch, second, 
     </>
   )
 }
-function SecondRowComponent({ id, name_eng, level, OnEditJournal, childrenSecondFloor }) {
+function SecondRowComponent({ id, name_eng, level, OnEditJournal, childrenSecondFloor, showdebit, showcredit }) {
+  let debittotal = 0;
+  let credittoal = 0;
   if (childrenSecondFloor === null) return <></>
   const filter = childrenSecondFloor.filter((el) => el.ch_id == id);
   var total = 0;
@@ -761,7 +995,16 @@ function SecondRowComponent({ id, name_eng, level, OnEditJournal, childrenSecond
     <>
       {
         filter.map((data, index) => {
-          total += parseFloat(data.amout)
+          if (data?.begining_balance != '0') {
+            total += parseFloat(data.amout)
+          }
+          if (data?.debit !== '0.00') {
+            debittotal += parseFloat(data?.debit)
+          }
+          if (data?.credit !== '0.00') {
+            credittoal += parseFloat(data?.credit)
+          }
+
           return (
             <>
               <TableRow key={index} >
@@ -776,23 +1019,66 @@ function SecondRowComponent({ id, name_eng, level, OnEditJournal, childrenSecond
                 <TableCell align="left" onClick={() => { OnEditJournal(data?.tr_id) }} style={{ cursor: "pointer" }}>{data?.journal_no}</TableCell>
                 <TableCell align="left" onClick={() => { OnEditJournal(data?.tr_id) }} style={{ cursor: "pointer" }}>{data?.lg_desc}</TableCell>
                 <TableCell align="left" onClick={() => { OnEditJournal(data?.tr_id) }} style={{ cursor: "pointer" }}>{data?.name_eng}</TableCell>
-                <TableCell align="right" onClick={() => { OnEditJournal(data?.tr_id) }} style={{ cursor: "pointer" }}>{getFormatNumber(data?.amout)} ₭</TableCell>
+                {
+                  data?.begining_balance == '0' ? (<>
+                    <TableCell align="right" onClick={() => { OnEditJournal(data?.tr_id) }} style={{ cursor: "pointer" }}></TableCell></>) :
+                    (<>
+                      <TableCell align="right" onClick={() => { OnEditJournal(data?.tr_id) }} style={{ cursor: "pointer" }}>{getFormatNumber(data?.amout)} ₭</TableCell>
+                    </>)
+                }
                 <TableCell align="right" onClick={() => { OnEditJournal(data?.tr_id) }} style={{ cursor: "pointer" }}>{getFormatNumber(data?.balances)} ₭</TableCell>
+                {
+                  showdebit === true ? (
+                    <TableCell align="right" onClick={() => { OnEditJournal(data?.tr_id) }} style={{ cursor: "pointer" }}>{getFormatNumber(data?.debit)} ₭</TableCell>
+                  ) : null
+                }
+                {
+                  showcredit === true ? (
+                    <TableCell align="right" onClick={() => { OnEditJournal(data?.tr_id) }} style={{ cursor: "pointer" }}>{getFormatNumber(data?.credit)} ₭</TableCell>
+                  ) : null
+                }
               </TableRow>
             </>
           )
-        })
-      }
+        })}
       <TableRow>
         <TableCell style={{ fontWeight: "bold", color: "back", paddingLeft: level, fontSize: 11 }}>Total for {name_eng}</TableCell>
         <TableCell align="left"></TableCell>
         <TableCell align="left"></TableCell>
         <TableCell align="left"></TableCell>
         <TableCell align="left"></TableCell>
-        <TableCell align="right">{getFormatNumber(total)} ₭</TableCell>
+        <TableCell align="right">{getFormatNumber(total)}₭</TableCell>
         <TableCell align="left"></TableCell>
+        {
+          showdebit === true ? (
+            <TableCell align="right">{getFormatNumber(debittotal)}₭</TableCell>
+          ) : null
+        }
+        {
+          showcredit === true ? (
+            <TableCell align="right">{getFormatNumber(credittoal)}₭</TableCell>
+          ) : null
+        }
       </TableRow>
     </>
   )
-
 }
+function ReadMore({ children }) {
+  const text = children;
+  const [isReadMore, setIsReadMore] = useState(true);
+  const toggleReadMore = () => {
+    setIsReadMore(!isReadMore);
+  };
+  return (
+    <p>
+      {
+        text == null ? (<></>) : (<>
+          {isReadMore ? text.slice(0, 10) : text}
+          <span onClick={toggleReadMore} className="read-or-hide">
+            {isReadMore ? "...read more" : " show less"}
+          </span>
+        </>)
+      }
+    </p>
+  );
+};

@@ -317,7 +317,10 @@ function SecondRowComponent({ children, name_eng, level, amout, onGotoEditjourna
     <>
       {
         children.map((data, index) => {
-          total1 += parseFloat(data?.amout)
+
+          if (data?.begining_balance != 0) {
+            total1 += parseFloat(data?.amout)
+          }
           return (
             <>
               <TableRow key={index} >
@@ -347,10 +350,16 @@ function SecondRowComponent({ children, name_eng, level, amout, onGotoEditjourna
                 <TableCell align="left" style={{ cursor: "pointer" }}
                   onClick={() => { onGotoEditjournal(data?.tr_id) }}>
                   {data?.name_eng}</TableCell>
-                <TableCell align="left" style={{ cursor: "pointer" }}
-                  onClick={() => { onGotoEditjournal(data?.tr_id) }}>
-                  {getFormatNumber(data?.amout)} ₭</TableCell>
-                <TableCell align="left" style={{ cursor: "pointer" }}
+
+                {
+                  data?.begining_balance === 0 ? (<>
+                    <TableCell align="right" style={{ cursor: "pointer" }} onClick={() => { onGotoEditjournal(data?.tr_id) }}>0.00</TableCell>
+                  </>) : (<>
+                    <TableCell align="right" style={{ cursor: "pointer" }} onClick={() => { onGotoEditjournal(data?.tr_id) }}>{getFormatNumber(data.amout)}₭</TableCell>
+                  </>)
+                }
+
+                <TableCell align="right" style={{ cursor: "pointer" }}
                   onClick={() => { onGotoEditjournal(data?.tr_id) }}>
                   {getFormatNumber(data?.balances)} ₭</TableCell>
               </TableRow>
@@ -364,7 +373,7 @@ function SecondRowComponent({ children, name_eng, level, amout, onGotoEditjourna
         <TableCell align="left"></TableCell>
         <TableCell align="left"></TableCell>
         <TableCell align="left"></TableCell>
-        <TableCell align="left">{getFormatNumber(total1)} ₭</TableCell>
+        <TableCell align="right">{getFormatNumber(total1)} ₭</TableCell>
         <TableCell align="left"></TableCell>
       </TableRow>
     </>

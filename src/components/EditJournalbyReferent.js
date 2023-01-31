@@ -44,6 +44,7 @@ export default function EditJournalbyReferent() {
     ])
     const [journalNo, setJournalNo] = useState("")
     const [referentNo, setReferentNo] = useState("")
+    const [errReferentNo, setErrReferentNo] = useState(false)
     const today = new Date();
     const date = today.setDate(today.getDate());
     const [currency, setCurrency] = useState("");
@@ -79,6 +80,10 @@ export default function EditJournalbyReferent() {
     const [errjournal, setErrjournal] = useState("")
     const [errExchange, setErrExchange] = useState(false)
     const [erragain, setErragain] = useState("")
+    const [hiddenNetTotall, setHiddenNetTotall] = useState(false)
+    const [checkCurrency, setCheckCurrency] = useState('')
+    const [editcurrency, setEditcurrency] = useState("")
+    const [getcheckcurrency, setGetcheckcurrency] = useState("")
     const OnLoadData = (index) => {
         let keys = ['currency_code'];
         let values = ['USD', 'THB'];
@@ -120,12 +125,14 @@ export default function EditJournalbyReferent() {
     }
     const _onSearchList = (e) => {
 
+        setReferentNo(e)
         let searchName = listtransaction.filter((el) => el.journal_no.includes(e));
         if (!e) {
             setSearchResult([]);
         } else {
             setSearchResult([...searchName]);
         }
+
     }
     const ClearAllLines = () => {
         setCurrency_id('')
@@ -182,9 +189,14 @@ export default function EditJournalbyReferent() {
     let agconvertcredit = convertcredit.replaceAll(',', '')
     const gotojournal = (id) => {
         axios.get(`/accounting/api/journal-entries/selectledger/${id}`).then((data) => {
-
+            let inforData = [...data?.data?.ledger]
             if ([...data?.data?.ledger].length > 0) {
-                setData([...data?.data?.ledger, {}, {}, {}])
+                setData(
+                    [...data?.data?.ledger,
+                    { name: '', debit: '', credit: '', description: '', Tax: '', Employee: '' },
+                    { name: '', debit: '', credit: '', description: '', Tax: '', Employee: '' },
+                    { name: '', debit: '', credit: '', description: '', Tax: '', Employee: '' },
+])
                 let initialValue = 0;
                 let sumdebit = [...data?.data?.ledger]?.reduce(function (previousValue, currentValue) {
                     return parseFloat(previousValue) + (currentValue['debit'] != undefined && currentValue['debit'] != '' ? parseFloat(currentValue['debit'].replaceAll(',', '')) : 0)
@@ -192,8 +204,15 @@ export default function EditJournalbyReferent() {
                 let sumcredit = [...data?.data?.ledger]?.reduce(function (previousValue, currentValue) {
                     return parseFloat(previousValue) + (currentValue['credit'] != undefined && currentValue['credit'] != '' ? parseFloat(currentValue['credit'].replaceAll(',', '')) : 0)
                 }, initialValue)
-                setCurrency_id([...data?.data?.transactions][0].currency_status)
+                if ([...data?.data?.transactions][0].currency_status == 'LAK') {
+                    setCurrency_id('LAK')
+                    setCheckCurrency(null)
+                } else {
+                    setCheckCurrency('')
+                }
+
                 setUid([...data?.data?.transactions][0].currency_uid)
+                setGetcheckcurrency([...data?.data?.transactions][0].currency_uid)
                 let money_rate = [...data?.data?.transactions][0].rate
                 let format_number = new Intl.NumberFormat("en-US", { style: 'currency', currency: 'USD' }).format(money_rate)
                 let rate = format_number.replaceAll('$', '')
@@ -204,9 +223,25 @@ export default function EditJournalbyReferent() {
                 setNetTotalCrebit(Intl.NumberFormat("en-US", { style: 'currency', currency: 'USD' }).format(TotalCredit))
                 setUsd(rate)
                 setThb(rate)
-                setCurrency([...data?.data?.transactions][0].currency_status)
+                setEditcurrency([...data?.data?.transactions][0].currency_status)
                 setTr_id([...data?.data?.transactions][0].tr_id)
-
+                let keys = ['currency_code'];
+                let values = ['USD', 'THB'];
+                let filtered_data = inforData.filter(d => {
+                    for (let key of keys) {
+                        for (let value of values) {
+                            if (d[key] == value) {
+                                return true;
+                            }
+                        }
+                    }
+                    return false;
+                });
+                if (filtered_data[0].currency_code == "USD" || filtered_data[0].currency_code == "THB") {
+                    setCurrency_id(filtered_data[0].currency_code)
+                } else {
+                    setCurrency_id('LAK')
+                }
             }
         }).catch((err) => {
             console.log(err)
@@ -226,6 +261,11 @@ export default function EditJournalbyReferent() {
         })
     }
     const OnloadSelectCurrencies = (e) => {
+        setHiddenNetTotall(!hiddenNetTotall)
+        if (uid == e) {
+        } else {
+            setGetcheckcurrency(e)
+        }
         setCurrency(e)
         axios.get(`/accounting/api/chartofaccounts/currency/${e}`).then((data) => {
             setCurrencystatus([...data?.data?.result][0].cy_code)
@@ -320,9 +360,9 @@ export default function EditJournalbyReferent() {
     const onChangeTextCurrency = (value, key) => {
         setErrExchange('')
         if (key == "USD" || key == "THB") {
-          const ratenumber = value.toString().replaceAll(',', '').replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1,");
-          setUsd(ratenumber)
-          setThb(ratenumber)
+            const ratenumber = value.toString().replaceAll(',', '').replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1,");
+            setUsd(ratenumber)
+            setThb(ratenumber)
         } else {
         }
     }
@@ -371,12 +411,15 @@ export default function EditJournalbyReferent() {
         }
         if (currency_id == "USD" || currency_id == "THB") {
             if (!usd || !thb) {
-              setErrExchange(true)
-              return;
+                setErrExchange(true)
+                return;
             }
-          }
-   
+        }
+        if (!referentNo) {
 
+            setErrReferentNo(true)
+            return;
+        }
         if (!file) {
             images = 0
         } else {
@@ -392,7 +435,7 @@ export default function EditJournalbyReferent() {
         journaldata = {
             journal_no: journalNo,
             tr_date: defaultValue,
-            currency_code: uid,
+            currency_code: getcheckcurrency,
             money_rate: maincurrency,
             informdata: data,
             reference_id: tr_id,
@@ -404,14 +447,15 @@ export default function EditJournalbyReferent() {
             setSomething(true)
         } else {
             axios.post("/accounting/api/journal-entries/updateReference", journaldata).then((data) => {
-                countnumber();
                 setThb('')
                 setUsd('')
-                setDefaultValue('')
                 setShowToast(true);
+                setErragain('')
+
             }).catch((err) => {
                 console.log(err)
                 let statusCode = err.response?.data?.statusCode
+                console.log("statusCode=", statusCode)
                 if (statusCode == '405') {
                     setErrInforCurrency('405')
                     return;
@@ -433,7 +477,7 @@ export default function EditJournalbyReferent() {
                 } else {
                     setErragain('500')
                     return;
-                  }
+                }
             }).finally(() => {
                 setIsLoading(false);
             })
@@ -455,10 +499,10 @@ export default function EditJournalbyReferent() {
         }
         if (currency_id == "USD" || currency_id == "THB") {
             if (!usd || !thb) {
-              setErrExchange(true)
-              return;
+                setErrExchange(true)
+                return;
             }
-          }
+        }
         if (!file) {
             images = 0
         } else {
@@ -481,6 +525,7 @@ export default function EditJournalbyReferent() {
             reference_no: referentNo,
             file_attachment: images,
         }
+
         if (debit != credit) {
             setIsLoadingnew(false);
             setSomething(true)
@@ -514,7 +559,7 @@ export default function EditJournalbyReferent() {
                     setErrjournal('409')
                     setIsLoadingnew(false);
                     return;
-                    
+
                 }
             }).finally(() => {
                 setIsLoadingnew(false);
@@ -557,7 +602,6 @@ export default function EditJournalbyReferent() {
                 }}>
                     <ToastShow1 show={showToast} setShow={setShowToast} iconNmame={<CheckCircle size={24} style={{ marginTop: 20, color: "#EC7380" }} />} />
                 </div>
-
                 <div className={classes.root}>
                     {
                         errInforCurrency == '405' || errInforCurrency == '401' || errInforCurrency == '402' || errInforCurrency == '403' ?
@@ -581,12 +625,29 @@ export default function EditJournalbyReferent() {
                             </>
                         ) : null
                     }
-
                     {
                         errjournal == '409' ? (
                             <>
                                 <Alert variant="outlined" severity="error">
                                     Please check journal no!
+                                </Alert>
+                            </>) : null
+                    }
+                    {
+                        errReferentNo == true ?
+                            (
+                                <>
+                                    <Alert variant="outlined" severity="error">
+                                        Please check Referent no!
+                                    </Alert>
+                                </>
+                            ) : null
+                    }
+                    {
+                        erragain == '500' ? (
+                            <>
+                                <Alert variant="outlined" severity="error">
+                                    Please check your information and try again
                                 </Alert>
                             </>) : (
                             <>
@@ -602,7 +663,7 @@ export default function EditJournalbyReferent() {
                     width: "100%",
                     justifyContent: "space-between"
                 }}>
-                    <div style={{display:"flex",flexDirection:"row"}}>
+                    <div style={{ display: "flex", flexDirection: "row" }}>
                         <div>
                             <span>Currency</span><br />
                             <select
@@ -619,7 +680,7 @@ export default function EditJournalbyReferent() {
                                 }}
                                 value={currency}
                             >
-                                <option value="">{currency}</option>
+                                <option value="">{editcurrency}</option>
                                 {listcurrency &&
                                     listcurrency.map((data, index) => {
                                         return (
@@ -664,10 +725,7 @@ export default function EditJournalbyReferent() {
                                             <div style={{ marginTop: 5, paddingLeft: 10 }}>LAK</div>
                                         </div>
                                     </>
-                                ) : (
-                                    <>
-                                    </>
-                                )
+                                ) : null
                             }
                             {currency_id == "THB" ?
                                 (
@@ -702,11 +760,28 @@ export default function EditJournalbyReferent() {
                                             <div style={{ marginTop: 5, paddingLeft: 10 }}>LAK</div>
                                         </div>
                                     </>
+                                ) : null
+                            }
+                            {currency_id == "LAK" ?
+                                (
+                                    <>
+
+                                    </>
+                                ) : null
+                            }
+                        </div>
+                        <div className={classes.root}>
+                            {
+                                errExchange == true ? (
+                                    <>
+                                        <Alert severity="error" style={{ position: "absolute", marginLeft: 50, fontSize: 12 }}>Please enter a valid exchange rate!</Alert>
+                                    </>
                                 ) : (
                                     <>
                                     </>
                                 )
                             }
+
                         </div>
                     </div>
                     <div>
@@ -885,45 +960,78 @@ export default function EditJournalbyReferent() {
                         );
                     })}
                     <tr style={{ border: '1px solid #ccc', backgroundColor: '#f2f3f5', height: 50 }}>
-                        <td colSpan={2} align="right" style={{ paddingRight: 25 }}>Total</td>
+                        <td colSpan={3} align="right" style={{ paddingRight: 25 }}>Total</td>
                         <td align="right" style={{ paddingRight: 25 }}>{debit.replaceAll('$', '')}</td>
                         <td align="right" style={{ paddingRight: 25 }}>{credit.replaceAll('$', '')}</td>
                         <td></td>
                         <td></td>
                         <td></td>
                     </tr>
-                    {currency_id == "THB" ? (
-                        <>
-                            <tr style={{ border: '1px solid #ccc', backgroundColor: '#f2f3f5', height: 50 }}>
-                                <td colSpan={2} align="right" style={{ paddingRight: 25 }}>TotalLAK</td>
-                                <td align="right" style={{ paddingRight: 25 }}>{netTotalDebit.replaceAll('$', '')}</td>
-                                <td align="right" style={{ paddingRight: 25 }}>{netTotalCrebit.replaceAll('$', '')}</td>
-                                <td></td>
-                                <td></td>
-                                <td></td>
-                            </tr>
-                        </>
-                    ) : (
-                        <>
-                        </>
-                    )
+                    {
+                        checkCurrency != null ? (
+                            <>
+                                {currency_id == "THB" ? (
+                                    <>
+                                        <tr style={{ border: '1px solid #ccc', backgroundColor: '#f2f3f5', height: 50 }}>
+                                            <td colSpan={3} align="right" style={{ paddingRight: 25 }}>TotalLAK</td>
+                                            <td align="right" style={{ paddingRight: 25 }}>{netTotalDebit.replaceAll('$', '')}</td>
+                                            <td align="right" style={{ paddingRight: 25 }}>{netTotalCrebit.replaceAll('$', '')}</td>
+                                            <td></td>
+                                            <td></td>
+                                            <td></td>
+                                        </tr>
+                                    </>
+                                ) : null
+                                }
+                                {
+                                    currency_id == "USD" ? (
+                                        <>
+                                            <tr style={{ border: '1px solid #ccc', backgroundColor: '#f2f3f5', height: 50 }}>
+                                                <td colSpan={3} align="right" style={{ paddingRight: 25 }}>TotalLAK</td>
+                                                <td align="right" style={{ paddingRight: 25 }}>{netTotalDebit.replaceAll('$', '')}</td>
+                                                <td align="right" style={{ paddingRight: 25 }}>{netTotalCrebit.replaceAll('$', '')}</td>
+                                                <td></td>
+                                                <td></td>
+                                                <td></td>
+                                            </tr>
+                                        </>
+                                    ) : null
+                                }
+                            </>) : null
                     }
                     {
-                        currency_id == "USD" ? (
+                        hiddenNetTotall == true ? (
                             <>
-                                <tr style={{ border: '1px solid #ccc', backgroundColor: '#f2f3f5', height: 50 }}>
-                                    <td colSpan={2} align="right" style={{ paddingRight: 25 }}>TotalLAK</td>
-                                    <td align="right" style={{ paddingRight: 25 }}>{netTotalDebit.replaceAll('$', '')}</td>
-                                    <td align="right" style={{ paddingRight: 25 }}>{netTotalCrebit.replaceAll('$', '')}</td>
-                                    <td></td>
-                                    <td></td>
-                                    <td></td>
-                                </tr>
+                                {currency_id == "THB" ? (
+                                    <>
+                                        <tr style={{ border: '1px solid #ccc', backgroundColor: '#f2f3f5', height: 50 }}>
+                                            <td colSpan={3} align="right" style={{ paddingRight: 25 }}>TotalLAK</td>
+                                            <td align="right" style={{ paddingRight: 25 }}>{netTotalDebit.replaceAll('$', '')}</td>
+                                            <td align="right" style={{ paddingRight: 25 }}>{netTotalCrebit.replaceAll('$', '')}</td>
+                                            <td></td>
+                                            <td></td>
+                                            <td></td>
+                                        </tr>
+                                    </>
+                                ) : null
+                                }
+                                {
+                                    currency_id == "USD" ? (
+                                        <>
+                                            <tr style={{ border: '1px solid #ccc', backgroundColor: '#f2f3f5', height: 50 }}>
+                                                <td colSpan={3} align="right" style={{ paddingRight: 25 }}>TotalLAK</td>
+                                                <td align="right" style={{ paddingRight: 25 }}>{netTotalDebit.replaceAll('$', '')}</td>
+                                                <td align="right" style={{ paddingRight: 25 }}>{netTotalCrebit.replaceAll('$', '')}</td>
+                                                <td></td>
+                                                <td></td>
+                                                <td></td>
+                                            </tr>
+                                        </>
+                                    ) : null
+                                }
+
                             </>
-                        ) : (
-                            <>
-                            </>
-                        )
+                        ) : null
                     }
                 </table>
                 <button style={{
@@ -1163,6 +1271,7 @@ function RowComponentEdit({ changeText, deletechange, item, index, data, blurHan
                         setNetTotalDebit(convertdebit)
                     }
                 }
+                data[index]['lg_id']=''
                 data[index]['c_id'] = respone?.data?.message[0].c_id
                 data[index]['c_uid'] = respone?.data?.message[0].c_uid
                 data[index]['account_id'] = respone?.data.message[0].account_id

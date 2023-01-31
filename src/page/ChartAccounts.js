@@ -1,4 +1,4 @@
-import React, { useState, useContext, useEffect } from "react";
+import React, { useState, useContext, useEffect, useRef } from "react";
 import { makeStyles, useTheme } from '@material-ui/core/styles';
 import Breadcrumbs from "@material-ui/core/Breadcrumbs";
 import ArrowBackIcon from "@material-ui/icons/ArrowBack";
@@ -25,7 +25,6 @@ import CardContent from '@mui/material/CardContent';
 import Typography from '@mui/material/Typography';
 import { CardActionArea } from '@mui/material';
 import ErrorIcon from "@material-ui/icons/Error";
-import TablePagination from '@material-ui/core/TablePagination';
 import moment from 'moment';
 import IconButton from '@material-ui/core/IconButton';
 import LastPageIcon from '@material-ui/icons/LastPage';
@@ -33,6 +32,9 @@ import FirstPageIcon from '@material-ui/icons/FirstPage';
 import KeyboardArrowLeft from '@material-ui/icons/KeyboardArrowLeft';
 import KeyboardArrowRight from '@material-ui/icons/KeyboardArrowRight';
 import ReactPaginate from "react-paginate";
+import PrintIcon from '@material-ui/icons/Print';
+import ReactToPrint from "react-to-print";
+// import PrintChartAccounts from "../components/PrintChartAccounts";
 const useStyles = makeStyles((theme) => ({
   table: {
     minWidth: 650,
@@ -47,6 +49,7 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 export default function ChartAccounts() {
+  let componentRef = useRef(null)
   const navigate = useNavigate();
   const Gotodetailaccount = (id) => {
     navigate(`/ReportGL/${id}`);
@@ -88,6 +91,7 @@ export default function ChartAccounts() {
   const [ac_type, setAc_type] = useState("");
   const [errac_type, setErrac_type] = useState(false);
   const [errname, setErrname] = useState(false);
+  const [errbank,setErrbank]=useState(false)
   const [errselectcurrency, setErrselectcurrency] = useState(false)
   const [typedetail, setTypedetail] = useState("");
   const [name, setName] = useState("");
@@ -142,7 +146,7 @@ export default function ChartAccounts() {
   const [secondSearch, setSecondSearch] = useState([]);
   const [errexchangeRate, setErrexchangeRate] = useState(false);
   const [checkdebitcredit, setCheckdebitcredit] = useState(false);
-  const [errcheckdebitcredit,seterrcheckdebitcredit]=useState(false)
+  const [errcheckdebitcredit, seterrcheckdebitcredit] = useState(false)
   const [errchildren, setErrchildren] = useState("")
   const [errvalidate, setErrvalidate] = useState("")
   const [errbalance, setErrbalance] = useState(false)
@@ -151,13 +155,14 @@ export default function ChartAccounts() {
   const [checkDisabled, setCheckDisabled] = useState(false)
   const [searchTerm, setSearchTerm] = useState("");
   const [pageNumber, setPageNumber] = useState(0);
+  const [bank,setBank]=useState([]);
+  const [listbank,setListbank]=useState("");
   const {
-    onloadallaccount, listallaccount, setListallaccount, listallaccountchildren, setListallaccountchildren
+    onloadallaccount, listallaccount, setListallaccount, listallaccountchildren, onloadreportGl
   } = useContext(LoginContext);
 
   const bulletinsPerPage = 25;
   const pagesVisited = pageNumber * bulletinsPerPage;
-
   const pageCount = Math.ceil(
     listallaccount.filter((listallaccount) => {
       if (searchTerm === "") {
@@ -183,15 +188,15 @@ export default function ChartAccounts() {
     setPage(newPage);
   };
   const handleChangeRowsPerPage = (event) => {
-
     setRowsPerPage(+event.target.value);
     setPage(0);
   };
-  const functionCheckDebit =(e)=>{
+  const functionCheckDebit = (e) => {
     setDebit(e)
     setCheckdebitcredit(true)
-    seterrcheckdebitcredit(false)  }
-  const functionCheckCredit =(e)=>{
+    seterrcheckdebitcredit(false)
+  }
+  const functionCheckCredit = (e) => {
     setCredit(e)
     setCheckdebitcredit(true)
     seterrcheckdebitcredit(false)
@@ -215,8 +220,13 @@ export default function ChartAccounts() {
     }
     setIsSubscribed(current => !current);
   };
-
-
+  const Onloadbank=()=>{
+    axios.get('/accounting/api/bank/all').then((data)=>{
+      setBank([...data?.data?.result])
+    }).catch((err)=>{
+      console.log(err)
+    })
+  }
 
   const {
     listaccountType,
@@ -231,6 +241,7 @@ export default function ChartAccounts() {
     }
     currencies();
     onloadallaccount();
+    Onloadbank();
   }, [ac_type]);
 
   const _ongetCurrencyvalues = (e) => {
@@ -295,7 +306,7 @@ export default function ChartAccounts() {
   }
   const changeTextbalance = (e) => {
     setErrbalance('')
-  
+
     // const value = e.target.value.replace(/\D/g, '');
     const value = e.toString().replaceAll(',', '').replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1,");
     setBalance(value)
@@ -398,7 +409,9 @@ export default function ChartAccounts() {
   const editbeginningbalancefirst = (e) => {
     setGetid(e)
     axios.get(`/accounting/api/chartofaccounts/openingData/${e}`).then((data) => {
+     
       functionCheck([...data?.data?.editCondition][0])
+
       let daIn = [...data?.data?.result][0].createdate
       setDefaultValue(moment(daIn).format("DD-MM-YYYY"))
       setLedgerid([...data?.data?.result][0].lg_id)
@@ -414,8 +427,7 @@ export default function ChartAccounts() {
         setBalance(getFormatNumber([...data?.data?.result][0].balancescurrency.replaceAll("-", '')))
         setBalancelak(getFormatNumber(parseFloat([...data?.data?.result][0].ExchangeRate) * parseFloat([...data?.data?.result][0].balancescurrency)))
       } else {
-
-        setBalance(getFormatNumber([...data?.data?.result][0].balances.replaceAll("-", '')))
+      setBalance(getFormatNumber([...data?.data?.result][0].balances.replaceAll("-", '')))
       }
       if ([...data?.data?.result][0].debit_and_credit == "1") {
         setRadiodebit(true)
@@ -427,7 +439,6 @@ export default function ChartAccounts() {
       console.log(err)
     })
   }
-
   const TextonChange = (e) => {
     setAlready("")
     setErrname(false)
@@ -435,6 +446,7 @@ export default function ChartAccounts() {
   }
   // function CreateChartAccount
   const CreateChartAccount = () => {
+
     if (!ac_type) {
       setErrac_type(true)
       return;
@@ -443,6 +455,7 @@ export default function ChartAccounts() {
       setErrname(true)
       return;
     }
+
     let data;
     let stutas;
 
@@ -474,7 +487,7 @@ export default function ChartAccounts() {
           setErrexchangeRate(true)
           return;
         }
-        if (checkdebitcredit == false || checkdebitcredit == false ) {
+        if (checkdebitcredit == false || checkdebitcredit == false) {
           seterrcheckdebitcredit(true)
           return;
         }
@@ -482,12 +495,16 @@ export default function ChartAccounts() {
           setErrbalance(true)
           return;
         }
+        if(!listbank){
+          setErrbank(true)
+          return;
+        }
       } else {
         if (balance == '0.00') {
           setErrbalance(true)
           return;
         }
-        if (checkdebitcredit == false || checkdebitcredit == false ) {
+        if (checkdebitcredit == false || checkdebitcredit == false) {
           seterrcheckdebitcredit(true)
           return;
         }
@@ -507,11 +524,13 @@ export default function ChartAccounts() {
       accountid: uid,
       currency_uid: currency,
       c_rate: exchangeRate,
+      bank_id:listbank
     }
     axios
       .post("/accounting/api/chartofaccounts/create", data)
       .then((data) => {
         onloadallaccount();
+        onloadreportGl();
         setAc_type('');
         setShowUpdate(false);
         setName('');
@@ -540,7 +559,6 @@ export default function ChartAccounts() {
       ).catch((err) => {
         console.log(err)
         const statusCode = err.response.data.statusCode
-
         if (statusCode == '400') {
           setAlready("")
           setErrorcurrency(statusCode)
@@ -558,9 +576,7 @@ export default function ChartAccounts() {
           return;
         }
       }).finally(() => {
-
         setIsLoading(false);
-
       })
   };
   const CreateAddnewChartAccount = () => {
@@ -574,6 +590,7 @@ export default function ChartAccounts() {
     }
     let data;
     let stutas;
+
     if (radiodebit == true) {
       stutas = '1'
     } else if (radiocredit == true) {
@@ -602,8 +619,8 @@ export default function ChartAccounts() {
           setErrexchangeRate(true)
           return;
         }
-        if (radiodebit == false || radiocredit == false ) {
-          setCheckdebitcredit(true)
+        if (checkdebitcredit == false || checkdebitcredit == false) {
+          seterrcheckdebitcredit(true)
           return;
         }
         if (balance == '0.00') {
@@ -615,17 +632,15 @@ export default function ChartAccounts() {
           setErrbalance(true)
           return;
         }
-        if (radiodebit == false || radiocredit == false ) {
-          setCheckdebitcredit(true)
+        if (checkdebitcredit == false || checkdebitcredit == false) {
+          seterrcheckdebitcredit(true)
           return;
         }
       }
     }
-
-    setIsLoadingnew(true)
+    setIsLoadingnew(false)
     data = {
       ac_type: ac_type,
-      detail_type: typedetail,
       name_eng: name,
       company: "",
       c_desc: description,
@@ -637,12 +652,13 @@ export default function ChartAccounts() {
       accountid: uid,
       currency_uid: currency,
       c_rate: exchangeRate,
+      bank_id:listbank
     }
     axios
       .post("/accounting/api/chartofaccounts/create", data)
       .then((data) => {
-        handleClose(false);
         onloadallaccount();
+        onloadreportGl();
         setAc_type('');
         setShowUpdate(false);
         setName('');
@@ -661,8 +677,10 @@ export default function ChartAccounts() {
         setCurrencystatus('');
         setBalance('');
         setBalancelak('');
-        setShowToast(true);
+        setErrexchangeRate('')
+        setCheckdebitcredit('')
         setExchangeRate('')
+        setShowToast(true);
         setDebit('')
         credit('')
       }
@@ -672,17 +690,21 @@ export default function ChartAccounts() {
         if (statusCode == '400') {
           setAlready("")
           setErrorcurrency(statusCode)
-          return;
         } else if (statusCode == '409') {
           setAlready(statusCode)
           setCurrency("")
-          return;
         } else if (statusCode == '402') {
           setErrorparrens(statusCode)
         } else if (statusCode == '102') {
+
+        } else if (statusCode == '407') {
+
+        } else if (statusCode == '410') {
+          setErrvalidate('410')
+          return;
         }
       }).finally(() => {
-        setIsLoadingnew(false);
+        setIsLoadingnew(false)
       })
   };
   const Updatechartofaccount = () => {
@@ -782,6 +804,10 @@ export default function ChartAccounts() {
     let id = listaccountid.filter((el) => el.uid.includes(ac_type));
     setUid([...id][0].main_type)
   }
+  const _onBank=(e)=>{
+    setListbank(e)
+    setErrbank(false)    
+  }
   const _onSearchList = (e) => {
     setNameShow(e);
     let searchName = listaccountname.filter((el) => el.name_eng.includes(e));
@@ -791,11 +817,6 @@ export default function ChartAccounts() {
       setSearchResult([...searchName]);
     }
   };
-
-  
-
-
-
 
   const OnblurCloseList = () => {
     setShowBox(false)
@@ -928,7 +949,7 @@ export default function ChartAccounts() {
                       {listaccountType &&
                         listaccountType.map((data, index) => {
                           return (
-                            <option key={index} value={data?.type_uid}>
+                            <option key={index} value={data?.type_uid}   disabled={true}>
                               {data?.type_name_eng}
                             </option>
                           );
@@ -953,13 +974,43 @@ export default function ChartAccounts() {
                     <>
                       < small style={{ position: "absolute", fontSize: 14, color: "red" }}>Please select Account Type</small>
                     </>
-                  ) : (
-                    <>
-                    </>
-                  )
+                  ) :null
                 }
-
               </Form.Group>
+              {
+                currencystatus === "USD" || currencystatus === "THB" ? (<>
+                  <Form.Group
+                    className="mb-3"
+                    controlId="exampleForm.ControlInput1"
+                  >
+                    <Form.Label style={{ fontSize: 20 }}>Type</Form.Label>
+                    <Form.Select
+                      aria-label="Default select example"
+                      onChange={(e) => _onBank(e.target.value)}
+                      value={listbank}
+                    >
+                      <option>SELECT BANK</option>
+                      {bank &&
+                        bank.map((data, index) => {
+                          return (
+                            <option key={index} value={data?.bank_id}>
+                              {data?.bank_name}
+                            </option>
+                          );
+                        })}
+                    </Form.Select>
+                    {
+                  errbank == true ? (
+                    <>
+                      < small style={{ position: "absolute", fontSize: 14, color: "red" }}>Please select bank</small>
+                    </>
+                  ) :null
+                }
+                  </Form.Group>
+
+                </>) : null
+              }
+
               <Form.Group
                 className="mb-3"
                 controlId="exampleForm.ControlInput1"
@@ -1190,7 +1241,7 @@ export default function ChartAccounts() {
                       paddingLeft: 10,
                     }}
                     onClick={() => setShowBox(!showBox)}
-                    
+
                   />
                   <div
                     style={{
@@ -1221,10 +1272,10 @@ export default function ChartAccounts() {
                           <>
                             {searchResult.map((data, index) => {
                               return (
-                                <>
+                                <div key={index} style={{width:'100%'}}>
                                   <Typography
                                     variant="body2"
-                                    key={index}
+                                 
                                     style={{
                                       cursor: "pointer",
                                       fontWeight:
@@ -1237,7 +1288,7 @@ export default function ChartAccounts() {
                                     {data?.name_eng}- {data?.currencies_name}
                                   </Typography>
                                   <br />
-                                </>
+                                </div>
                               );
                             })}
                           </>
@@ -1245,9 +1296,9 @@ export default function ChartAccounts() {
                           <>
                             {listaccountname && listaccountname.map((data, index) => {
                               return (
-                                <>
+                                <div style={{width:'100%'}} key={index} >
                                   <Typography
-                                    key={index}
+                             
                                     variant="body2"
                                     style={{
                                       cursor: "pointer",
@@ -1261,7 +1312,7 @@ export default function ChartAccounts() {
                                     {data?.name_eng} - {data?.currencies_name}
                                   </Typography>
                                   <br />
-                                </>
+                                </div>
                               );
                             })}
                           </>
@@ -1376,7 +1427,6 @@ export default function ChartAccounts() {
                                         onChange={(e) => changeTextbalance(e.target.value)}
                                         onBlur={(e) => OnblurTextbalance(e.target.value)}
                                         value={balance}
-
                                         style={{ width: 150, textAlign: "right" }}
                                       />
                                     </Form.Group>
@@ -1478,7 +1528,7 @@ export default function ChartAccounts() {
                             setRadiodebit(!radiodebit);
                             setRadiocredit(false);
                             setCheckdebitcredit(false);
-                      
+
                           }}
                         />
                         <Form.Check
@@ -1494,7 +1544,7 @@ export default function ChartAccounts() {
                             setRadiocredit(!radiocredit);
                             setRadiodebit(false);
                             setCheckdebitcredit(false);
-                                         
+
                           }}
                         />
                       </div>
@@ -1721,42 +1771,159 @@ export default function ChartAccounts() {
           flexDirection: "row",
           alignItems: "center",
           borderRadius: 5,
+          width: '100%',
+          justifyContent: 'space-between'
         }}
       >
-        <input
-          type={"text"}
-          onChange={(e) => {
-            _Onsearch(e.target.value);
-            handlePageChange({ selected: 0 });
-          }}
-          value={search}
-          style={{
-            width: 200,
-            outline: "none",
-            border: "1px solid #DBDBDB",
-            height: 35,
-            marginLeft: 20,
-            paddingLeft: 20,
-            display: "flex",
-            justifyContent: "center",
-          }}
-          placeholder="Search.."
-        />
-        <button
-          style={{
-            backgroundColor: "#3f51b5",
-            border: "none",
-            height: 35,
-            borderRadius: 2,
-            paddingLeft: 10,
-            paddingRight: 10,
-            color: "white",
-            alignItems: "center",
-          }}
-        >
-          <SearchIcon />
-        </button>
+        <div style={{ width: '100%', display: 'flex', flexDirection: 'row' }}>
+          <input
+            type={"text"}
+            onChange={(e) => {
+              _Onsearch(e.target.value);
+              handlePageChange({ selected: 0 });
+            }}
+            value={search}
+            style={{
+              width: 200,
+              outline: "none",
+              border: "1px solid #DBDBDB",
+              height: 35,
+              marginLeft: 20,
+              paddingLeft: 20,
+              display: "flex",
+              justifyContent: "center",
+            }}
+            placeholder="Search.."
+          />
+          <button
+            style={{
+              backgroundColor: "#3f51b5",
+              border: "none",
+              height: 35,
+              borderRadius: 2,
+              paddingLeft: 10,
+              paddingRight: 10,
+              color: "white",
+              alignItems: "center",
+            }}
+          >
+            <SearchIcon />
+          </button>
+          <ReactToPrint
+            trigger={() => <button
+              style={{
+                backgroundColor: "#3f51b5",
+                border: "none",
+                height: 35,
+                borderRadius: 2,
+                paddingLeft: 10,
+                paddingRight: 10,
+                color: "white",
+                alignItems: "center",
+                marginLeft: 10,
+              }}
+            >
+              <PrintIcon />
+            </button>
+            }
+            content={() => componentRef}
+            style={{ marginLeft: 10 }}
+          />
+
+        </div>
+        <div style={{ display: 'flex', cursor: 'pointer' }}>
+          {/* <ReactToPrint
+            trigger={() => <PrintIcon />}
+            content={() => componentRef}
+            style={{ marginRight: 10 }}
+          />
+          <ImportExportIcon style={{ marginRight: 10 }} />
+          <SettingsIcon style={{ marginRight: 10 }} /> */}
+        </div>
       </div>
+
+      {/* ==============================================TableListPrint====================================*/}
+      <div style={{ display: 'none' }}>
+        <TableContainer component={Paper} ref={(el) => (componentRef = el)}>
+          <Table className={classes.table} size="small" aria-label="a dense table">
+            <TableHead>
+              <TableRow>
+                <TableCell>NAME</TableCell>
+                <TableCell align="left">TYPE</TableCell>
+                <TableCell align="left">CURRENCY</TableCell>
+                <TableCell align="left">DESCRIPTION</TableCell>
+                <TableCell align="right">BANLANCE</TableCell>
+
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {
+                listallaccount && listallaccount == 0 ? (
+                  <>
+                    {secondSearch &&
+                      secondSearch.map((item, index) => {
+                        return (
+                          
+                            <TableRow key={index}>
+                              <TableCell>{item.account_name}</TableCell>
+                              <TableCell align="left">{item.accounttype_name}</TableCell>
+                              <TableCell align="left">{item.currencesname}</TableCell>
+                              <TableCell align="left">{item.c_desc}</TableCell>
+                              <TableCell align="right">{item.c_balance}</TableCell>
+                            </TableRow>
+                          
+                        )
+                      })}
+                  </>
+                ) : (
+                  <>
+                    {listallaccount.map((item, index) => {
+                      return (
+                        <>
+                          <TableRow key={index}>
+                            <TableCell>{item.account_name}</TableCell>
+                            <TableCell align="left">{item.accounttype_name}</TableCell>
+
+                            <TableCell align="left">{item.currencesname}</TableCell>
+                            <TableCell align="left">{item.c_desc}</TableCell>
+                            <TableCell align="right">{getFormatNumber(item.c_balance)}</TableCell>
+                          </TableRow>
+                          {/* level 1 */}
+                          < RowComponentPrint
+                            children={listallaccountchildren}
+                            id={item.c_id}
+                            level={20}
+                            Gotodetailaccount={Gotodetailaccount}
+                            Gotohistory={Gotohistory}
+                            handleShow={handleShow}
+                            setShowUpdate={setShowUpdate}
+                            setName={setName}
+                            editaccountype={editaccountype}
+                            _onshowcreatestatus={_onshowcreatestatus}
+                            _oneditshowcurrency={_oneditshowcurrency}
+                            currencies_id={item.currency_uid}
+                            setDescription={setDescription}
+                            getNameList={getNameList}
+                            checkedtrue={checkedtrue}
+                            listsubaccountname={listsubaccountname}
+                            editbeginningbalanceSecond={editbeginningbalanceSecond}
+                            _ongetCurrencyvalues={_ongetCurrencyvalues}
+                            getstutas={getstutas}
+                            _onsearchaccountid={_onsearchaccountid}
+                          />
+                        </>
+                      )
+                    })}
+                  </>
+                )
+              }
+            </TableBody>
+          </Table>
+        </TableContainer>
+
+      </div>
+      {/* ==============================================TableListShow====================================*/}
+
       <div style={{ paddingTop: 20, paddingBottom: 50 }}>
         <TableContainer component={Paper}>
           <Table className={classes.table} size="small" aria-label="a dense table">
@@ -2079,6 +2246,60 @@ function RowComponent({ children, id, level, Gotodetailaccount, Gotohistory, han
     </>
   );
 }
+//ComponentPrint
+function RowComponentPrint({ children, id, level, Gotodetailaccount, Gotohistory, handleShow, setShowUpdate, getstutas, _onsearchaccountid, setName, editaccountype, _onshowcreatestatus, _oneditshowcurrency, currencies_id, setDescription, getNameList, checkedtrue, listsubaccountname, editbeginningbalanceSecond, _ongetCurrencyvalues }) {
+  const filter = children.filter((el) => el.parents == id);
+  if (filter.length === 0) return <></>;
+  return (
+    <>
+      {filter.map((data, index) => {
+        return (
+          <>
+            <TableRow key={index}>
+              <TableCell style={{
+                paddingLeft: level,
+              }}>
+                {data?.account_name}
+              </TableCell>
+              <TableCell align="left">{data?.accounttype_name}</TableCell>
+              <TableCell align="left">{data?.currencesname}</TableCell>
+              <TableCell align="left">{data?.c_desc}</TableCell>
+              <TableCell align="right">{getFormatNumber(data.c_balance)}</TableCell>
+            </TableRow>
+            <RowComponentPrint
+              children={children}
+              id={data?.c_id}
+              c_id={data?.c_id}
+              level={level * 2}
+              Gotodetailaccount={Gotodetailaccount}
+              Gotohistory={Gotohistory}
+              handleShow={handleShow}
+              setShowUpdate={setShowUpdate}
+              setName={setName}
+              account_name={data?.account_name}
+              editaccountype={editaccountype}
+              ac_ty_id={data?.ac_ty_id}
+              detail_type_id={data?.detail_type_id}
+              _onshowcreatestatus={_onshowcreatestatus}
+              _oneditshowcurrency={_oneditshowcurrency}
+              currencies_id={data?.currency_uid}
+              setDescription={setDescription}
+              type_id={data?.type_id}
+              checkedtrue={checkedtrue}
+              getNameList={getNameList}
+              listsubaccountname={listsubaccountname}
+              desc={data?.c_desc}
+              editbeginningbalanceSecond={editbeginningbalanceSecond}
+              _ongetCurrencyvalues={_ongetCurrencyvalues}
+              getstutas={getstutas}
+              _onsearchaccountid={_onsearchaccountid}
+            />
+          </>
+        );
+      })}
+    </>
+  );
+}
 function RowEditComponentSecond({ Gotodetailaccount, c_uid, handleShow, setShowUpdate, c_id, _ongetCurrencyvalues, getstutas, _onsearchaccountid, account_name, type_id, currencies_id, detail_type_id, desc, setName, editaccountype, ac_ty_id, _onshowcreatestatus, _oneditshowcurrency, setDescription, getNameList, id, checkedtrue, listsubaccountname, editbeginningbalanceSecond, editbeginningbalancefirst }) {
   const [open, setOpen] = useState(true);
   const [active, setActive] = useState("");
@@ -2283,6 +2504,28 @@ function TablePaginationActions(props) {
     </div>
   );
 }
+
+
+function PrintChartAccount({ ref }) {
+  const componentRef = useRef(); // 2.
+  return (
+    <>
+
+      <div style={{ display: 'none' }}>
+        <table ref={(el) => (componentRef = el)}>
+          <th>dssdfsafsa</th>
+
+
+        </table>
+
+      </div>
+    </>
+  )
+
+
+}
+
+
 
 
 
