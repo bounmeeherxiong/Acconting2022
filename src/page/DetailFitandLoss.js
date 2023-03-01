@@ -27,6 +27,7 @@ export default function DetailFitandLoss() {
   const goback = () => {
     navigate("/Profitandloss");
   }
+
   const classes = useStyles();
   const [open, setOpen] = useState(true);
   const { id } = useParams();
@@ -132,6 +133,7 @@ export default function DetailFitandLoss() {
     _onShow();
     _searchstartdate();
     _searchbydate();
+
   }, [])
   return (
     <>

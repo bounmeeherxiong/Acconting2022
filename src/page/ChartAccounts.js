@@ -409,9 +409,7 @@ export default function ChartAccounts() {
   const editbeginningbalancefirst = (e) => {
     setGetid(e)
     axios.get(`/accounting/api/chartofaccounts/openingData/${e}`).then((data) => {
-     
       functionCheck([...data?.data?.editCondition][0])
-
       let daIn = [...data?.data?.result][0].createdate
       setDefaultValue(moment(daIn).format("DD-MM-YYYY"))
       setLedgerid([...data?.data?.result][0].lg_id)
@@ -555,6 +553,7 @@ export default function ChartAccounts() {
         setShowToast(true);
         setDebit('')
         credit('')
+        setListbank('')
       }
       ).catch((err) => {
         console.log(err)
@@ -683,6 +682,7 @@ export default function ChartAccounts() {
         setShowToast(true);
         setDebit('')
         credit('')
+        setListbank('')
       }
       ).catch((err) => {
         console.log(err)

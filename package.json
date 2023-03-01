@@ -30,6 +30,7 @@
     "react-spinners": "^0.13.4",
     "react-to-print": "^2.14.10",
     "react-toastify": "^9.0.7",
+    "react-virtualized": "^9.22.3",
     "web-vitals": "^2.1.4"
   },
   "scripts": {

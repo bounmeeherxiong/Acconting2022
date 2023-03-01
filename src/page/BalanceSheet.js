@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useContext } from "react";
 import { makeStyles } from '@material-ui/core/styles';
 import Spinner from 'react-bootstrap/Spinner';
 import Table from '@material-ui/core/Table';
@@ -18,8 +18,6 @@ import ReactToPrint from "react-to-print";
 import moment from 'moment';
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
-
-
 const useStyles = makeStyles({
     table: {
         minWidth: 650,
@@ -37,7 +35,6 @@ const rows = [
 function createDatelist(id, name, price) {
     return { id, name, price }
 }
-
 const rows1 = [
     createDatelist(1, 'Current Assets', 3000),
     createDatelist(1, 'Long- term assets', 3000),
@@ -79,7 +76,6 @@ export default function BalanceSheet() {
     const classes = useStyles();
     const OnloadBalancesheet = () => {
         axios.get('/accounting/api/balance-sheet/reports').then((data) => {
-            console.log("Fisrst=",{...data?.data})
             setHeading({ ...data?.data })
             setNetTotal([...data?.data?.sumAsset])
             setid([...data?.data?.Ownersequity][0].bs_id)
@@ -114,7 +110,6 @@ export default function BalanceSheet() {
                 end: defaultValue1
             }
             axios.post('/accounting/api/balance-sheet/report/allreports', data).then((data) => {
-                console.log("Search=",{...data?.data})
                 setHeading({ ...data?.data })
                 setid([...data?.data?.Ownersequity][0].bs_id)
                 setNetTotal([...data?.data?.sumAsset])
@@ -129,10 +124,11 @@ export default function BalanceSheet() {
             })
         }
     }
+
     useEffect(() => {
         OnloadBalancesheet();
         _searchbydate();
-        _searchstartdate();        
+        _searchstartdate();
     }, [])
     return (
         <>
@@ -261,73 +257,78 @@ export default function BalanceSheet() {
             <div style={{ height: 30 }}>
             </div>
             {
-                loading ?  (                   
-                    <TableContainer component={Paper} ref={(el) => (componentRef = el)}>
-                    <Table className={classes.table} size="small" aria-label="a dense table">
-                        <TableHead>
-                            <TableRow>
-                                <TableCell></TableCell>
-                                <TableCell align="right">TOTAL</TableCell>
-                            </TableRow>
-                        </TableHead>
-                        <TableBody>
-                            {
-                                heading?.result && heading?.result.map((data, index) => {
-                                    return (
-                                        <>
-                                            <GLRowComponent
-                                                key={index}
-                                                id={data?.bs_id}
-                                                name={data?.bs_name}
-                                                subject={heading?.subject}
-                                                Totalsubject={heading?.subjecttotal}
-                                                childrenFirst={heading?.childrenFirst}
-                                                childrenSecond={heading?.childrenSecond}
-                                                TotaldrenFirstFloor={heading?.firsttotal}
-                                                TotaldrenSecondFloor={heading?.secondtotal}
-                                                TotalSumAsset={netTotal}
-                                                Gotodetailaccount={Gotodetailaccount}
-                                            />
-                                        </>
-                                    )
-                                })
-                            }
-                        </TableBody>
-                    </Table>
-                    <div style={{ border: '1px solid black' }}></div>
-                    <Table className={classes.table} size="small" aria-label="a dense table">
-                        <TableBody>
-                            {
-                                heading.headingLibilities && heading.headingLibilities.map((data, index) => {
-                                    return (
-                                        <>
-                                            <GLRowComponent2
-                                                key={index}
-                                                id={data?.bs_id}
-                                                name={data?.bs_name}
-                                                id_Owner={id}
-                                                subject={heading?.subject}
-                                                Totalsubject={heading?.subjecttotal}
-                                                childrenFirst={heading?.childrenFirst}
-                                                childrenSecond={heading?.childrenSecond}
-                                                TotaldrenFirstFloor={heading?.firsttotal}
-                                                netTotalLiabilities={netTotalLiabilities}
-                                                balancesheetandloss={balancesheetandloss}
-                                                Gotodetailaccount={Gotodetailaccount}
-                                            />
-                                        </>
-                                    )
-                                })
-                            }
-                        </TableBody>
-                    </Table>
-                </TableContainer>
+                loading ? (
+                    <>
+                        <TableContainer component={Paper} ref={(el) => (componentRef = el)}>
+                            <Table className={classes.table} size="small" aria-label="a dense table">
+                                <TableHead>
+                                    <TableRow>
+                                        <TableCell></TableCell>
+                                        <TableCell align="right">TOTAL</TableCell>
+                                    </TableRow>
+                                </TableHead>
+                                <TableBody>
+                                    {
+                                        heading?.result && heading?.result.map((data, index) => {
+                                            return (
+                                                <>
+                                                    <GLRowComponent
+                                                        key={index}
+                                                        id={data?.bs_id}
+                                                        name={data?.bs_name}
+                                                        subject={heading?.subject}
+                                                        Totalsubject={heading?.subjecttotal}
+                                                        childrenFirst={heading?.childrenFirst}
+                                                        childrenSecond={heading?.childrenSecond}
+                                                        TotaldrenFirstFloor={heading?.firsttotal}
+                                                        TotaldrenSecondFloor={heading?.secondtotal}
+                                                        TotalSumAsset={netTotal}
+                                                        Gotodetailaccount={Gotodetailaccount}
+                                                    />
+                                                </>
+                                            )
+                                        })
+                                    }
+                                </TableBody>
+                            </Table>
+                            <div style={{ border: '1px solid black' }}></div>
+                            <Table className={classes.table} size="small" aria-label="a dense table">
+                                <TableBody>
+                                    {
+                                        heading.headingLibilities && heading.headingLibilities.map((data, index) => {
+                                            return (
+                                                <>
+                                                    <GLRowComponent2
+                                                        key={index}
+                                                        id={data?.bs_id}
+                                                        name={data?.bs_name}
+                                                        id_Owner={id}
+                                                        subject={heading?.subject}
+                                                        Totalsubject={heading?.subjecttotal}
+                                                        childrenFirst={heading?.childrenFirst}
+                                                        childrenSecond={heading?.childrenSecond}
+                                                        TotaldrenFirstFloor={heading?.firsttotal}
+                                                        netTotalLiabilities={netTotalLiabilities}
+                                                        balancesheetandloss={balancesheetandloss}
+                                                        Gotodetailaccount={Gotodetailaccount}
+                                                    />
+                                                </>
+                                            )
+                                        })
+                                    }
+                                </TableBody>
+                            </Table>
+                        </TableContainer>
+                    </>
                 ) : (
-                    <div style={{display:'flex',justifyContent:'center',alignItems:'center'}}>
-                         <Spinner animation="border" variant="primary" style={{width:100,height:100,marginTop:100}} />   
-                    </div>                   
+                    <>
+                        <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+                            <Spinner animation="border" variant="primary" style={{ width: 100, height: 100, marginTop: 100 }} />
+                        </div>
+                    </>
                 )
             }
+
         </>
     );
 }
@@ -1396,8 +1397,8 @@ function Componentsub({ id, childrenFirst, TotaldrenFirstFloor, childrenSecond, 
     )
 }
 function Componetfirst({ data, id, childrenSecond, TotaldrenFirstFloor, Gotodetailaccount }) {
- 
-  
+
+
     const [checkvalues, setCheckvalues] = useState('')
     const [open, setOpen] = useState(true);
     const [netTotal, setNetTotal] = useState(0)

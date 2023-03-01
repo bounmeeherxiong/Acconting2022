@@ -13,7 +13,7 @@ import AttachFileIcon from '@material-ui/icons/AttachFile';
 import AddCircleOutlineIcon from '@material-ui/icons/AddCircleOutline';
 import DeleteIcon from '@material-ui/icons/Delete';
 export default function Journal() {
-    const { id, setShowEditJournal
+    const { id, setShowEditJournal,OnloadBalancesheet,onloadreportGl
     } = useContext(LoginContext);
     const [data, setData] = useState([
         { name: '', debit: '', credit: '', description: '', Tax: '', Employee: '' },
@@ -284,6 +284,7 @@ export default function Journal() {
         countnumber()
         currencies()
         _searchstartdate()
+        OnTransactionRate()
     }, [])
     const createdata = () => {
         const debit = sumData('debit')
@@ -312,11 +313,15 @@ export default function Journal() {
             setSomething(true)
         } else {
             axios.put("/accounting/api/journal-entries/update", journaldata).then((data) => {
+                console.log(data)
                 countnumber();
+                OnloadBalancesheet();
+                onloadreportGl();
                 setThb('')
                 setUsd('')
                 setDefaultValue('')
                 setShowToast(true);
+
             }).catch((err) => {
                 console.log(err)
             }).finally(() => {

@@ -29,6 +29,10 @@ import UnrealisedGainsAndLosses from "./page/UnrealisedGainsAndLosses";
 import Profitandloss from "./page/Profitandloss";
 import DetailBalancSheet from "./page/DetailBalancSheet";
 import DetailFitandLoss from "./page/DetailFitandLoss";
+import DetailAutomatic from "./page/DetailAutomatic";
+import Unrealisedgain_or_loss from "./page/Unrealisedgain_or_loss";
+import ViewUnrealisedgain_or_loss from "./page/ViewUnrealisedgain_or_loss";
+import ExchangeRate from "./page/ExchangeRate";
 axios.defaults.baseURL = api;
 function App() {
   const [listaccount, setListaccount] = useState([]);
@@ -48,10 +52,20 @@ function App() {
   const [listgain,setListgain]=useState([])
   const [listgl, setListgl] = useState({})
   const [totalgain,setTotalgain]=useState([])
-  const [listbank,setListbank]=useState([])
-  const [data, setData] = useState([
-    { name:'',rate:''},
-  ]);
+  const [rate,setRate]=useState([])
+  // const [heading, setHeading] = useState([]);
+  // const [headingprofi, setHeadingprofi] = useState({})
+  // const [netTotal, setNetTotal] = useState([])
+  // const [netTotalLiabilities, setNetTotalLiabilities] = useState([])
+  // const [balancesheetandloss, setBalancesheetandloss] = useState([])
+  const [loading, setLoading] = useState(false);
+  const [listcondition, setListcondition] = useState([])
+  // const [profitandloss, setProfitandloss] = useState([])
+  // const [incomeandcost, setIncomeandcost] = useState([])
+  // const [show, setShow] = useState(false)
+ 
+
+
   const onloadaccount = () => {
     axios
       .get("/accounting/api/accounts")
@@ -115,13 +129,13 @@ function App() {
         console.log(err)
     })
 }
-const onLoadExchangeRates = () => {
-  axios.get('/accounting/api/loss-gain/getrate').then((data) => {
-    setData([...data?.data.result])
-  }).catch((err) => {
-    console.log(err)
-  })
-}
+// const onLoadExchangeRates = () => {
+//   axios.get('/accounting/api/loss-gain/getrate').then((data) => {
+//     setData([...data?.data.result])
+//   }).catch((err) => {
+//     console.log(err)
+//   })
+// }
 const OnloadgainAndLoss = () => {
   axios
     .get("/accounting/api/loss-gain/getgainAndLoss")
@@ -145,9 +159,9 @@ const OnLoadTotalgainAndLoss=()=>{
     setTotalgain([...data?.data?.result][0].gain_Loss)
   })
 }
-const onloadbank = () => {
-  axios.get("/accounting/api/bank/all").then((data) => {
-    setListbank([...data?.data?.result])
+const onLoadrate = () => {
+  axios.get("/accounting/api/report/selectExchange").then((data) => {
+    setRate([...data?.data?.results])
 
   }).catch((err) => {
     console.log(err)
@@ -155,9 +169,69 @@ const onloadbank = () => {
 }
 const onloadreportGl = () => {
   axios.get("/accounting/api/report/reportGl").then((data) => {
+
     setListgl({ ...data?.data })
   })
 }
+
+// const OnloadBalancesheet = () => {
+//   axios.get('/accounting/api/balance-sheet/reports').then((data) => {
+    
+//       setHeading({ ...data?.data })
+//       setNetTotal([...data?.data?.sumAsset])
+//       setid([...data?.data?.Ownersequity][0].bs_id)
+//       setNetTotalLiabilities([...data?.data?.sumliabilitiesAndOwnerequity])
+//       if ([...data?.data?.sumBalanceSheet][0].balances == null) {
+//           setBalancesheetandloss(0)
+//       } else {
+//           setBalancesheetandloss([...data?.data?.sumBalanceSheet][0].balances)
+//       }
+//   }).catch((err) => {
+//       console.log(err)
+//   })
+// }
+const OnloadResetCondition = () => {
+  axios.get('/accounting/api/report/ConditionResetGL').then((data) => {
+    setListcondition([...data?.data?.results][0].counts)
+  }).catch((err) => {
+    console.log(err)
+  })
+}
+// const onloadAutomaticGl = () => {
+//   axios.get("/accounting/api/report/reportAutoGL").then((data) => {
+//     console.log(data)
+//   }).catch((err) => {
+//     console.log(err)
+//   })
+// }
+// const OnloadHeading = () => {
+//   axios.get('/accounting/api/profit-loss/heading').then((data) => {
+//       setHeadingprofi({ ...data?.data })
+//       setProfitandloss([...data?.data?.sumBalanceSheet][0].balances)
+//       setIncomeandcost([...data?.data?.sumBalanceIncomeAndCostofsale][0].balances)
+//       let keys = ['amout'];
+//       let values = ['Other Expense'];
+//       let filtered_data = [...data?.data?.headingExpenses].filter(d => {
+//           for (let key of keys) {
+//               for (let value of values) {
+//                   if (d[key] == value) {
+//                       return true;
+//                   }
+//               }
+//           }
+//           return false;
+//       });
+//       if (filtered_data.length === 0) {
+//           setShow(true)
+//       } else {
+//           setShow(false)
+//       }
+//       setLoading(true)
+//   }).catch((err) => {
+//       console.log(err)
+//   })
+// }
+
   useEffect(() => {
     let users = Cookies.get("user");
     // if(!users){
@@ -174,18 +248,23 @@ const onloadreportGl = () => {
     onloadaccountlistname();
     onloadreportjournalentries();
     onloadtransaction();
-    onLoadExchangeRates();
+    // onLoadExchangeRates();
     OnloadgainAndLoss();
     OnLoadgainandlossTransaction()
     OnLoadTotalgainAndLoss();
-    onloadbank();
+    onLoadrate();
     onloadreportGl();
-
+    // OnloadBalancesheet();
+    OnloadResetCondition();
+    // onloadAutomaticGl();
+    // OnloadHeading();
+ 
   }, []); 
   return (
     <div>
       <LoginContext.Provider
         value={{
+          listcondition,
           listaccount,
           listaccountType,
           onloadaccountType,
@@ -210,20 +289,36 @@ const onloadreportGl = () => {
           setShowReferent,
           onloadtransaction,
           list,
-          data,
-          setData,
           listgandl,
           OnloadgainAndLoss,
           listgain,
           OnLoadgainandlossTransaction,
           OnLoadTotalgainAndLoss,
           totalgain,
-          listbank,
+          rate,
           listgl,
           setListgl,
-          onloadreportGl
+          onloadreportGl,
+          onLoadrate,
+          setid,
+          loading,
+          setLoading,
+          OnloadResetCondition,
+          // onloadAutomaticGl,
+          // OnloadHeading,
+          // headingprofi,
+          // setHeadingprofi,
+          // profitandloss,
+          // setProfitandloss,
+          // incomeandcost,
+          // setIncomeandcost,
+          // show,
+          // setShow
+
         }}
       >
+
+        
         <Router>
           <Home>
             <Routes>
@@ -247,8 +342,13 @@ const onloadreportGl = () => {
               <Route exact path="/DetailReportTrialbalances/:id" element={< DetailReportTrialbalances />}></Route>
               <Route exact path="/UnrealisedGainsAndLosses" element={< UnrealisedGainsAndLosses/>}></Route>
               <Route exact path="/Profitandloss" element={< Profitandloss/>}></Route>
-              <Route exact path="/DetailBalancSheet/:id" element={< DetailBalancSheet / >}></Route>
+              <Route exact path="/DetailBalancSheet/:id" element={< DetailBalancSheet />}></Route> 
               <Route exact path="/DetailFitandLoss/:id" element={<DetailFitandLoss />}></Route>
+              <Route exact path="/DetailAutomatic/:id" element={< DetailAutomatic />} ></Route>
+              <Route exact path="/DetailUnrealisedgain/:id" element={< Unrealisedgain_or_loss />} ></Route>
+              <Route exact path="/ViewUnrealisedgain_or_loss" element={< ViewUnrealisedgain_or_loss />} ></Route>
+              <Route exact path="/ExchangeRate/:id" element={< ExchangeRate />} ></Route>
+
             </Routes>
           </Home>
         </Router>

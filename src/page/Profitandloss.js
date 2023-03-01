@@ -19,6 +19,8 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import PrintIcon from '@material-ui/icons/Print';
 import Spinner from 'react-bootstrap/Spinner';
+import SettingsIcon from "@material-ui/icons/Settings";
+import AddIcon from "@material-ui/icons/Add";
 const useStyles = makeStyles({
     table: {
         minWidth: 650,
@@ -37,20 +39,24 @@ export default function Profitandloss() {
         navigate(`/DetailFitandLoss/${id}`);
     }
     const {
-        totalgain
+        totalgain,
     } = useContext(LoginContext);
+
     const [getvalues, setGetvalues] = useState('')
     const [defaultValue, setDefaultValue] = useState("")
     const [defaultValue1, setDefaultValue1] = useState("")
     const classes = useStyles();
-    const [heading, setHeading] = useState({})
+    const [headingprofi, setHeadingprofi] = useState({})
     const [profitandloss, setProfitandloss] = useState([])
     const [incomeandcost, setIncomeandcost] = useState([])
     const [show, setShow] = useState(false)
+    const [showSetting, setShowSetting] = useState(false)
     const [loading, setLoading] = useState(false);
+    const [gain, setGain] = useState(false);
     const OnloadHeading = () => {
         axios.get('/accounting/api/profit-loss/heading').then((data) => {
-            setHeading({ ...data?.data })
+            console.log("dataList=",{...data?.data})
+            setHeadingprofi({ ...data?.data })
             setProfitandloss([...data?.data?.sumBalanceSheet][0].balances)
             setIncomeandcost([...data?.data?.sumBalanceIncomeAndCostofsale][0].balances)
             let keys = ['amout'];
@@ -75,6 +81,18 @@ export default function Profitandloss() {
             console.log(err)
         })
     }
+    const Setting = () => {
+        setShowSetting(!showSetting)
+    }
+    const OnGain = () => {
+        setGain(!gain)
+    }
+    const OnLosses = () => {
+     
+    }
+    const GoExchanage=(e)=>{
+        navigate(`/ExchangeRate/${e}`)
+    }
     const _searchbydate = (e) => {
         setDefaultValue1(moment(e).format("DD-MM-YYYY"))
     }
@@ -90,6 +108,9 @@ export default function Profitandloss() {
         _searchstartdate()
         setGetvalues('')
     }
+    const ViewUnrealised = () => {
+        navigate('/ViewUnrealisedgain_or_loss');
+    }
     const OnRunReport = () => {
         if (getvalues == 'custom') {
             let data = {
@@ -98,7 +119,7 @@ export default function Profitandloss() {
             }
             axios.post('/accounting/api/profit-loss/report/allreports', data).then((data) => {
                 console.log("Search=",{...data?.data})
-                setHeading({ ...data?.data })
+                setHeadingprofi({ ...data?.data })
                 setProfitandloss([...data?.data?.sumBalanceSheet][0].balances)
                 setIncomeandcost([...data?.data?.sumBalanceIncomeAndCostofsale][0].balances)
                 let keys = ['amout'];
@@ -123,6 +144,7 @@ export default function Profitandloss() {
             })
         }
     }
+
     useEffect(() => {
         OnloadHeading()
         _searchbydate()
@@ -136,220 +158,303 @@ export default function Profitandloss() {
                 <span style={{ color: "#3f51b5", cursor: "pointer" }}
                 >Back to report list</span><br />
             </div>
-            <div style={{ display: 'flex', flexDirection: "row", width: "100%" }} >
-                <select
-                    onChange={(e) => _onShow(e.target.value)}
-                    value={getvalues}
-                    style={{
-                        border: '1px solid #ccc',
-                        height: 30,
-                        borderRadius: 3,
-                        width: 200,
-                        outline: 'none'
-                    }}
-                >
-                    <option value="all">All Dates</option>
-                    <option value="today">Today</option>
-                    <option value="custom">Custom</option>
-                </select>
+            <div style={{ display: 'flex', flexDirection: "row", width: "100%", justifyContent: 'space-between' }} >
+                <div style={{ display: 'flex', flexDirection: 'row' }}>
+                    <select
+                        onChange={(e) => _onShow(e.target.value)}
+                        value={getvalues}
+                        style={{
+                            border: '1px solid #ccc',
+                            height: 30,
+                            borderRadius: 3,
+                            width: 200,
+                            outline: 'none'
+                        }}
+                    >
+                        <option value="all">All Dates</option>
+                        <option value="today">Today</option>
+                        <option value="custom">Custom</option>
+                    </select>
 
-                <input
-                    type="text"
-                    defaultValue={defaultValue}
-                    onChange={(e) => setDefaultValue(e.target.value)}
-                    style={{
-                        border: '1px solid #ccc',
-                        height: 30,
-                        borderRadius: 3,
-                        width: 100,
-                        paddingLeft: 10,
-                        marginLeft: 25,
-                        textAlign: "right",
-                        borderRight: "none",
-                    }}
-                />
-                <input
-                    type="date"
-                    onChange={(e) => _searchstartdate(e.target.value)}
-                    style={{
-                        border: '1px solid #ccc',
-                        height: 30,
-                        borderRadius: 3,
-                        width: 30,
-                        paddingLeft: 10,
-                    }}
-                />
-                <span style={{ marginLeft: 10, paddingTop: 5 }}>To</span>
-                <input
-                    type="text"
-                    defaultValue={defaultValue1}
-                    onChange={(e) => setDefaultValue1(e.target.value)}
-                    style={{
-                        border: '1px solid #ccc',
-                        height: 30,
-                        borderRadius: 3,
-                        width: 100,
-                        paddingLeft: 10,
-                        marginLeft: 25,
-                        textAlign: "right",
-                        borderRight: "none",
-                    }}
-                />
-                <input
-                    type="date"
-                    onChange={(e) => _searchbydate(e.target.value)}
-                    style={{
-                        border: '1px solid #ccc',
-                        height: 30,
-                        borderRadius: 3,
-                        width: 30,
-                        paddingLeft: 10,
-                    }}
-                />
-                <Button variant="contained" color="primary"
-                    style={{
+                    <input
+                        type="text"
+                        defaultValue={defaultValue}
+                        onChange={(e) => setDefaultValue(e.target.value)}
+                        style={{
+                            border: '1px solid #ccc',
+                            height: 30,
+                            borderRadius: 3,
+                            width: 100,
+                            paddingLeft: 10,
+                            marginLeft: 25,
+                            textAlign: "right",
+                            borderRight: "none",
+                        }}
+                    />
+                    <input
+                        type="date"
+                        onChange={(e) => _searchstartdate(e.target.value)}
+                        style={{
+                            border: '1px solid #ccc',
+                            height: 30,
+                            borderRadius: 3,
+                            width: 30,
+                            paddingLeft: 10,
+                        }}
+                    />
+                    <span style={{ marginLeft: 10, paddingTop: 5 }}>To</span>
+                    <input
+                        type="text"
+                        defaultValue={defaultValue1}
+                        onChange={(e) => setDefaultValue1(e.target.value)}
+                        style={{
+                            border: '1px solid #ccc',
+                            height: 30,
+                            borderRadius: 3,
+                            width: 100,
+                            paddingLeft: 10,
+                            marginLeft: 25,
+                            textAlign: "right",
+                            borderRight: "none",
+                        }}
+                    />
+                    <input
+                        type="date"
+                        onChange={(e) => _searchbydate(e.target.value)}
+                        style={{
+                            border: '1px solid #ccc',
+                            height: 30,
+                            borderRadius: 3,
+                            width: 30,
+                            paddingLeft: 10,
+                        }}
+                    />
+                    <Button variant="contained" color="primary"
+                        style={{
 
-                        border: "none",
-                        height: 30,
-                        borderRadius: 2,
-                        paddingLeft: 10,
-                        paddingRight: 10,
-                        color: "white",
-                        alignItems: "center",
-                        marginLeft: 10,
-                    }}
-                    onClick={() => { OnRunReport() }}
-                >
-                    Run report
-                </Button>
-                <Button variant="contained" color="primary"
-                    style={{
-                        border: "none",
-                        height: 30,
-                        borderRadius: 2,
-                        paddingLeft: 10,
-                        paddingRight: 10,
-                        color: "white",
-                        alignItems: "center",
-                        marginLeft: 10,
-                    }}
-                    onClick={() => { Reset() }}
-                >
-                    Reset
-                </Button>
-                <ReactToPrint
-                    trigger={() =>
-                        <Button variant="contained" color="primary" style={{
                             border: "none",
                             height: 30,
                             borderRadius: 2,
-                            paddingLeft: 5,
-                            paddingRight: 5,
+                            paddingLeft: 10,
+                            paddingRight: 10,
                             color: "white",
                             alignItems: "center",
                             marginLeft: 10,
-                        }}>
-                            <PrintIcon />
-                        </Button>
+                        }}
+                        onClick={() => { OnRunReport() }}
+                    >
+                        Run report
+                    </Button>
+                    <Button variant="contained" color="primary"
+                        style={{
+                            border: "none",
+                            height: 30,
+                            borderRadius: 2,
+                            paddingLeft: 10,
+                            paddingRight: 10,
+                            color: "white",
+                            alignItems: "center",
+                            marginLeft: 10,
+                        }}
+                        onClick={() => { Reset() }}
+                    >
+                        Reset
+                    </Button>
+                    <ReactToPrint
+                        trigger={() =>
+                            <Button variant="contained" color="primary" style={{
+                                border: "none",
+                                height: 30,
+                                borderRadius: 2,
+                                paddingLeft: 5,
+                                paddingRight: 5,
+                                color: "white",
+                                alignItems: "center",
+                                marginLeft: 10,
+                            }}>
+                                <PrintIcon />
+                            </Button>
+                        }
+                        content={() => componentRef}
+                        style={{ marginLeft: 10 }}
+                    />
+                    <button
+                        style={{
+                            backgroundColor: "#3f51b5",
+                            border: "none",
+                            height: 30,
+                            borderRadius: 2,
+                            paddingLeft: 10,
+                            paddingRight: 10,
+                            color: "white",
+                            alignItems: "center",
+                            marginLeft: 10,
+                        }}
+                        onClick={()=>{GoExchanage(2)}}
+                    >
+                        <AddIcon />
+                        Exchange Rate
+                    </button>
+
+                </div>
+                <div>
+                    <button
+                        onClick={() => { Setting() }}
+                        // onBlur={() => { onBlurSetting() }}
+                        style={{
+                            backgroundColor: "#3f51b5",
+                            border: "none",
+                            height: 30,
+                            borderRadius: 2,
+                            paddingLeft: 10,
+                            paddingRight: 10,
+                            color: "white",
+                            alignItems: "center",
+                            marginLeft: 10,
+                        }}
+                    >
+                        <SettingsIcon style={{ cursor: 'pointer' }}
+                        />
+                    </button>
+                    {showSetting ?
+                        (
+                            <>
+                                <div style={{
+                                    backgroundColor: 'white',
+                                    position: 'absolute',
+                                    right: 30,
+                                    border: '1px solid #ccc',
+                                    borderRadius: 3,
+                                    width: 200,
+                                    height: 150,
+                                }}>
+                                    <h5 style={{ marginTop: 20, marginLeft: 10 }}>Display density</h5>
+                                    <div style={{ height: 10 }}></div>
+                                    <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between', cursor: 'pointer' }}>
+                                        <div style={{ marginLeft: 20, display: 'flex', flexDirection: 'row' }}>
+                                            <input type="checkbox"
+                                                onClick={() => { OnGain() }}
+                                            // onMouseLeave={() => { setLeave(null) }} 
+                                            />
+                                            <small style={{ marginLeft: 5, marginTop: 2 }}>Gain</small>
+                                        </div>
+                                        <div style={{ display: 'flex', flexDirection: 'row', marginTop: 2, marginRight: 5 }}>
+                                            <input type="checkbox"
+                                            // onClick={() => { Oncredit() }}
+                                            // onMouseLeave={() => { setLeave(null) }}
+
+                                            />
+                                            <small style={{ marginLeft: 5, marginTop: 2 }}>Losses</small>
+                                        </div>
+                                    </div>
+
+
+                                </div>
+                            </>
+                        ) : null
                     }
-                    content={() => componentRef}
-                    style={{ marginLeft: 10 }}
-                />
+                </div>
             </div>
             {
-                loading ? (<>
-                    <TableContainer component={Paper} ref={(el) => (componentRef = el)}>
-                        <Table className={classes.table} size="small" aria-label="a dense table">
-                            <TableHead>
-                                <TableRow>
-                                    <TableCell></TableCell>
-                                    <TableCell align="right">TOTAL</TableCell>
-                                </TableRow>
-                            </TableHead>
-                            <TableBody>
-                                {
-                                    heading?.headingIncomeandCost == 0 ? (<>
-                                        <ComponentHeadingIncomeShow />
-                                    </>) : (<>
-                                        {
-                                            heading?.headingIncomeandCost
-                                            && heading?.headingIncomeandCost
-                                                .map((data, index) => {
-                                                    return (
-                                                        <>
-                                                            <ComponentHeadingIn
-                                                                data={data}
-                                                                key={index}
-                                                                childrenFirstFloor={heading?.childrenFirst}
-                                                                childrenSecondFloor={heading?.childrenSecond}
-                                                                TotaldrenFirstFloor={heading?.firsttotal}
-                                                                Gotodetailaccount={Gotodetailaccount}
-                                                            />
-                                                        </>
-                                                    )
-                                                })
-                                        }
-                                    </>)
-                                }
-                                <TableRow>
-                                    <TableCell component="th" scope="row" style={{ cursor: 'pointer', paddingLeft: 30, fontWeight: 'bold' }}>
-                                        GROSS PROFIT
-                                    </TableCell>
-                                    <TableCell align="right" style={{ fontWeight: 'bold' }}>{getFormatNumber(incomeandcost)}₭</TableCell>
-                                </TableRow>
-                            </TableBody>
-                        </Table>
-                    </TableContainer>
-                    <TableContainer component={Paper} ref={(el) => (componentRef = el)}>
-                        <Table className={classes.table} size="small" aria-label="a dense table">
-                            <TableBody>
-                                {
-                                    heading?.headingExpenses == 0 ? (
-                                        <>
-                                            <ComponentHeadingExShow
-                                                totalgain={totalgain}
-                                            />
-                                        </>
-                                    ) : (
-                                        <>
+                loading ? (
+                    <>
+                        <TableContainer component={Paper} ref={(el) => (componentRef = el)}>
+                            <Table className={classes.table} size="small" aria-label="a dense table">
+                                <TableHead>
+                                    <TableRow>
+                                        <TableCell></TableCell>
+                                        <TableCell align="right">TOTAL</TableCell>
+                                    </TableRow>
+                                </TableHead>
+                                <TableBody>
+                                    {
+                                        headingprofi?.headingIncomeandCost == 0 ? (<>
+                                            <ComponentHeadingIncomeShow />
+                                        </>) : (<>
                                             {
-                                                heading?.headingExpenses && heading?.headingExpenses.map((data, index) => {
-                                                    return (
-                                                        <>
-                                                            <ComponentHeading
-                                                                rows={rows}
-                                                                data={data}
-                                                                key={index}
-                                                                childrenFirstFloor={heading?.childrenFirst}
-                                                                childrenSecondFloor={heading?.childrenSecond}
-                                                                TotaldrenFirstFloor={heading?.firsttotal}
-                                                                totalgain={totalgain}
-                                                                show={show}
-                                                                Gotodetailaccount={Gotodetailaccount}
-                                                            />
-                                                        </>
-                                                    )
-                                                })
-                                            }
-                                        </>
-                                    )
-                                }
-                                <TableRow>
-                                    <TableCell style={{ fontWeight: 'bold' }}>
-                                        NET EARNINGS
-                                    </TableCell>
-                                    <TableCell align="right" style={{ fontWeight: 'bold' }}>{getFormatNumber(parseFloat(profitandloss))}₭</TableCell>
-                                </TableRow>
-                            </TableBody>
-                        </Table>
+                                                headingprofi?.headingIncomeandCost
+                                                && headingprofi?.headingIncomeandCost
+                                                    .map((data, index) => {
+                                                        return (
+                                                            <>
+                                                                <ComponentHeadingIn
+                                                                    data={data}
+                                                                    key={index}
+                                                                    childrenFirstFloor={headingprofi?.childrenFirst}
+                                                                    childrenSecondFloor={headingprofi?.childrenSecond}
+                                                                    TotaldrenFirstFloor={headingprofi?.firsttotal}
 
-                    </TableContainer>
-                </>) : (
-                    <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-                        <Spinner animation="border" variant="primary" style={{ width: 100, height: 100, marginTop: 100 }} />
-                    </div>
-                )
+                                                                    Gotodetailaccount={Gotodetailaccount}
+                                                                />
+                                                            </>
+                                                        )
+                                                    })
+                                            }
+                                        </>)
+                                    }
+                                    <TableRow>
+                                        <TableCell component="th" scope="row" style={{ cursor: 'pointer', paddingLeft: 30, fontWeight: 'bold' }}>
+                                            GROSS PROFIT
+                                        </TableCell>
+                                        <TableCell align="right" style={{ fontWeight: 'bold' }}>{getFormatNumber(incomeandcost)}₭</TableCell>
+                                    </TableRow>
+                                </TableBody>
+                            </Table>
+                        </TableContainer>
+                        <TableContainer component={Paper} ref={(el) => (componentRef = el)}>
+                            <Table className={classes.table} size="small" aria-label="a dense table">
+                                <TableBody>
+                                    {
+                                        headingprofi?.headingExpenses == 0 ? (
+                                            <>
+                                                <ComponentHeadingExShow
+                                                    totalgain={totalgain}
+                                                />
+                                            </>
+                                        ) : (
+                                            <>
+                                                {
+                                                    headingprofi?.headingExpenses && headingprofi?.headingExpenses.map((data, index) => {
+                                                        return (
+                                                            <>
+                                                                <ComponentHeading
+                                                                    rows={rows}
+                                                                    data={data}
+                                                                    key={index}
+                                                                    childrenFirstFloor={headingprofi?.childrenFirst}
+                                                                    childrenSecondFloor={headingprofi?.childrenSecond}
+                                                                    TotaldrenFirstFloor={headingprofi?.firsttotal}
+                                                                    totalgain={totalgain}
+                                                                    exchangegainloss={headingprofi?.ExchangeTotalGainAndLosses}
+                                                                    show={show}
+                                                                    Gotodetailaccount={Gotodetailaccount}
+                                                                    ViewUnrealised={ViewUnrealised}
+                                                                    gain={gain}
+                                                                />
+                                                            </>
+                                                        )
+                                                    })
+                                                }
+                                            </>
+                                        )
+                                    }
+                                    <TableRow>
+                                        <TableCell style={{ fontWeight: 'bold' }}>
+                                            NET EARNINGS
+                                        </TableCell>
+                                        <TableCell align="right" style={{ fontWeight: 'bold' }}>{getFormatNumber(parseFloat(profitandloss))}₭</TableCell>
+                                    </TableRow>
+                                </TableBody>
+                            </Table>
+                        </TableContainer>
+                    </>) : (<>
+                        <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+                            <Spinner animation="border" variant="primary" style={{ width: 100, height: 100, marginTop: 100 }} />
+                        </div>
+                    </>)
             }
+
+
 
         </>
 
@@ -1161,17 +1266,20 @@ function TableCellComponentIncome12({ data, childrenSecondFloor, TotaldrenSecond
         </>
     )
 }
-function ComponentHeading({ data, childrenFirstFloor, childrenSecondFloor, TotaldrenFirstFloor, rows, totalgain, show, Gotodetailaccount }) {
+function ComponentHeading({ data, childrenFirstFloor, childrenSecondFloor, TotaldrenFirstFloor, rows, totalgain, show, Gotodetailaccount, ViewUnrealised, gain, exchangegainloss }) {
     const [open, setOpen] = useState(true);
     const handleClick = () => {
         setOpen(!open);
     };
+    if (exchangegainloss === null) return <></>
+    const datafilter = exchangegainloss.filter((el) => el.bs_id === data?.bs_id);
     return (
         <>
             <TableRow>
                 <TableCell component="th" scope="row" onClick={() => { handleClick() }} style={{ cursor: 'pointer' }}>{open ? <ExpandLess /> : <ExpandMore />}
                     {data?.bs_name}
                 </TableCell>
+
                 <TableCell align="right" style={{ fontWeight: 'bold' }}>
                     {
                         open ? (<></>) : (<>
@@ -1192,14 +1300,29 @@ function ComponentHeading({ data, childrenFirstFloor, childrenSecondFloor, Total
                         TotaldrenFirstFloor={TotaldrenFirstFloor}
                         totalgain={totalgain}
                         Gotodetailaccount={Gotodetailaccount}
+                        ViewUnrealised={ViewUnrealised}
+                        gain={gain}
                     />
 
                     <TableRow>
                         <TableCell component="th" scope="row" onClick={() => { handleClick() }} style={{ cursor: 'pointer', fontWeight: 'bold' }}>
                             Total: {data?.bs_name}
                         </TableCell>
-                        <TableCell align="right" style={{ fontWeight: 'bold' }}>{getFormatNumber(data?.balance)}₭</TableCell>
+                        {
+                            gain === true ? (<>
+                                <TableCell align="right" style={{ fontWeight: 'bold' }}>{getFormatNumber(data?.balance)}</TableCell>
+                            </>) : (
+                                <>
+                                    {
+                                        datafilter.length === 0 ? (<>
+                                            <TableCell align="right" style={{ fontWeight: 'bold' }}>{getFormatNumber(data?.balance)}</TableCell>
+                                        </>) : (<>
+                                            <TableCell align="right" style={{ fontWeight: 'bold' }}>{getFormatNumber(data?.balance - datafilter[0].balance)}</TableCell>
+                                        </>)
+                                    }
 
+                                </>)
+                        }
                     </TableRow>
                 </>) : null
             }
@@ -1231,7 +1354,7 @@ function ComponentHeading({ data, childrenFirstFloor, childrenSecondFloor, Total
     )
 }
 function UnrealisedGainorLoss({ totalgain }) {
-    console.log("totalgain=", totalgain)
+
     return (<>
         <TableRow>
             <TableCell component="th" scope="row" style={{ cursor: 'pointer', paddingLeft: 30 }}>
@@ -1248,9 +1371,10 @@ function UnrealisedGainorLoss({ totalgain }) {
         </TableRow>
     </>)
 }
-function ComponentExpenseFirst({ id, childrenFirstFloor, childrenSecondFloor, TotaldrenFirstFloor, rows, totalgain, Gotodetailaccount }) {
+function ComponentExpenseFirst({ id, childrenFirstFloor, childrenSecondFloor, TotaldrenFirstFloor, rows, totalgain, Gotodetailaccount, ViewUnrealised, gain }) {
     if (childrenFirstFloor === null) return <></>
     const filter = childrenFirstFloor.filter((el) => el.bs_id === id);
+
     const datafilter = rows.filter((el) => el.id === id);
     let tax;
     if (datafilter.length === 0) {
@@ -1293,7 +1417,7 @@ function ComponentExpenseFirst({ id, childrenFirstFloor, childrenSecondFloor, To
                                 tax
                             }
                         </TableCell>
-                        <TableCell align="right" style={{ fontWeight: 'bold' }}>10%</TableCell>
+                        <TableCell align="right" style={{ fontWeight: 'bold', cursor: 'pointer' }} onClick={() => { ViewUnrealised() }} >10%</TableCell>
 
                     </TableRow>
 
@@ -1309,9 +1433,9 @@ function ComponentExpenseFirst({ id, childrenFirstFloor, childrenSecondFloor, To
                                 childrenSecondFloor={childrenSecondFloor}
                                 TotaldrenFirstFloor={TotaldrenFirstFloor}
                                 id={data?.c_id}
-
+                                ViewUnrealised={ViewUnrealised}
                                 Gotodetailaccount={Gotodetailaccount}
-
+                                gain={gain}
                             />
                         </>
                     )
@@ -1320,12 +1444,15 @@ function ComponentExpenseFirst({ id, childrenFirstFloor, childrenSecondFloor, To
         </>
     )
 }
-function TableCellComponentExpense({ data, childrenSecondFloor, TotaldrenFirstFloor, id, Gotodetailaccount }) {
+function TableCellComponentExpense({ data, childrenSecondFloor, TotaldrenFirstFloor, id, Gotodetailaccount, ViewUnrealised, gain }) {
+    console.log("DataList=",data?.name_eng)
     const [checkvalues, setCheckvalues] = useState(0)
     const [netTotal1, setNetTotal1] = useState(0)
     const [open, setOpen] = useState(true);
     if (TotaldrenFirstFloor === null) return <></>
     const filter = TotaldrenFirstFloor.filter((el) => el.id === id);
+
+    
     if (filter.length === 0) return <></>;
     const handleClick = () => {
         setOpen(!open);
@@ -1335,7 +1462,6 @@ function TableCellComponentExpense({ data, childrenSecondFloor, TotaldrenFirstFl
             c_id: e
         }
         axios.post("/accounting/api/balance-sheet/sumtotal", data).then((data) => {
-            console.log("Balance=", data?.data?.data?.balances)
             setNetTotal1(data?.data?.data?.balances)
         }).catch((err) => {
             console.log(err)
@@ -1343,26 +1469,93 @@ function TableCellComponentExpense({ data, childrenSecondFloor, TotaldrenFirstFl
     }
     return (
         <>
-
             <TableRow>
-                <TableCell onClick={() => { handleClick(); OnSumTotal(data?.c_id) }} style={{ cursor: 'pointer', paddingLeft: 30 }}>
-                    {
-                        checkvalues === 0 ? (<></>) : (<>
-                            {open ? <ExpandLess /> : <ExpandMore />}
-                        </>)
-                    }
-                    {data?.name_eng}
-                </TableCell>
-                <TableCell align="right" style={{ cursor: 'pointer' }} onClick={() => { Gotodetailaccount(data?.c_uid) }}>
-                    {
-                        open ? (<>
-                            {getFormatNumber(data?.balances)}₭
-                        </>) : (<>
-                            {getFormatNumber(netTotal1)}₭
-                        </>)
-                    }
+                {
+                    data?.statu_auto_GainAndLoss == 1 || data?.statu_auto_GainAndLoss == 2 ? (<>
+                        {
+                            gain == true ? (<>
+                                <TableCell onClick={() => { handleClick(); OnSumTotal(data?.c_id) }} style={{ cursor: 'pointer', paddingLeft: 30 }}>
+                                    {
+                                        checkvalues === 0 ? (<></>) : (<>
+                                            {open ? <ExpandLess /> : <ExpandMore />}
+                                        </>)
+                                    }
+                                    {data?.name_eng}
+                                </TableCell>
 
-                </TableCell>
+                            </>) : null
+                        }
+                    </>) : (<>
+                        <TableCell onClick={() => { handleClick(); OnSumTotal(data?.c_id) }} style={{ cursor: 'pointer', paddingLeft: 30 }}>
+                            {
+                                checkvalues === 0 ? (<></>) : (<>
+                                    {open ? <ExpandLess /> : <ExpandMore />}
+                                </>)
+                            }
+                            {data?.name_eng}
+                        </TableCell>
+                    </>)
+                }
+                {
+                    data?.p_and_l == 3 || data?.p_and_l == 4 ? (
+                        <>
+                            <TableCell align="right" style={{ cursor: 'pointer', color: 'red' }} onClick={() => { ViewUnrealised() }}>
+                                {
+                                    open ? (
+                                        <>
+                                            {getFormatNumber(data?.bs_amount)}₭
+
+                                        </>
+                                    ) : (<>
+                                        {getFormatNumber(netTotal1)}₭
+                                    </>)
+                                }
+                            </TableCell>
+
+
+                        </>) : (
+                        <>
+                            {
+                                data?.statu_auto_GainAndLoss == 1 || data?.statu_auto_GainAndLoss == 2 ? (
+                                    <>
+                                        {
+                                            gain == true ? (<>
+                                                <TableCell align="right" style={{ cursor: 'pointer' }} onClick={() => { Gotodetailaccount(data?.c_uid) }}>
+                                                    {
+                                                        open ? (
+                                                            <>
+                                                                {getFormatNumber(data?.balances)}₭
+
+                                                            </>
+                                                        ) : (<>
+                                                            {getFormatNumber(netTotal1)}₭
+                                                        </>)
+                                                    }
+                                                </TableCell>
+                                            </>) : null
+                                        }
+
+                                    </>
+                                ) : (<>
+                                    <TableCell align="right" style={{ cursor: 'pointer' }} onClick={() => { Gotodetailaccount(data?.c_uid) }}>
+                                        {
+                                            open ? (
+                                                <>
+                                                    {getFormatNumber(data?.balances)}₭
+
+                                                </>
+                                            ) : (<>
+                                                {getFormatNumber(netTotal1)}₭
+                                            </>)
+                                        }
+                                    </TableCell>
+
+
+                                </>)
+                            }
+                        </>)
+                }
+
             </TableRow>
             {open ? (
                 <>
@@ -1387,9 +1580,6 @@ function TableCellComponentExpense({ data, childrenSecondFloor, TotaldrenFirstFl
                     }
 
                 </>
-
-
-
             ) : null
             }
         </>

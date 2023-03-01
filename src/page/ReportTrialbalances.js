@@ -64,6 +64,7 @@ export default function ReportTrialbalances() {
     }
     const onloadreportTrailbalance = () => {
         axios.get("/accounting/api/reportbydate/reporttrailbalance").then((data) => {
+            console.log("Trail=",{...data?.data})
             setListTrailbalance({...data?.data})
         })
     }
@@ -126,6 +127,7 @@ export default function ReportTrialbalances() {
                 ch_id
             }
             axios.post("/accounting/api/report/reportbyaccount", data).then((data) => {
+                
             }).catch((err) => {
                 console.log(err)
             })

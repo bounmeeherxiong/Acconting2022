@@ -21,7 +21,7 @@ import HomeIcon from "@material-ui/icons/Home";
 import { useNavigate } from "react-router-dom";
 import SettingsIcon from "@material-ui/icons/Settings";
 import SearchIcon from '@material-ui/icons/Search';
-import { Modal } from "react-bootstrap";
+import { Modal, Table } from "react-bootstrap";
 import { LoginContext } from "../page/contexts/LoginContext";
 import moment from 'moment';
 import ErrorIcon from '@material-ui/icons/Error';
@@ -39,6 +39,8 @@ import AttachFileIcon from '@material-ui/icons/AttachFile';
 import Journal from "../components/Journal";
 import EditJournalbyReferent from "../components/EditJournalbyReferent";
 import { Alert } from '@material-ui/lab';
+import { getFormatNumber } from "../constants/functions"
+
 const drawerWidth = 240;
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -110,30 +112,37 @@ export default function Home(props) {
   const theme = useTheme();
   const [open, setOpen] = useState(false);
   const [listOpent, setListOpent] = useState(false);
+  const [listOpentExchange, setListOpentExchange] = useState(false);
   const [show, setShow] = useState(false);
-  const handleShow = () => {
-    setShow(true)
-  };
+  const [exshow, setExshow] = useState(false);
   const {
-    listbank,
+    rate,
     id,
     showEditJournal,
-    data,
-    setData,
     setShowEditJournal,
     showfullscreen,
     setShowfullscreen,
     showReferent,
     setShowReferent,
-    OnloadgainAndLoss,
-    OnLoadgainandlossTransaction,
-    OnLoadTotalgainAndLoss,
-  } = useContext(LoginContext);
+    onLoadrate,
+    onloadreportGl,
+    OnloadBalancesheet,
+    OnloadResetCondition,
 
+
+  } = useContext(LoginContext);
+  const handleShow = () => {
+    setShow(true)
+  };
   const handleClose = () => {
     setShow(false);
-
   };
+  const handleExchangeShow = () => {
+    setExshow(true)
+  }
+  const handleExchangeClose = () => {
+    setExshow(false)
+  }
   const CloseShoFullScrreen = () => {
     setShowEditJournal(false)
   }
@@ -152,7 +161,9 @@ export default function Home(props) {
   const handleClick = () => {
     setListOpent(!listOpent);
   };
-
+  const exchangerate = () => {
+    setListOpentExchange(!listOpentExchange);
+  }
   const gotoUnrealisedGainsAndLoss = () => {
     handleClose(false)
     Navigate('/UnrealisedGainsAndLosses');
@@ -209,14 +220,11 @@ export default function Home(props) {
               < ComponentBoxGainsAndLosses
                 handleClose={handleClose}
                 show={show}
-                data={data}
-                OnloadgainAndLoss={OnloadgainAndLoss}
-                OnLoadgainandlossTransaction={OnLoadgainandlossTransaction}
-                setData={setData}
-                OnLoadTotalgainAndLoss={OnLoadTotalgainAndLoss}
-                Navigate={Navigate}
-                gotoUnrealisedGainsAndLoss={gotoUnrealisedGainsAndLoss}
-                listbank={listbank}
+                rate={rate}
+                onLoadrate={onLoadrate}
+                onloadreportGl={onloadreportGl}
+                OnloadBalancesheet={OnloadBalancesheet}
+                OnloadResetCondition={OnloadResetCondition}      
               />
               <Drawer
                 variant="permanent"
@@ -266,12 +274,27 @@ export default function Home(props) {
                         </ListItemIcon>
                         Category
                       </ListItem>
-                      {/* <ListItem button className={classes.nested} onClick={() => Navigate("/CategoryDetail")}>
-                      <ListItemIcon>
-
-                      </ListItemIcon>
-                      Detail of Category
-                    </ListItem> */}
+                    </List>
+                  </Collapse>
+                  <ListItem button onClick={exchangerate}>
+                    <ListItemIcon>
+                      <SettingsIcon />
+                    </ListItemIcon>
+                    Exchange Rate
+                    <ListItemText />
+                  </ListItem>
+                  <Collapse in={listOpentExchange} timeout="auto" unmountOnExit>
+                    <List component="div" disablePadding>
+                      <ListItem button className={classes.nested} onClick={() => handleExchangeShow()}>
+                        <ListItemIcon>
+                        </ListItemIcon>
+                        Transaction Rate
+                      </ListItem>
+                      <ListItem button className={classes.nested} onClick={() => handleShow()}>
+                        <ListItemIcon>
+                        </ListItemIcon>
+                        Exchange Rate
+                      </ListItem>
                     </List>
                   </Collapse>
                   <ListItem button onClick={() => Navigate("/ChartAccount")}>
@@ -309,13 +332,13 @@ export default function Home(props) {
                     Test
                     <ListItemText />
                   </ListItem> */}
-                  {/* <ListItem button onClick={() => Navigate("ReportTest")} >
+                  <ListItem button onClick={() => Navigate(`ExchangeRate/${1}`)} >
                     <ListItemIcon>
                       <BarChartIcon />
                     </ListItemIcon>
                     Test
                     <ListItemText />
-                  </ListItem> */}
+                  </ListItem>
                   <ListItem button onClick={() => Navigate("ReportTrialbalances")} >
                     <ListItemIcon>
                       <BarChartIcon />
@@ -885,8 +908,6 @@ function EditComponentJournal({ id, CloseShoFullScrreen }) {
                 <div style={{ width: "100%" }}>
                   {
                     listImage.map((item, index) => (
-
-
                       <div key={index}
                         style={{
                           position: "relative",
@@ -1710,210 +1731,347 @@ function ToastShow1({ show, setShow, iconNmame }) {
 
   );
 }
-function ComponentBoxGainsAndLosses({ show, handleClose, data, setData, OnloadgainAndLoss, Navigate, OnLoadgainandlossTransaction, OnLoadTotalgainAndLoss, gotoUnrealisedGainsAndLoss, listbank }) {
+function ComponentBoxGainsAndLosses({ show, handleClose, rate, onLoadrate,onloadreportGl, OnloadBalancesheet,OnloadResetCondition }) {
   const [defaultValue, setDefaultValue] = useState("")
+  const [defaultValue1, setDefaultValue1] = useState("")
   const [exchange, setExchange] = useState([])
-  const [bank_id, setBank_id] = useState("")
-  const [errdate, setErrdate] = useState(false)
-  const [errbank, setErrbank] = useState(false)
-  const [isLoading, setIsLoading,] = useState(false);
-  const [clearData, setClearData] = useState([
-    { name: 'USD', rate: '' },
-    { name: 'THB', rate: '' },
-  ])
+  const [currency_code, setCurrency_code] = useState("")
+  const [conver_rate, setConver_rate] = useState("")
+  const [isDisabled, setIsDisabled] = useState(true)
+  const [isCheckRateColor, setIsCheckRateColor] = useState('green')
+  const [isCheckExchangeRateColor, setIsCheckExchangeRateColor] = useState('')
+  const [isCheckExchangeRate, setIsCheckExchangeRate] = useState(false)
+  const [listrate, setListrate] = useState([])
+
+
   const EnterDate = (e) => {
-    setDefaultValue(moment(e).format("DD/MM/YYYY"))
-    setErrdate(false)
-    axios.get(`/accounting/api/loss-gain/getdate/${moment(e).format("DD-MM-YYYY")}`).then((data) => {
-      if (data?.data?.result == 0) {
-        setData([...clearData])
-      } else {
-        setData([...data?.data?.result])
-        setExchange([...data?.data?.result])
-      }
+    setIsDisabled(false)
+    setDefaultValue(moment(e).format("DD-MM-YYYY"))
+    // setErrdate(false)
+    // axios.get(`/accounting/api/loss-gain/getdate/${moment(e).format("DD-MM-YYYY")}`).then((data) => {
+    //   if (data?.data?.result == 0) {
+    //     setData([...clearData])
+    //   } else {
+    //     setData([...data?.data?.result])
+    //     setExchange([...data?.data?.result])
+    //   }
+    // }).catch((err) => {
+    //   console.log(err)
+    // })
+  }
+  const EnterDate1 = (e) => {
+
+    setDefaultValue1(moment(e).format("DD-MM-YYYY"))
+    // setErrdate(false)
+    // axios.get(`/accounting/api/loss-gain/getdate/${moment(e).format("DD-MM-YYYY")}`).then((data) => {
+    //   if (data?.data?.result == 0) {
+    //     setData([...clearData])
+    //   } else {
+    //     setData([...data?.data?.result])
+    //     setExchange([...data?.data?.result])
+    //   }
+    // }).catch((err) => {
+    //   console.log(err)
+    // })
+  }
+  // const onbank = (e) => {
+  //   setBank_id(e)
+  //   setErrbank(false)
+  // }
+  const OnTransactionRate = () => {
+    axios.get('/accounting/api/report/selectTransactionRate').then((data) => {
+      setListrate([...data?.data?.results])
     }).catch((err) => {
       console.log(err)
     })
   }
-  const onbank = (e) => {
-    setBank_id(e)
-    setErrbank(false)
+  const OnRate = () => {
+    setIsCheckRateColor('green')
+    setIsCheckExchangeRateColor('black')
+    setIsCheckExchangeRate(false)
+    setDefaultValue('')
+  }
+  const OnExchangeRate = () => {
+    setIsCheckRateColor('black')
+    setIsCheckExchangeRateColor('green')
+    setIsCheckExchangeRate(true)
+  }
+  const onChangeTextCurrency = (value) => {
+    const ratenumber = value.toString().replaceAll(',', '').replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1,");
+    setExchange(ratenumber);
+    setConver_rate(ratenumber.replaceAll(',', ''))
+  }
+  const onBlurCurrency = (value) => {
+    let number = value.replaceAll(',', '')
+    let format_number = new Intl.NumberFormat("en-US", { style: 'currency', currency: 'USD' }).format(number)
+    setExchange(format_number.replaceAll('$', ''))
   }
   const insert = () => {
-    if (!defaultValue) {
-      setErrdate(true)
-      return;
-    }
-    if (!bank_id) {
-      setErrbank(true)
-      return;
-    }
-    setIsLoading(true);
     let informdata = {
-      data,
-      defaultValue,
-      bank_id
+      date: defaultValue,
+      conver_rate: conver_rate,
+      currency_code: currency_code
     }
-    axios.post('/accounting/api/loss-gain/createlossandgain', informdata).then((data) => {
-      OnloadgainAndLoss()
-      OnLoadgainandlossTransaction()
-      OnLoadTotalgainAndLoss();
-      setBank_id('');
-      Navigate("/UnrealisedGainsAndLosses")
-      setData([...clearData])
+    axios.post('/accounting/api/report/insertExchangeRate', informdata).then((data) => {
       setDefaultValue('')
-      handleClose(false)
+      setCurrency_code('')
+      setExchange('')
+      onLoadrate()
+      onloadreportGl()
+      OnloadBalancesheet()
+      setIsDisabled(true)
+      OnloadResetCondition();
+      // onloadAutomaticGl();
+
     }).catch((err) => {
       console.log(err)
-    }).finally(() => {
-      setIsLoading(false);
     })
   }
+  const OnGetvaues = (e) => {
+    setCurrency_code(e)
+    let dataList = {
+      data: defaultValue,
+      currency_code: e
+
+    }
+
+  }
+  const Clear = () => {
+    setDefaultValue('')
+    setConver_rate('')
+    setCurrency_code('')
+    setExchange('')
+    setIsDisabled(true)
+  }
+  useEffect(() => {
+    OnTransactionRate();
+  }, [])
   return (
     <>
-      <Modal show={show} onHide={handleClose} style={{ paddingTop: 50 }} >
+      <Modal show={show} onHide={handleClose} style={{ paddingTop: 50 }} size="lg" >
         <Modal.Header closeButton >
           <Modal.Title>
             Enter Exchange Rate
           </Modal.Title>
         </Modal.Header>
         <Modal.Body>
-          <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-            <small>Enter Date</small>
-            <input
-              type="text"
-              placeholder="dd/MM/yyyy"
-              value={defaultValue}
-              onChange={(e) => setDefaultValue(e.target.value)}
-              style={{
-                border: '1px solid #ccc',
-                height: 30,
-                borderRadius: 3,
-                width: 100,
-                paddingLeft: 10,
-                marginLeft: 25,
-                textAlign: "right",
-                borderRight: "none",
-              }}
-            />
-            <input
-              type="date"
-              style={{
-                border: '1px solid #ccc',
-                height: 30,
-                borderRadius: 3,
-                width: 30,
-                paddingLeft: 10,
-              }}
-              onChange={(e) => EnterDate(e.target.value)}
-            />
-
-          </div>
-          <div style={{ height: 20, marginLeft: 210 }}>
-            {
-              errdate === true ? (
-                <>
-                  < small style={{ position: "absolute", fontSize: 14, color: "red" }}>Please Inter date</small>
-                </>
-              ) : null
-            }
-          </div>
-          <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
-            <small style={{ marginLeft: 100 }}>SELECT BANK</small>
-            <select
-              style={{
-                border: '1px solid #ccc',
-                height: 30,
-                borderRadius: 3,
-                width: 130,
-                marginRight: 125
-              }}
-              onChange={(e) => {
-                onbank(e.target.value);
-              }}
-              value={bank_id}
-            >
-              <option>SELECT BANK</option>
-              {listbank &&
-                listbank.map((data, index) => {
-                  return (
-                    <option key={index} value={data?.bank_id}>
-                      {data?.bank_name}
-                    </option>
-                  );
-                })}
-            </select>
-
-          </div>
-          <div style={{marginLeft: 210}}>
-            {
-              errbank === true ? (
-                <>
-                  < small style={{ position: "absolute", fontSize: 14, color: "red" }}>Please select bank</small>
-                </>
-              ) : null
-            }
-
-          </div>
-          {/* {JSON.stringify(data)} */}
-          <div style={{ height: 20 }}></div>
-          <table width={"100%"} border="1">
-            <tr style={{ border: '1px solid #ccc', height: 30 }}>
-              <td style={{ paddingLeft: 55 }}>Currency</td>
-              <td align="right" style={{ paddingRight: 55 }}>Exchange Rate</td>
-            </tr>
-            {
-              exchange.length == 0 ? (
-                <>
-                  {
-                    data && data.map((item, index) => {
-                      return (
-
-                        <ComponentRateShow
-                          key={index}
-                          index={index}
-                          data={data}
-                          setData={setData}
-                          item={item}
-                        />
-
-                      )
-                    })
-                  }
-                </>) : (<>
-                  {
-                    data && data.map((item, index) => {
-                      return (
-                        <ComponentRate
-                          key={index}
-                          index={index}
-                          data={data}
-                          setData={setData}
-                          item={item}
-                        />
-                      )
-                    })
-                  }
-                </>)
-            }
-          </table>
-          <div style={{ height: 20 }}></div>
-          <div style={{ display: 'flex', flexDirection: "row", justifyContent: 'space-between' }}>
-            <Button variant="contained" onClick={() => { gotoUnrealisedGainsAndLoss() }}>Skip</Button>
-            <Button variant="contained" color="primary" onClick={() => { insert() }}>
-              {!isLoading ? (
-                <>
-                  Continue
-                </>
-              ) : (
-                <>
-                  {
-                    <Spinner animation="border" variant="light" size='sm' />
-                  }
-                </>)
-              }
+          <div style={{ display: 'flex', flexDirection: 'row' }}>
+            <Button variant="outlined" style={{ color: `${isCheckRateColor}` }} onClick={() => { OnRate() }}>Rate</Button>
+            <Button variant="outlined" style={{ color: `${isCheckExchangeRateColor}` }} onClick={() => { OnExchangeRate() }}>
+              Exchange Rate
             </Button>
           </div>
+
+          <div style={{ marginTop: 10 }}>
+          </div>
+          {
+            isCheckExchangeRate === true ? (<>
+              <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'flex-start' }}>
+                <div style={{ display: 'flex', flexDirection: 'row' }}>
+                  <small style={{ marginTop: 5, fontWeight: 'bold', fontSize: 15 }}>Enter Date</small>
+                  <input
+                    type="text"
+                    placeholder="dd/MM/yyyy"
+                    value={defaultValue}
+                    onChange={(e) => setDefaultValue(e.target.value)}
+                    style={{
+                      border: '1px solid #ccc',
+                      height: 30,
+                      borderRadius: 3,
+                      width: 100,
+                      paddingLeft: 10,
+                      marginLeft: 5,
+                      textAlign: "right",
+                      borderRight: "none",
+                    }}
+                  />
+                  <input
+                    type="date"
+                    style={{
+                      border: '1px solid #ccc',
+                      height: 30,
+                      borderRadius: 3,
+                      width: 30,
+                      paddingLeft: 10,
+                    }}
+                    onChange={(e) => EnterDate(e.target.value)}
+                  />
+                </div>
+                <div style={{ display: 'flex', flexDirection: 'row', marginLeft: 10, justifyContent: 'flex-start' }}>
+                  <select
+                    disabled={isDisabled}
+                    style={{
+                      border: '1px solid #ccc',
+                      height: 30,
+                      borderRadius: 3,
+                      width: 130,
+                      marginRight: 10
+                    }}
+                    onChange={(e) => {
+                      OnGetvaues(e.target.value);
+                    }}
+                    value={currency_code}
+                  >
+                    <option>SELECT CURRENCY</option>
+                    <option>USD</option>
+                    <option>THB</option>
+                  </select>
+                  <input
+                    type="text"
+                    value={exchange}
+                    placeholder="Exchange Rate"
+                    style={{
+                      border: '0.1px solid #ccc',
+                      outline: 'none',
+                      borderRadius: 3,
+                      height: 30,
+                      textAlign: 'right'
+                    }}
+                    onChange={(e) => onChangeTextCurrency(e.target.value)}
+                    onBlur={(e) => onBlurCurrency(e.target.value)}
+                  />
+                  <Button variant="contained" color="primary" style={{ height: 30, marginLeft: 10 }} onClick={() => { insert() }}>Add</Button>
+                  <Button variant="contained" color="primary" style={{ height: 30, marginLeft: 10 }} onClick={() => { Clear() }}>Clear</Button>
+                </div>
+              </div>
+              {/* {JSON.stringify(data)} */}
+              <div style={{ height: 20 }}></div>
+              <Table striped bordered hover size="sm" style={{
+                width: '100%',
+                textAlign: 'left',
+                overflow: 'scroll',
+                borderCollapse: 'collapse',
+                cursor: 'pointer'
+              }}>
+                <thead>
+                  <tr>
+                    <th>#</th>
+                    <th style={{ textAlign: 'center' }}>Currency</th>
+                    <th style={{ textAlign: 'center' }}>Date Exchange Rate</th>
+                    <th style={{ textAlign: 'right' }}>Exchange Rate</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {
+                    rate && rate.map((data, index) => {
+                      return (
+                        <>
+                          <tr>
+                            <td>{index + 1}</td>
+                            {
+                              data?.foreign_code === 'USD' ? (<>
+
+                                <td align="center"><img alt="Logo" src="/assets/images/USA.png" style={{ width: 30, height: 30, marginTop: 5, borderRadius: '50%' }} /></td>
+                              </>) : (<>
+                                <td align="center"><img alt="Logo" src="/assets/images/thailand.png" style={{ width: 30, height: 30, marginTop: 5, borderRadius: '50%' }} /></td>
+                              </>)
+                            }
+                            <td align="center">{moment(data?.createdate).format("DD-MM-YYYY")}</td>
+      
+                            <td align="right">{getFormatNumber(data?.rate_exchange)}</td>
+                          </tr>
+                        </>
+                      )
+                    })
+                  }
+                </tbody>
+              </Table>
+            </>) : (<>
+              <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'flex-start' }}>
+                <div style={{ display: 'flex', flexDirection: 'row' }}>
+                  <small style={{ marginTop: 5, fontWeight: 'bold', fontSize: 15 }}>Enter Date</small>
+                  <input
+                    type="text"
+                    placeholder="dd/MM/yyyy"
+                    value={defaultValue1}
+                    onChange={(e) => setDefaultValue1(e.target.value)}
+                    style={{
+                      border: '1px solid #ccc',
+                      height: 30,
+                      borderRadius: 3,
+                      width: 100,
+                      paddingLeft: 10,
+                      marginLeft: 5,
+                      textAlign: "right",
+                      borderRight: "none",
+                    }}
+                  />
+                  <input
+                    type="date"
+                    style={{
+                      border: '1px solid #ccc',
+                      height: 30,
+                      borderRadius: 3,
+                      width: 30,
+                      paddingLeft: 10,
+                    }}
+                    onChange={(e) => EnterDate1(e.target.value)}
+                  />
+                </div>
+                <div style={{ display: 'flex', flexDirection: 'row', marginLeft: 10, justifyContent: 'flex-start' }}>
+                  <input
+                    type="text"
+                    value={exchange}
+                    placeholder="Exchange Rate"
+                    style={{
+                      border: '0.1px solid #ccc',
+                      outline: 'none',
+                      borderRadius: 3,
+                      height: 30,
+                      textAlign: 'right'
+                    }}
+                    onChange={(e) => onChangeTextCurrency(e.target.value)}
+                    onBlur={(e) => onBlurCurrency(e.target.value)}
+                  />
+                  <Button variant="contained" color="primary" style={{ height: 30, marginLeft: 10 }} onClick={() => { insert() }}>Add</Button>
+                  <Button variant="contained" color="primary" style={{ height: 30, marginLeft: 10 }} onClick={() => { Clear() }}>Clear</Button>
+                </div>
+              </div>
+              {/* {JSON.stringify(data)} */}
+              <div style={{ height: 20 }}></div>
+              <Table striped bordered hover size="sm" style={{
+                width: '100%',
+                textAlign: 'left',
+                overflow: 'scroll',
+                borderCollapse: 'collapse',
+                cursor: 'pointer'
+              }}>
+                <thead>
+                  <tr>
+                    <th>#</th>
+                    <th style={{ textAlign: 'center' }}>Currency</th>
+                    <th style={{ textAlign: 'center' }}>Journal no</th>
+                    <th style={{ textAlign: 'center' }}>Date Exchange Rate</th>
+                    <th style={{ textAlign: 'right' }}>Exchange Rate</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {
+                    listrate && listrate.map((data, index) => {
+                      return (
+                        <>
+                          <tr>
+                            <td>{index + 1}</td>
+                            {
+                              data?.currency_status === 'USD' ? (<>
+
+                                <td align="center"><img alt="Logo" src="/assets/images/USA.png" style={{ width: 30, height: 30, marginTop: 5, borderRadius: '50%' }} /></td>
+                              </>) : (<>
+                                <td align="center"><img alt="Logo" src="/assets/images/thailand.png" style={{ width: 30, height: 30, marginTop: 5, borderRadius: '50%' }} /></td>
+                              </>)
+                            }
+                            <td align="center">{data?.journal_no}</td>
+                            <td align="center">{moment(data?.tr_date).format("DD-MM-YYYY")}</td>
+                            <td align="right">{getFormatNumber(data?.money_rate)}</td>
+                          </tr>
+                        </>
+                      )
+                    })
+                  }
+                </tbody>
+              </Table>
+            </>)
+          }
         </Modal.Body>
       </Modal>
     </>
@@ -1940,7 +2098,7 @@ function ComponentRate({ item, data, index, setData }) {
         <td align="right" style={{ paddingRight: 20 }}>
           <input
             type="text"
-     
+
             value={item?.rate}
             onChange={(e) => changeText(e.target.value, "rate", index)}
             style={{
@@ -1951,7 +2109,8 @@ function ComponentRate({ item, data, index, setData }) {
               height: 35,
               textAlign: "right"
             }}
-          /></td>
+          />
+        </td>
       </tr>
     </>
   )
@@ -1993,6 +2152,8 @@ function ComponentRateShow({ item, data, index, setData }) {
     </>
   )
 }
+
+
 
 
 

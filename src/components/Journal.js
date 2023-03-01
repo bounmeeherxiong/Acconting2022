@@ -29,7 +29,7 @@ const useStyles = makeStyles((theme) => ({
 export default function Journal() {
   const classes = useStyles();
   const {
-    setShowfullscreen,onloadreportGl
+    setShowfullscreen,onloadreportGl,OnloadBalancesheet,OnTransactionRate,OnloadResetCondition
   } = useContext(LoginContext);
 
   const [data, setData] = useState([
@@ -309,7 +309,6 @@ export default function Journal() {
     _searchstartdate()
     onloadcurrenies();
   }, [])
-
   const createdata = async () => {
     let images
     setErrInforCurrency('')
@@ -341,7 +340,6 @@ export default function Journal() {
       let profileImageReturnName = await axios.post("/accounting/api/journal-entries/upload", formData);
       images = profileImageReturnName.data;
     }
-
     journaldata = {
       journal_no: journalNo,
       tr_date: defaultValue,
@@ -350,7 +348,6 @@ export default function Journal() {
       informdata: data,
       file_attachment: images
     }
-
     if (debit != credit) {
       setIsLoading(false);
       setSomething(true)
@@ -361,9 +358,12 @@ export default function Journal() {
         setErragain('')
         setShowToast(true);
         onloadreportGl();
+        OnloadResetCondition()
+        // OnloadBalancesheet();
+        // onloadAutomaticGl();
+    
       }).catch((err) => {
         let statusCode = err.response?.data?.statusCode
-        console.log("statusCode=", statusCode)
         if (statusCode == '405') {
           setErrInforCurrency('405')
           return;
@@ -417,8 +417,7 @@ export default function Journal() {
       }
       formData.append("file_attachment", file);
       let profileImageReturnName = await axios.post("/accounting/api/journal-entries/upload", formData);
-      images = profileImageReturnName.data;
- 
+      images = profileImageReturnName.data; 
     }
     setIsLoading(true);
     journaldata = {
@@ -429,7 +428,7 @@ export default function Journal() {
       informdata: data,
       file_attachment: images
     }
-    console.log("journaldata=",journaldata)
+   
     if (debit != credit) {
       setIsLoading(false);
       setSomething_Mobile(true)
@@ -440,6 +439,10 @@ export default function Journal() {
         setErragain('')
         setShowToast(true);
         onloadreportGl();
+        OnloadResetCondition();
+        // OnloadBalancesheet();
+        // OnTransactionRate();
+
       }).catch((err) => {
         let statusCode = err.response?.data?.statusCode
         if (statusCode == '405') {
@@ -521,7 +524,7 @@ export default function Journal() {
       informdata: data,
       file_attachment: images
     }
-    console.log("journaldata=",journaldata)
+  
     if (debit != credit) {
       setIsLoadingnew(false);
       setSomething(true)
@@ -532,6 +535,11 @@ export default function Journal() {
         setErragain('')
         ClearAllInsert()
         setShowToast(true);
+        OnloadResetCondition();
+        onloadreportGl();
+        // OnloadBalancesheet();
+        // onloadAutomaticGl();      
+
       }).catch((err) => {
         let statusCode = err.response?.data?.statusCode
         console.log("statusCode=", statusCode)
@@ -1354,7 +1362,8 @@ export default function Journal() {
             overflowY: 'hidden',
             marginTop: 20
           }} >
-            <table border="1" style={{
+            <table border="1" 
+            style={{
               width: '100%',
               textAlign: 'left',
               overflow: 'scroll',

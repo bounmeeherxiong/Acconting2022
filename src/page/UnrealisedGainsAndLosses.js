@@ -91,6 +91,7 @@ export default function UnrealisedGainsAndLosses() {
         setAutosave(true);
         axios.get('accounting/api/loss-gain/autoTransection').then((data) => {
             console.log(data)
+            OnLoadgainandlossTransaction()
         }).catch((err) => {
             console.log(err)
         }).finally(() => {
@@ -419,7 +420,6 @@ export default function UnrealisedGainsAndLosses() {
             total += parseFloat(data?.loss_gain
             )
         })
-
         const filter = listdata.filter((el) => el.c_id == id);
         return (
             <>
@@ -448,7 +448,7 @@ export default function UnrealisedGainsAndLosses() {
                                                 <TableCell style={{ width: '20%', fontWeight: 'bold' }}>Date</TableCell>
                                                 <TableCell style={{ width: '35%', fontWeight: 'bold' }}>Account</TableCell>
                                                 <TableCell style={{ fontWeight: 'bold' }}>CURRENCY</TableCell>
-                                                <TableCell style={{ fontWeight: 'bold', width: '25%' }} align="left">FOREIGN BALANCE</TableCell>
+                                                <TableCell style={{ fontWeight: 'bold', width: '25%' }} align="right">FOREIGN BALANCE</TableCell>
                                                 <TableCell style={{ fontWeight: 'bold' }} align="right">RATE</TableCell>
                                                 <TableCell style={{ fontWeight: 'bold', width: '35%' }} align="right">ADJUSTED BALANCE</TableCell>
                                                 <TableCell style={{ fontWeight: 'bold', width: '25%' }} align="right">current BALANCE</TableCell>
@@ -466,13 +466,20 @@ export default function UnrealisedGainsAndLosses() {
                                                                     {moment(data?.createdates).format("DD-MM-YYYY")}
                                                                 </TableCell>
                                                                 <TableCell>{data?.account_name}</TableCell>
-                                                                <TableCell>{data?.currency_code}</TableCell>
+                                                                <TableCell align="right">{data?.currency_code}</TableCell>
                                                                 <TableCell align="right">{getFormatNumber(data?.foreigin_balance)}</TableCell>
                                                                 <TableCell align="right">{getFormatNumber(data?.new_rate)}</TableCell>
                                                                 <TableCell align="right">{getFormatNumber(data?.new_balnce)}</TableCell>
                                                                 <TableCell align="right">{getFormatNumber(data?.current_balance)}</TableCell>
                                                                 <TableCell align="right">{getFormatNumber(data?.loss_gain)}</TableCell>
-                                                                <TableCell align="right">{getFormatNumber(data?.totalbalance)}</TableCell>
+                                                                {
+                                                                 data?.status_gl === 1 ? (
+                                                                    <TableCell align="right" style={{backgroundColor:'red',color:'white'}}>{getFormatNumber(data?.totalbalance)}</TableCell>
+                                                                 ):(
+                                                                    <TableCell align="right">{getFormatNumber(data?.totalbalance)}</TableCell>
+                                                                 )
+                                                                }
+                                                               
                                                             </TableRow>
                                                         </>
                                                     )
@@ -485,9 +492,7 @@ export default function UnrealisedGainsAndLosses() {
                             </Collapse>
                         </TableCell>
                     </TableRow>
-                  
                 </React.Fragment>
-
             </>
         )
     }
