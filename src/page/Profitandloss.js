@@ -39,7 +39,7 @@ export default function Profitandloss() {
         navigate(`/DetailFitandLoss/${id}`);
     }
     const {
-        totalgain,
+        totalgain,OnloadResetCondition,listcondition
     } = useContext(LoginContext);
 
     const [getvalues, setGetvalues] = useState('')
@@ -49,33 +49,34 @@ export default function Profitandloss() {
     const [headingprofi, setHeadingprofi] = useState({})
     const [profitandloss, setProfitandloss] = useState([])
     const [incomeandcost, setIncomeandcost] = useState([])
-    const [show, setShow] = useState(false)
+    // const [show, setShow] = useState(false)
     const [showSetting, setShowSetting] = useState(false)
     const [loading, setLoading] = useState(false);
     const [gain, setGain] = useState(false);
+    const [condition,setCondition]=useState(1)
     const OnloadHeading = () => {
         axios.get('/accounting/api/profit-loss/heading').then((data) => {
             console.log("dataList=",{...data?.data})
             setHeadingprofi({ ...data?.data })
             setProfitandloss([...data?.data?.sumBalanceSheet][0].balances)
             setIncomeandcost([...data?.data?.sumBalanceIncomeAndCostofsale][0].balances)
-            let keys = ['amout'];
-            let values = ['Other Expense'];
-            let filtered_data = [...data?.data?.headingExpenses].filter(d => {
-                for (let key of keys) {
-                    for (let value of values) {
-                        if (d[key] == value) {
-                            return true;
-                        }
-                    }
-                }
-                return false;
-            });
-            if (filtered_data.length === 0) {
-                setShow(true)
-            } else {
-                setShow(false)
-            }
+            // let keys = ['amout'];
+            // let values = ['Other Expense'];
+            // let filtered_data = [...data?.data?.headingExpenses].filter(d => {
+            //     for (let key of keys) {
+            //         for (let value of values) {
+            //             if (d[key] == value) {
+            //                 return true;
+            //             }
+            //         }
+            //     }
+            //     return false;
+            // });
+            // if (filtered_data.length === 0) {
+            //     setShow(true)
+            // } else {
+            //     setShow(false)
+            // }
             setLoading(true)
         }).catch((err) => {
             console.log(err)
@@ -102,16 +103,51 @@ export default function Profitandloss() {
     const _onShow = (e) => {
         setGetvalues(e)
     }
+    // const onloadAutomaticGl = () => {
+    //     axios.get("/accounting/api/report/reportAutoGL").then((data) => {
+    //       console.log("automatic=",{...data?.data})
+    //     }).catch((err) => {
+    //       console.log(err)
+    //     })
+    //   }
+      const Onloadreset = () => {
+        window.location.reload();
+        // axios.get('/accounting/api/report/createResetExchange_gl').then((data) => {
+        //   onloadreportGl();
+        //   OnloadResetCondition();
+        //   onloadAutomaticGl();
+        // }).catch((err) => {
+        //   console.log(err)
+        // })
+    
+      }
+      const Onloadreset1 = () => {
+        axios.get('/accounting/api/report/createResetExchange_gl').then((data) => {
+          console.log(data)
+          OnloadHeading()
+          OnloadResetCondition()
+        //   onloadAutomaticGl();
+          _searchbydate()
+          _searchstartdate()
+          setGetvalues('')
+          // window.location.reload();
+        }).catch((err) => {
+          console.log(err)
+        })
+    
+      }
     const Reset = () => {
         OnloadHeading()
+        window.location.reload();
         _searchbydate()
         _searchstartdate()
         setGetvalues('')
     }
-    const ViewUnrealised = () => {
-        navigate('/ViewUnrealisedgain_or_loss');
+    const ViewUnrealised = (e) => {
+        navigate(`/ViewUnrealisedgain_or_loss/${e}`);
     }
     const OnRunReport = () => {
+        setCondition(2)
         if (getvalues == 'custom') {
             let data = {
                 start: defaultValue,
@@ -122,33 +158,44 @@ export default function Profitandloss() {
                 setHeadingprofi({ ...data?.data })
                 setProfitandloss([...data?.data?.sumBalanceSheet][0].balances)
                 setIncomeandcost([...data?.data?.sumBalanceIncomeAndCostofsale][0].balances)
-                let keys = ['amout'];
-                let values = ['Other Expense'];
-                let filtered_data = [...data?.data?.headingExpenses].filter(d => {
-                    for (let key of keys) {
-                        for (let value of values) {
-                            if (d[key] == value) {
-                                return true;
-                            }
-                        }
-                    }
-                    return false;
-                });
-                if (filtered_data.length === 0) {
-                    setShow(true)
-                } else {
-                    setShow(false)
-                }
+                // let keys = ['amout'];
+                // let values = ['Other Expense'];
+                // let filtered_data = [...data?.data?.headingExpenses].filter(d => {
+                //     for (let key of keys) {
+                //         for (let value of values) {
+                //             if (d[key] == value) {
+                //                 return true;
+                //             }
+                //         }
+                //     }
+                //     return false;
+                // });
+                // if (filtered_data.length === 0) {
+                //     setShow(true)
+                // } else {
+                //     setShow(false)
+                // }
             }).catch((err) => {
                 console.log(err)
             })
         }
     }
+    const ReportExchange=()=>{
+        axios.get('/accounting/api/report/report_Exchange').then((data)=>{
+          console.log(data)      
+          OnloadResetCondition();
+          OnloadHeading();
+        }).catch((err)=>{
+          console.log(err)
+        })
+      }
 
     useEffect(() => {
+        // onloadAutomaticGl();
         OnloadHeading()
         _searchbydate()
         _searchstartdate()
+     
     }, [])
     return (
         <>
@@ -245,21 +292,48 @@ export default function Profitandloss() {
                     >
                         Run report
                     </Button>
-                    <Button variant="contained" color="primary"
-                        style={{
-                            border: "none",
-                            height: 30,
-                            borderRadius: 2,
-                            paddingLeft: 10,
-                            paddingRight: 10,
-                            color: "white",
-                            alignItems: "center",
-                            marginLeft: 10,
-                        }}
-                        onClick={() => { Reset() }}
-                    >
-                        Reset
-                    </Button>
+                    {
+            listcondition === 0 ? (
+              <>
+                <button
+                  style={{
+                    backgroundColor: "#3f51b5",
+                    border: "none",
+                    height: 30,
+                    borderRadius: 2,
+                    paddingLeft: 10,
+                    paddingRight: 10,
+                    color: "white",
+                    alignItems: "center",
+                    marginLeft: 10,
+                  }}
+                  onClick={() => Onloadreset()}
+                >
+                  RESET
+                </button>
+
+              </>
+            ) : (
+              <>
+                <button
+                  style={{
+                    backgroundColor: "red",
+                    border: "none",
+                    height: 30,
+                    borderRadius: 2,
+                    paddingLeft: 10,
+                    paddingRight: 10,
+                    color: "white",
+                    alignItems: "center",
+                    marginLeft: 10,
+                  }}
+                  onClick={() => Onloadreset1()}
+                >
+                  RESET
+                </button>
+              </>
+            )
+          }
                     <ReactToPrint
                         trigger={() =>
                             <Button variant="contained" color="primary" style={{
@@ -293,7 +367,24 @@ export default function Profitandloss() {
                         onClick={()=>{GoExchanage(2)}}
                     >
                         <AddIcon />
-                        Exchange Rate
+                         RATE
+                    </button>
+                    <button
+                        style={{
+                            backgroundColor: "#3f51b5",
+                            border: "none",
+                            height: 30,
+                            borderRadius: 2,
+                            paddingLeft: 10,
+                            paddingRight: 10,
+                            color: "white",
+                            alignItems: "center",
+                            marginLeft: 10,
+                        }}
+                        onClick={()=>{ReportExchange()}}
+                    >
+                   
+                       RUN EXCHANGE
                     </button>
 
                 </div>
@@ -383,7 +474,6 @@ export default function Profitandloss() {
                                                                     childrenFirstFloor={headingprofi?.childrenFirst}
                                                                     childrenSecondFloor={headingprofi?.childrenSecond}
                                                                     TotaldrenFirstFloor={headingprofi?.firsttotal}
-
                                                                     Gotodetailaccount={Gotodetailaccount}
                                                                 />
                                                             </>
@@ -396,7 +486,7 @@ export default function Profitandloss() {
                                         <TableCell component="th" scope="row" style={{ cursor: 'pointer', paddingLeft: 30, fontWeight: 'bold' }}>
                                             GROSS PROFIT
                                         </TableCell>
-                                        <TableCell align="right" style={{ fontWeight: 'bold' }}>{getFormatNumber(incomeandcost)}₭</TableCell>
+                                        <TableCell align="right">{getFormatNumber(incomeandcost)}₭</TableCell>
                                     </TableRow>
                                 </TableBody>
                             </Table>
@@ -418,7 +508,7 @@ export default function Profitandloss() {
                                                         return (
                                                             <>
                                                                 <ComponentHeading
-                                                                    rows={rows}
+                                                               
                                                                     data={data}
                                                                     key={index}
                                                                     childrenFirstFloor={headingprofi?.childrenFirst}
@@ -426,10 +516,11 @@ export default function Profitandloss() {
                                                                     TotaldrenFirstFloor={headingprofi?.firsttotal}
                                                                     totalgain={totalgain}
                                                                     exchangegainloss={headingprofi?.ExchangeTotalGainAndLosses}
-                                                                    show={show}
+                                                               
                                                                     Gotodetailaccount={Gotodetailaccount}
                                                                     ViewUnrealised={ViewUnrealised}
                                                                     gain={gain}
+                                                                    e={condition}
                                                                 />
                                                             </>
                                                         )
@@ -478,7 +569,7 @@ function ComponentHeadingExShow({ totalgain }) {
                 <TableCell component="th" scope="row" onClick={() => {
                     handleClick()
                 }} style={{ cursor: 'pointer' }}>{open ? <ExpandLess /> : <ExpandMore />}
-                    Other Expenses
+                    Other Expenses  
                 </TableCell>
                 <TableCell align="right" style={{ fontWeight: 'bold' }}>
                 </TableCell>
@@ -538,7 +629,7 @@ function ComponentHeadingIn({ data, childrenFirstFloor, childrenSecondFloor, Tot
                 <TableCell component="th" scope="row" onClick={() => { handleClick() }} style={{ cursor: 'pointer' }}>{open ? <ExpandLess /> : <ExpandMore />}
                     {data?.bs_name}
                 </TableCell>
-                <TableCell align="right" style={{ fontWeight: 'bold' }}>
+                <TableCell align="right" >
                     {
                         open ? (<></>) : (<>
                             {getFormatNumber(data?.balance)}₭
@@ -559,7 +650,7 @@ function ComponentHeadingIn({ data, childrenFirstFloor, childrenSecondFloor, Tot
                         <TableCell component="th" scope="row" onClick={() => { handleClick() }} style={{ cursor: 'pointer', fontWeight: 'bold' }}>
                             Total: {data?.bs_name}
                         </TableCell>
-                        <TableCell align="right" style={{ fontWeight: 'bold' }}>{getFormatNumber(data?.balance)}₭</TableCell>
+                        <TableCell align="right">{getFormatNumber(data?.balance)}₭</TableCell>
 
                     </TableRow>
 
@@ -648,7 +739,7 @@ function TableCellComponentIncome({ data, childrenSecondFloor, TotaldrenFirstFlo
                                 <TableCell component="th" scope="row" onClick={() => { handleClick() }} style={{ cursor: 'pointer', fontWeight: 'bold', paddingLeft: 30 }}>
                                     Total: {data?.name_eng}
                                 </TableCell>
-                                <TableCell align="right" style={{ fontWeight: 'bold', }} >
+                                <TableCell align="right" >
                                     {getFormatNumber(filter[0].balances)} ₭
                                 </TableCell>
 
@@ -757,7 +848,7 @@ function TableCellComponentIncome2({ data, childrenSecondFloor, TotaldrenSecondF
                                 <TableCell component="th" scope="row" style={{ paddingLeft: 40, fontWeight: "bold" }} >
                                     Total:  {data?.name_eng}
                                 </TableCell>
-                                <TableCell align="right" style={{ fontWeight: 'bold', }} >
+                                <TableCell align="right">
                                     {getFormatNumber(filter[0].balances)} ₭
                                 </TableCell>
                             </TableRow>
@@ -861,7 +952,7 @@ function TableCellComponentIncome4({ data, childrenSecondFloor, TotaldrenSecondF
                                 <TableCell component="th" scope="row" style={{ paddingLeft: 50, fontWeight: "bold" }} >
                                     Total:  {data?.name_eng}
                                 </TableCell>
-                                <TableCell align="right" style={{ fontWeight: 'bold', }} >
+                                <TableCell align="right">
                                     {getFormatNumber(filter[0].balances)} ₭
                                 </TableCell>
                             </TableRow>
@@ -902,8 +993,6 @@ function TableCellComponentIncome5({ childrenSecondFloor, setCheckvalues, id, To
                     )
                 })
             }
-
-
         </>
     )
 
@@ -967,7 +1056,7 @@ function TableCellComponentIncome6({ data, childrenSecondFloor, TotaldrenSecondF
                                 <TableCell component="th" scope="row" style={{ paddingLeft: 60, fontWeight: "bold" }} >
                                     Total:  {data?.name_eng}
                                 </TableCell>
-                                <TableCell align="right" style={{ fontWeight: 'bold', }} >
+                                <TableCell align="right" >
                                     {getFormatNumber(filter[0].balances)} ₭
                                 </TableCell>
                             </TableRow>
@@ -1070,7 +1159,7 @@ function TableCellComponentIncome8({ data, childrenSecondFloor, TotaldrenSecondF
                                 <TableCell component="th" scope="row" style={{ paddingLeft: 70, fontWeight: "bold" }} >
                                     Total:  {data?.name_eng}
                                 </TableCell>
-                                <TableCell align="right" style={{ fontWeight: 'bold', }} >
+                                <TableCell align="right" >
                                     {getFormatNumber(filter[0].balances)} ₭
                                 </TableCell>
                             </TableRow>
@@ -1174,7 +1263,7 @@ function TableCellComponentIncome10({ data, childrenSecondFloor, TotaldrenSecond
                                 <TableCell component="th" scope="row" style={{ paddingLeft: 80, fontWeight: "bold" }} >
                                     Total:  {data?.name_eng}
                                 </TableCell>
-                                <TableCell align="right" style={{ fontWeight: 'bold', }} >
+                                <TableCell align="right" >
                                     {getFormatNumber(filter[0].balances)} ₭
                                 </TableCell>
                             </TableRow>
@@ -1266,7 +1355,7 @@ function TableCellComponentIncome12({ data, childrenSecondFloor, TotaldrenSecond
         </>
     )
 }
-function ComponentHeading({ data, childrenFirstFloor, childrenSecondFloor, TotaldrenFirstFloor, rows, totalgain, show, Gotodetailaccount, ViewUnrealised, gain, exchangegainloss }) {
+function ComponentHeading({ data, childrenFirstFloor, childrenSecondFloor, TotaldrenFirstFloor, totalgain, Gotodetailaccount, ViewUnrealised, gain, exchangegainloss ,e}) {
     const [open, setOpen] = useState(true);
     const handleClick = () => {
         setOpen(!open);
@@ -1280,10 +1369,10 @@ function ComponentHeading({ data, childrenFirstFloor, childrenSecondFloor, Total
                     {data?.bs_name}
                 </TableCell>
 
-                <TableCell align="right" style={{ fontWeight: 'bold' }}>
+                <TableCell align="right">
                     {
                         open ? (<></>) : (<>
-                            {getFormatNumber(data?.balance)}₭
+                            {getFormatNumber(data?.balance)}
                         </>)
                     }
                 </TableCell>
@@ -1293,7 +1382,7 @@ function ComponentHeading({ data, childrenFirstFloor, childrenSecondFloor, Total
                 open ? (<>
 
                     <ComponentExpenseFirst
-                        rows={rows}
+                        
                         id={data?.bs_id}
                         childrenFirstFloor={childrenFirstFloor}
                         childrenSecondFloor={childrenSecondFloor}
@@ -1302,6 +1391,7 @@ function ComponentHeading({ data, childrenFirstFloor, childrenSecondFloor, Total
                         Gotodetailaccount={Gotodetailaccount}
                         ViewUnrealised={ViewUnrealised}
                         gain={gain}
+                        e={e}
                     />
 
                     <TableRow>
@@ -1310,14 +1400,14 @@ function ComponentHeading({ data, childrenFirstFloor, childrenSecondFloor, Total
                         </TableCell>
                         {
                             gain === true ? (<>
-                                <TableCell align="right" style={{ fontWeight: 'bold' }}>{getFormatNumber(data?.balance)}</TableCell>
+                                <TableCell align="right" >{getFormatNumber(data?.balance)}</TableCell>
                             </>) : (
                                 <>
                                     {
                                         datafilter.length === 0 ? (<>
-                                            <TableCell align="right" style={{ fontWeight: 'bold' }}>{getFormatNumber(data?.balance)}</TableCell>
+                                            <TableCell align="right" >{getFormatNumber(data?.balance)}</TableCell>
                                         </>) : (<>
-                                            <TableCell align="right" style={{ fontWeight: 'bold' }}>{getFormatNumber(data?.balance - datafilter[0].balance)}</TableCell>
+                                            <TableCell align="right" >{getFormatNumber(data?.balance - datafilter[0].balance)}</TableCell>
                                         </>)
                                     }
 
@@ -1371,20 +1461,20 @@ function UnrealisedGainorLoss({ totalgain }) {
         </TableRow>
     </>)
 }
-function ComponentExpenseFirst({ id, childrenFirstFloor, childrenSecondFloor, TotaldrenFirstFloor, rows, totalgain, Gotodetailaccount, ViewUnrealised, gain }) {
+function ComponentExpenseFirst({ id, childrenFirstFloor, childrenSecondFloor, TotaldrenFirstFloor, rows, Gotodetailaccount, ViewUnrealised, gain,e }) {
     if (childrenFirstFloor === null) return <></>
     const filter = childrenFirstFloor.filter((el) => el.bs_id === id);
 
-    const datafilter = rows.filter((el) => el.id === id);
-    let tax;
-    if (datafilter.length === 0) {
+    // const datafilter = rows.filter((el) => el.id === id);
+    // let tax;
+    // if (datafilter.length === 0) {
 
-        tax = ''
-    } else {
+    //     tax = ''
+    // } else {
 
-        tax = datafilter[0].name_eng
+    //     tax = datafilter[0].name_eng
 
-    }
+    // }
     return (
         <>
             {/* {
@@ -1408,7 +1498,7 @@ function ComponentExpenseFirst({ id, childrenFirstFloor, childrenSecondFloor, To
 
                 </>)
             } */}
-            {
+            {/* {
                 tax === '' ? (<>
                 </>) : (<>
                     <TableRow>
@@ -1421,8 +1511,8 @@ function ComponentExpenseFirst({ id, childrenFirstFloor, childrenSecondFloor, To
 
                     </TableRow>
 
-                </>)
-            }
+                </>)   
+            } */}
             {
                 filter && filter.map((data, index) => {
                     return (
@@ -1436,6 +1526,7 @@ function ComponentExpenseFirst({ id, childrenFirstFloor, childrenSecondFloor, To
                                 ViewUnrealised={ViewUnrealised}
                                 Gotodetailaccount={Gotodetailaccount}
                                 gain={gain}
+                                e={e}
                             />
                         </>
                     )
@@ -1444,8 +1535,8 @@ function ComponentExpenseFirst({ id, childrenFirstFloor, childrenSecondFloor, To
         </>
     )
 }
-function TableCellComponentExpense({ data, childrenSecondFloor, TotaldrenFirstFloor, id, Gotodetailaccount, ViewUnrealised, gain }) {
-    console.log("DataList=",data?.name_eng)
+function TableCellComponentExpense({ data, childrenSecondFloor, TotaldrenFirstFloor, id, Gotodetailaccount, ViewUnrealised, gain,e }) {
+    
     const [checkvalues, setCheckvalues] = useState(0)
     const [netTotal1, setNetTotal1] = useState(0)
     const [open, setOpen] = useState(true);
@@ -1499,7 +1590,7 @@ function TableCellComponentExpense({ data, childrenSecondFloor, TotaldrenFirstFl
                 {
                     data?.p_and_l == 3 || data?.p_and_l == 4 ? (
                         <>
-                            <TableCell align="right" style={{ cursor: 'pointer', color: 'red' }} onClick={() => { ViewUnrealised() }}>
+                            <TableCell align="right" style={{ cursor: 'pointer', color: 'red' }} onClick={() => { ViewUnrealised(e) }}>
                                 {
                                     open ? (
                                         <>
@@ -1541,7 +1632,7 @@ function TableCellComponentExpense({ data, childrenSecondFloor, TotaldrenFirstFl
                                         {
                                             open ? (
                                                 <>
-                                                    {getFormatNumber(data?.balances)}₭
+                                                    {getFormatNumber(data?.balances)}
 
                                                 </>
                                             ) : (<>
@@ -1568,14 +1659,22 @@ function TableCellComponentExpense({ data, childrenSecondFloor, TotaldrenFirstFl
                     />
                     {
                         checkvalues === 0 ? (<></>) : (<>
-                            <TableRow>
+                        {
+                            data?.statu_auto_GainAndLoss  == 3 || data?.statu_auto_GainAndLoss  == 4 ? (<>
+                           
+                            </>):(<>
+                                <TableRow>
                                 <TableCell component="th" scope="row" onClick={() => { handleClick() }} style={{ cursor: 'pointer', fontWeight: 'bold', paddingLeft: 30 }}>
                                     Total: {data?.name_eng}
                                 </TableCell>
-                                <TableCell align="right" style={{ fontWeight: 'bold', }} >
+                                <TableCell align="right"  >
                                     {getFormatNumber(filter[0].balances)} ₭
                                 </TableCell>
                             </TableRow>
+                            
+                            </>)
+                        }
+                            
                         </>)
                     }
 
@@ -1680,7 +1779,7 @@ function TableCellComponentExpense2({ data, childrenSecondFloor, TotaldrenSecond
                                 <TableCell component="th" scope="row" style={{ paddingLeft: 40, fontWeight: "bold" }} >
                                     Total:  {data?.name_eng}
                                 </TableCell>
-                                <TableCell align="right" style={{ fontWeight: 'bold', }} >
+                                <TableCell align="right"  >
                                     {getFormatNumber(filter[0].balances)} ₭
                                 </TableCell>
                             </TableRow>
@@ -1790,7 +1889,7 @@ function TableCellComponentExpense4({ data, childrenSecondFloor, TotaldrenSecond
                                 <TableCell component="th" scope="row" style={{ paddingLeft: 50, fontWeight: "bold" }} >
                                     Total:  {data?.name_eng}
                                 </TableCell>
-                                <TableCell align="right" style={{ fontWeight: 'bold', }} >
+                                <TableCell align="right"  >
                                     {getFormatNumber(filter[0].balances)} ₭
                                 </TableCell>
                             </TableRow>
@@ -1896,7 +1995,7 @@ function TableCellComponentExpense6({ data, childrenSecondFloor, TotaldrenSecond
                                 <TableCell component="th" scope="row" style={{ paddingLeft: 70, fontWeight: "bold" }} >
                                     Total:  {data?.name_eng}
                                 </TableCell>
-                                <TableCell align="right" style={{ fontWeight: 'bold', }} >
+                                <TableCell align="right"  >
                                     {getFormatNumber(filter[0].balances)} ₭
                                 </TableCell>
                             </TableRow>
@@ -2002,7 +2101,7 @@ function TableCellComponentExpense8({ data, childrenSecondFloor, TotaldrenSecond
                                 <TableCell component="th" scope="row" style={{ paddingLeft: 80, fontWeight: "bold" }} >
                                     Total:  {data?.name_eng}
                                 </TableCell>
-                                <TableCell align="right" style={{ fontWeight: 'bold', }} >
+                                <TableCell align="right" >
                                     {getFormatNumber(filter[0].balances)} ₭
                                 </TableCell>
                             </TableRow>
@@ -2109,7 +2208,7 @@ function TableCellComponentExpense10({ data, childrenSecondFloor, TotaldrenSecon
                                 <TableCell component="th" scope="row" style={{ paddingLeft: 90, fontWeight: "bold" }} >
                                     Total:  {data?.name_eng}
                                 </TableCell>
-                                <TableCell align="right" style={{ fontWeight: 'bold', }} >
+                                <TableCell align="right"  >
                                     {getFormatNumber(filter[0].balances)} ₭
                                 </TableCell>
                             </TableRow>
@@ -2215,7 +2314,7 @@ function TableCellComponentExpense12({ data, childrenSecondFloor, TotaldrenSecon
                                 <TableCell component="th" scope="row" style={{ paddingLeft: 100, fontWeight: "bold" }} >
                                     Total:  {data?.name_eng}
                                 </TableCell>
-                                <TableCell align="right" style={{ fontWeight: 'bold', }} >
+                                <TableCell align="right"  >
                                     {getFormatNumber(filter[0].balances)} ₭
                                 </TableCell>
                             </TableRow>
@@ -2321,7 +2420,7 @@ function TableCellComponentExpense14({ data, childrenSecondFloor, TotaldrenSecon
                                 <TableCell component="th" scope="row" style={{ paddingLeft: 110, fontWeight: "bold" }} >
                                     Total:  {data?.name_eng}
                                 </TableCell>
-                                <TableCell align="right" style={{ fontWeight: 'bold', }} >
+                                <TableCell align="right"  >
                                     {getFormatNumber(filter[0].balances)} ₭
                                 </TableCell>
                             </TableRow>

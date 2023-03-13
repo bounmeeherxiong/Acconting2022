@@ -76,6 +76,7 @@ export default function BalanceSheet() {
     const classes = useStyles();
     const OnloadBalancesheet = () => {
         axios.get('/accounting/api/balance-sheet/reports').then((data) => {
+            console.log("databalancesheet=",{...data?.data})
             setHeading({ ...data?.data })
             setNetTotal([...data?.data?.sumAsset])
             setid([...data?.data?.Ownersequity][0].bs_id)
@@ -110,6 +111,7 @@ export default function BalanceSheet() {
                 end: defaultValue1
             }
             axios.post('/accounting/api/balance-sheet/report/allreports', data).then((data) => {
+                console.log("datasearch=",{...data?.data})
                 setHeading({ ...data?.data })
                 setid([...data?.data?.Ownersequity][0].bs_id)
                 setNetTotal([...data?.data?.sumAsset])
@@ -273,7 +275,7 @@ export default function BalanceSheet() {
                                             return (
                                                 <>
                                                     <GLRowComponent
-                                                        key={index}
+                                                        key={index}           
                                                         id={data?.bs_id}
                                                         name={data?.bs_name}
                                                         subject={heading?.subject}
@@ -354,7 +356,7 @@ function GLRowComponent({ name, id, subject, index, Totalsubject, TotalSumAsset,
                 {open ? (<>
                     <TableCell align="right"></TableCell>
                 </>) : (<>
-                    <TableCell align="right" style={{ fontWeight: 'bold' }}>{getFormatNumber(SumAsset)}₭</TableCell>
+                    <TableCell align="right">{getFormatNumber(SumAsset)}₭</TableCell>
                 </>)}
             </TableRow>
             {open ? (
@@ -373,7 +375,7 @@ function GLRowComponent({ name, id, subject, index, Totalsubject, TotalSumAsset,
                         <TableCell component="th" scope="row"  >
                             Total {name}
                         </TableCell>
-                        <TableCell align="right" style={{ fontWeight: 'bold' }}>{getFormatNumber(SumAsset)}₭</TableCell>
+                        <TableCell align="right">{getFormatNumber(SumAsset)}₭</TableCell>
                     </TableRow>
                 </>
             ) : null
@@ -437,7 +439,7 @@ function GLRowComponent2({ name, id, subject, childrenFirst, childrenSecond, net
                         <TableCell component="th" scope="row" style={{ fontWeight: 'bold' }}>
                             Total {name}
                         </TableCell>
-                        <TableCell align="right" style={{ fontWeight: 'bold' }}>{getFormatNumber(parseFloat(sumTotal))}₭</TableCell>
+                        <TableCell align="right" >{getFormatNumber(parseFloat(sumTotal))}₭</TableCell>
                     </TableRow>
                 </>
             ) : (
@@ -478,7 +480,7 @@ function ComponentOwner({ childrenFirst, childrenSecond, id_Owner, Totalsubject,
                     <TableCell component="th" style={{ paddingLeft: 65 }} >
                         Net Income
                     </TableCell>
-                    <TableCell align="right">{getFormatNumber(balancesheetandloss)} ₭ </TableCell>
+                    <TableCell align="right" style={{cursor:'pointer',color:'red'}}>{getFormatNumber(balancesheetandloss)}₭</TableCell>
                 </TableRow>
                 <ComponetOwner
                     childrenFirst={childrenFirst}
@@ -493,7 +495,7 @@ function ComponentOwner({ childrenFirst, childrenSecond, id_Owner, Totalsubject,
                     <TableCell component="th" scope="row" style={{ paddingLeft: size, cursor: "pointer", fontWeight: 'bold' }}>
                         Total: Shareholders equity
                     </TableCell>
-                    <TableCell align="right" style={{ fontWeight: 'bold' }}>{getFormatNumber(parseFloat(totalliabTotal) + parseFloat(balancesheetandloss))} ₭ </TableCell>
+                    <TableCell align="right" >{getFormatNumber(parseFloat(totalliabTotal) + parseFloat(balancesheetandloss))}₭</TableCell>
                 </TableRow>
             </>) : null
         }
@@ -585,8 +587,8 @@ function ComponetOwnerFirstChild({ data, id, childrenSecond, TotaldrenFirstFloor
                                 <TableCell component="th" scope="row" style={{ paddingLeft: 65, fontWeight: "bold" }} >
                                     Total: {data?.name_eng}
                                 </TableCell>
-                                <TableCell align="right" style={{ fontWeight: 'bold', }} >
-                                    {getFormatNumber(filter[0].balances)} ₭
+                                <TableCell align="right" >
+                                    {getFormatNumber(filter[0].balances)}₭
                                 </TableCell>
                             </TableRow>
                         </>)
@@ -664,7 +666,7 @@ function TableCellComponentOwner({ data, childrenSecond, id, TotaldrenFirstFloor
                     open ? (<>
                         <TableCell align="right" style={{ cursor: 'pointer' }} onClick={() => { Gotodetailaccount(data?.c_uid) }}>{getFormatNumber(data?.balances)} ₭ </TableCell>
                     </>) : (<>
-                        <TableCell align="right">{getFormatNumber(netTotal)} ₭ </TableCell>
+                        <TableCell align="right">{getFormatNumber(netTotal)}₭</TableCell>
                     </>)
                 }
 
@@ -685,8 +687,8 @@ function TableCellComponentOwner({ data, childrenSecond, id, TotaldrenFirstFloor
                                 <TableCell component="th" scope="row" style={{ paddingLeft: 80, fontWeight: "bold" }} >
                                     Total: {data?.name_eng}
                                 </TableCell>
-                                <TableCell align="right" style={{ fontWeight: 'bold', }} >
-                                    {getFormatNumber(filter[0].balances)} ₭
+                                <TableCell align="right" >
+                                    {getFormatNumber(filter[0].balances)}₭
                                 </TableCell>
                             </TableRow>
                         </>)
@@ -761,7 +763,7 @@ function TableCellComponentOwner2({ data, childrenSecond, id, TotaldrenFirstFloo
                     open ? (<>
                         <TableCell align="right" style={{ cursor: 'pointer' }} onClick={() => { Gotodetailaccount(data?.c_uid) }}>{getFormatNumber(data?.balances)} ₭ </TableCell>
                     </>) : (<>
-                        <TableCell align="right">{getFormatNumber(netTotal)} ₭ </TableCell>
+                        <TableCell align="right">{getFormatNumber(netTotal)}₭</TableCell>
                     </>)
                 }
             </TableRow>
@@ -780,8 +782,8 @@ function TableCellComponentOwner2({ data, childrenSecond, id, TotaldrenFirstFloo
                                 <TableCell component="th" scope="row" style={{ paddingLeft: 90, fontWeight: "bold" }} >
                                     Total: {data?.name_eng}
                                 </TableCell>
-                                <TableCell align="right" style={{ fontWeight: 'bold', }} >
-                                    {getFormatNumber(filter[0].balances)} ₭
+                                <TableCell align="right">
+                                    {getFormatNumber(filter[0].balances)}₭
                                 </TableCell>
                             </TableRow>
                         </>)
@@ -856,7 +858,7 @@ function TableCellComponentOwner4({ data, childrenSecond, id, TotaldrenFirstFloo
                     open ? (<>
                         <TableCell align="right" style={{ cursor: 'pointer' }} onClick={() => { Gotodetailaccount(data?.c_uid) }}>{getFormatNumber(data?.balances)} ₭ </TableCell>
                     </>) : (<>
-                        <TableCell align="right">{getFormatNumber(netTotal)} ₭ </TableCell>
+                        <TableCell align="right">{getFormatNumber(netTotal)}₭</TableCell>
                     </>)
                 }
             </TableRow>
@@ -875,8 +877,8 @@ function TableCellComponentOwner4({ data, childrenSecond, id, TotaldrenFirstFloo
                                 <TableCell component="th" scope="row" style={{ paddingLeft: 100, fontWeight: "bold" }} >
                                     Total: {data?.name_eng}
                                 </TableCell>
-                                <TableCell align="right" style={{ fontWeight: 'bold', }} >
-                                    {getFormatNumber(filter[0].balances)} ₭
+                                <TableCell align="right"  >
+                                    {getFormatNumber(filter[0].balances)}₭
                                 </TableCell>
                             </TableRow>
                         </>)
@@ -950,7 +952,7 @@ function TableCellComponentOwner6({ data, childrenSecond, id, TotaldrenFirstFloo
                     open ? (<>
                         <TableCell align="right" style={{ cursor: 'pointer' }} onClick={() => { Gotodetailaccount(data?.c_uid) }}>{getFormatNumber(data?.balances)} ₭ </TableCell>
                     </>) : (<>
-                        <TableCell align="right">{getFormatNumber(netTotal)} ₭ </TableCell>
+                        <TableCell align="right">{getFormatNumber(netTotal)}₭</TableCell>
                     </>)
                 }
             </TableRow>
@@ -969,8 +971,8 @@ function TableCellComponentOwner6({ data, childrenSecond, id, TotaldrenFirstFloo
                                 <TableCell component="th" scope="row" style={{ paddingLeft: 110, fontWeight: "bold" }} >
                                     Total: {data?.name_eng}
                                 </TableCell>
-                                <TableCell align="right" style={{ fontWeight: 'bold', }} >
-                                    {getFormatNumber(filter[0].balances)} ₭
+                                <TableCell align="right" >
+                                    {getFormatNumber(filter[0].balances)}₭
                                 </TableCell>
                             </TableRow>
                         </>)
@@ -1046,7 +1048,7 @@ function TableCellComponentOwner8({ data, childrenSecond, id, TotaldrenFirstFloo
                     open ? (<>
                         <TableCell align="right" style={{ cursor: 'pointer' }} onClick={() => { Gotodetailaccount(data?.c_uid) }}>{getFormatNumber(data?.balances)} ₭ </TableCell>
                     </>) : (<>
-                        <TableCell align="right">{getFormatNumber(netTotal)} ₭ </TableCell>
+                        <TableCell align="right">{getFormatNumber(netTotal)}₭</TableCell>
                     </>)
                 }
             </TableRow>
@@ -1065,8 +1067,8 @@ function TableCellComponentOwner8({ data, childrenSecond, id, TotaldrenFirstFloo
                                 <TableCell component="th" scope="row" style={{ paddingLeft: 120, fontWeight: "bold" }} >
                                     Total: {data?.name_eng}
                                 </TableCell>
-                                <TableCell align="right" style={{ fontWeight: 'bold', }} >
-                                    {getFormatNumber(filter[0].balances)} ₭
+                                <TableCell align="right"  >
+                                    {getFormatNumber(filter[0].balances)}₭
                                 </TableCell>
                             </TableRow>
                         </>)
@@ -1162,7 +1164,7 @@ function TableCellComponentOwner10({ data, childrenSecond, id, TotaldrenFirstFlo
                                 <TableCell component="th" scope="row" style={{ paddingLeft: 130, fontWeight: "bold" }} >
                                     Total: {data?.name_eng}
                                 </TableCell>
-                                <TableCell align="right" style={{ fontWeight: 'bold', }} >
+                                <TableCell align="right" >
                                     {getFormatNumber(filter[0].balances)} ₭
                                 </TableCell>
                             </TableRow>
@@ -1252,7 +1254,7 @@ function TableCellComponentOwner12({ data, id, childrenSecond, Gotodetailaccount
                                 <TableCell component="th" scope="row" style={{ paddingLeft: 140, fontWeight: "bold" }} >
                                     Total: {data?.name_eng}
                                 </TableCell>
-                                <TableCell align="right" style={{ fontWeight: 'bold', }} >
+                                <TableCell align="right"  >
                                     {getFormatNumber(filter[0].balances)} ₭
                                 </TableCell>
                             </TableRow>
@@ -1364,9 +1366,10 @@ function Component({ item, size, index, id, Totalsubject, childrenFirst, Totaldr
 }
 
 function Componentsub({ id, childrenFirst, TotaldrenFirstFloor, childrenSecond, Totalsubject, subject_name, Gotodetailaccount }) {
-
+  
     if (childrenFirst === null) return <></>
     const filter = childrenFirst.filter((el) => el.bs_id == id);
+
 
     const TotalFilter = Totalsubject.filter((el) => el.bs_id == id);
 
@@ -1375,6 +1378,7 @@ function Componentsub({ id, childrenFirst, TotaldrenFirstFloor, childrenSecond, 
         <>
             {
                 filter && filter.map((data, index) => {
+                    
                     return (<>
                         <Componetfirst
                             data={data}
@@ -1391,12 +1395,13 @@ function Componentsub({ id, childrenFirst, TotaldrenFirstFloor, childrenSecond, 
                 <TableCell component="th" scope="row" style={{ paddingLeft: 25, fontWeight: "bold" }} >
                     Total: {subject_name}
                 </TableCell>
-                <TableCell align="right" style={{ fontWeight: 'bold' }} > {getFormatNumber(TotalFilter[0].amout)}₭</TableCell>
+                <TableCell align="right"> {getFormatNumber(TotalFilter[0].amout)}₭</TableCell>
             </TableRow>
         </>
     )
 }
 function Componetfirst({ data, id, childrenSecond, TotaldrenFirstFloor, Gotodetailaccount }) {
+    
 
 
     const [checkvalues, setCheckvalues] = useState('')
@@ -1454,7 +1459,7 @@ function Componetfirst({ data, id, childrenSecond, TotaldrenFirstFloor, Gotodeta
                                     <TableCell component="th" scope="row" style={{ paddingLeft: 35, fontWeight: "bold" }} >
                                         Total:{data?.name_eng}
                                     </TableCell>
-                                    <TableCell align="right" style={{ fontWeight: 'bold', }} >
+                                    <TableCell align="right">
                                         {getFormatNumber(filter[0].balances)} ₭
                                     </TableCell>
 
@@ -1556,7 +1561,7 @@ function TableCellComponent({ data, childrenSecond, id, TotaldrenFirstFloor, Got
                                 <TableCell component="th" scope="row" style={{ paddingLeft: 50, fontWeight: "bold" }} >
                                     Total:  {data?.name_eng}
                                 </TableCell>
-                                <TableCell align="right" style={{ fontWeight: 'bold', }} >
+                                <TableCell align="right">
                                     {getFormatNumber(filter[0].balances)} ₭
                                 </TableCell>
                             </TableRow>
@@ -1656,7 +1661,7 @@ function TableCellComponent2({ id, childrenSecond, data, TotaldrenFirstFloor, Go
                                 <TableCell component="th" scope="row" style={{ paddingLeft: 70, fontWeight: "bold" }} >
                                     Total:  {data?.name_eng}
                                 </TableCell>
-                                <TableCell align="right" style={{ fontWeight: 'bold', }} >
+                                <TableCell align="right" >
                                     {getFormatNumber(filter[0].balances)} ₭
                                 </TableCell>
                             </TableRow>
@@ -1752,7 +1757,7 @@ function TableCellComponent4({ data, childrenSecond, id, TotaldrenFirstFloor, Go
                                 <TableCell component="th" scope="row" style={{ paddingLeft: 80, fontWeight: "bold" }} >
                                     Total:  {data?.name_eng}
                                 </TableCell>
-                                <TableCell align="right" style={{ fontWeight: 'bold', }} >
+                                <TableCell align="right">
                                     {getFormatNumber(filter[0].balances)} ₭
                                 </TableCell>
                             </TableRow>
@@ -1847,7 +1852,7 @@ function TableCellComponent6({ data, childrenSecond, TotaldrenFirstFloor, id, Go
                                 <TableCell component="th" scope="row" style={{ paddingLeft: 90, fontWeight: "bold" }} >
                                     Total:  {data?.name_eng}
                                 </TableCell>
-                                <TableCell align="right" style={{ fontWeight: 'bold', }} >
+                                <TableCell align="right" >
                                     {getFormatNumber(filter[0].balances)} ₭
                                 </TableCell>
                             </TableRow>
@@ -1941,7 +1946,7 @@ function TableCellComponent8({ data, childrenSecond, TotaldrenFirstFloor, id, Go
                                 <TableCell component="th" scope="row" style={{ paddingLeft: 110, fontWeight: "bold" }} >
                                     Total:  {data?.name_eng}
                                 </TableCell>
-                                <TableCell align="right" style={{ fontWeight: 'bold', }} >
+                                <TableCell align="right">
                                     {getFormatNumber(filter[0].balances)} ₭
                                 </TableCell>
                             </TableRow>
@@ -2036,7 +2041,7 @@ function TableCellComponent10({ data, childrenSecond, TotaldrenFirstFloor, id, G
                                 <TableCell component="th" scope="row" style={{ paddingLeft: 110, fontWeight: "bold" }} >
                                     Total:  {data?.name_eng}
                                 </TableCell>
-                                <TableCell align="right" style={{ fontWeight: 'bold', }} >
+                                <TableCell align="right" >
                                     {getFormatNumber(filter[0].balances)} ₭
                                 </TableCell>
                             </TableRow>
@@ -2131,7 +2136,7 @@ function Component2({ item, size, id, childrenFirst, childrenSecond, Totalsubjec
                         <TableCell component="th" scope="row" style={{ paddingLeft: size, fontWeight: "bold" }} >
                             Total:{item?.bs_name}
                         </TableCell>
-                        <TableCell align="right" style={{ fontWeight: 'bold' }} > {getFormatNumber(filter[0].amout)} ₭</TableCell>
+                        <TableCell align="right"> {getFormatNumber(filter[0].amout)}₭</TableCell>
                     </TableRow>
                 </>
 
@@ -2208,7 +2213,7 @@ function TableCellComponentFirstLiability({ data, childrenSecond, TotaldrenFirst
                     open ? (<>
                         <TableCell align="right" style={{ cursor: 'pointer' }} onClick={() => { Gotodetailaccount(data?.c_uid) }}>{getFormatNumber(data?.balances)}₭</TableCell>
                     </>) : (<>
-                        <TableCell align="right">{getFormatNumber(netTotal)}₭ </TableCell>
+                        <TableCell align="right">{getFormatNumber(netTotal)}₭</TableCell>
                     </>)
                 }
 
@@ -2229,8 +2234,8 @@ function TableCellComponentFirstLiability({ data, childrenSecond, TotaldrenFirst
                                 <TableCell component="th" scope="row" style={{ paddingLeft: 45, fontWeight: "bold" }} >
                                     Total:{data?.name_eng}
                                 </TableCell>
-                                <TableCell align="right" style={{ fontWeight: 'bold', }} >
-                                    {getFormatNumber(filter[0].balances)} ₭
+                                <TableCell align="right" >
+                                    {getFormatNumber(filter[0].balances)}₭
                                 </TableCell>
                             </TableRow>
                         </>)
@@ -2309,7 +2314,7 @@ function TableCellComponentLiability({ data, childrenSecond, id, TotaldrenFirstF
                     open ? (<>
                         <TableCell align="right" style={{ cursor: 'pointer' }} onClick={() => { Gotodetailaccount(data?.c_uid) }}>{getFormatNumber(data?.balances)}₭</TableCell>
                     </>) : (<>
-                        <TableCell align="right">{getFormatNumber(netTotal)}₭ </TableCell>
+                        <TableCell align="right">{getFormatNumber(netTotal)}₭</TableCell>
                     </>)
                 }
             </TableRow>
@@ -2331,7 +2336,7 @@ function TableCellComponentLiability({ data, childrenSecond, id, TotaldrenFirstF
                                 <TableCell component="th" scope="row" style={{ paddingLeft: 60, fontWeight: "bold" }} >
                                     Total:{data?.name_eng}
                                 </TableCell>
-                                <TableCell align="right" style={{ fontWeight: 'bold', }} >
+                                <TableCell align="right" >
                                     {getFormatNumber(filter[0].balances)} ₭
                                 </TableCell>
                             </TableRow>
@@ -2411,7 +2416,7 @@ function TableCellComponentLiability2({ data, childrenSecond, id, TotaldrenFirst
                     open ? (<>
                         <TableCell align="right" style={{ cursor: 'pointer' }} onClick={() => { Gotodetailaccount(data?.c_uid) }}>{getFormatNumber(data?.balances)}₭</TableCell>
                     </>) : (<>
-                        <TableCell align="right">{getFormatNumber(netTotal)}₭ </TableCell>
+                        <TableCell align="right">{getFormatNumber(netTotal)}₭</TableCell>
                     </>)
                 }
             </TableRow>
@@ -2431,7 +2436,7 @@ function TableCellComponentLiability2({ data, childrenSecond, id, TotaldrenFirst
                                 <TableCell component="th" scope="row" style={{ paddingLeft: 70, fontWeight: "bold" }} >
                                     Total:{data?.name_eng}
                                 </TableCell>
-                                <TableCell align="right" style={{ fontWeight: 'bold', }} >
+                                <TableCell align="right"  >
                                     {getFormatNumber(filter[0].balances)} ₭
                                 </TableCell>
                             </TableRow>
@@ -2534,7 +2539,7 @@ function TableCellComponentLiability4({ data, childrenSecond, id, TotaldrenFirst
                                 <TableCell component="th" scope="row" style={{ paddingLeft: 70, fontWeight: "bold" }} >
                                     Total:{data?.name_eng}
                                 </TableCell>
-                                <TableCell align="right" style={{ fontWeight: 'bold', }} >
+                                <TableCell align="right"  >
                                     {getFormatNumber(filter[0].balances)} ₭
                                 </TableCell>
                             </TableRow>
@@ -2635,7 +2640,7 @@ function TableCellComponentLiability6({ data, childrenSecond, id, TotaldrenFirst
                                 <TableCell component="th" scope="row" style={{ paddingLeft: 70, fontWeight: "bold" }} >
                                     Total:{data?.name_eng}
                                 </TableCell>
-                                <TableCell align="right" style={{ fontWeight: 'bold', }} >
+                                <TableCell align="right"  >
                                     {getFormatNumber(filter[0].balances)} ₭
                                 </TableCell>
                             </TableRow></>)
@@ -2741,7 +2746,7 @@ function TableCellComponentLiability8({ data, childrenSecond, id, TotaldrenFirst
                                 <TableCell component="th" scope="row" style={{ paddingLeft: 70, fontWeight: "bold" }} >
                                     Total:{data?.name_eng}
                                 </TableCell>
-                                <TableCell align="right" style={{ fontWeight: 'bold', }} >
+                                <TableCell align="right"  >
                                     {getFormatNumber(filter[0].balances)} ₭
                                 </TableCell>
                             </TableRow>
@@ -2847,7 +2852,7 @@ function TableCellComponentLiability10({ data, childrenSecond, id, TotaldrenFirs
                                 <TableCell component="th" scope="row" style={{ paddingLeft: 70, fontWeight: "bold" }} >
                                     Total:{data?.name_eng}
                                 </TableCell>
-                                <TableCell align="right" style={{ fontWeight: 'bold', }} >
+                                <TableCell align="right" >
                                     {getFormatNumber(filter[0].balances)} ₭
                                 </TableCell>
                             </TableRow>
@@ -2948,7 +2953,7 @@ function TableCellComponentLiability12({ data, childrenSecond, id, TotaldrenFirs
                         <TableCell component="th" scope="row" style={{ paddingLeft: 70, fontWeight: "bold" }} >
                             Total:{data?.name_eng}
                         </TableCell>
-                        <TableCell align="right" style={{ fontWeight: 'bold', }} >
+                        <TableCell align="right"  >
                             {getFormatNumber(filter[0].balances)} ₭
                         </TableCell>
                     </TableRow>

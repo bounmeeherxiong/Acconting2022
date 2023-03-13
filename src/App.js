@@ -346,7 +346,7 @@ const OnloadResetCondition = () => {
               <Route exact path="/DetailFitandLoss/:id" element={<DetailFitandLoss />}></Route>
               <Route exact path="/DetailAutomatic/:id" element={< DetailAutomatic />} ></Route>
               <Route exact path="/DetailUnrealisedgain/:id" element={< Unrealisedgain_or_loss />} ></Route>
-              <Route exact path="/ViewUnrealisedgain_or_loss" element={< ViewUnrealisedgain_or_loss />} ></Route>
+              <Route exact path="/ViewUnrealisedgain_or_loss/:id" element={< ViewUnrealisedgain_or_loss />} ></Route>
               <Route exact path="/ExchangeRate/:id" element={< ExchangeRate />} ></Route>
 
             </Routes>
@@ -355,6 +355,6 @@ const OnloadResetCondition = () => {
       </LoginContext.Provider>
     </div>
   );
-}
+}      
 
 export default App;

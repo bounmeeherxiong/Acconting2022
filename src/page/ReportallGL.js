@@ -124,13 +124,7 @@ export default function ReportallGL() {
     //     console.log(err)
     // })
   }
-  const onloadAutomaticGl = () => {
-    axios.get("/accounting/api/report/reportAutoGL").then((data) => {
-      console.log(data)
-    }).catch((err) => {
-      console.log(err)
-    })
-  }
+
   const onBlurSetting = (Leave) => {
     if (Leave === 0) {
       setShowSetting(false)
@@ -222,7 +216,7 @@ export default function ReportallGL() {
         }
       }
       axios.post("/accounting/api/report/reportGlbydate", data).then((data) => {
-        console.log("DataList=",{...data?.data})
+        console.log("SearchDataList=",{...data?.data})
         setListgl({ ...data?.data })
       }).catch((err) => {
         console.log(err)
@@ -304,12 +298,19 @@ export default function ReportallGL() {
         end
       }
       axios.post("/accounting/api/report/reportGlbydate", data).then((data) => {
-        console.log("DataList=", { ...data?.data })
+        console.log("ssssDataList=", { ...data?.data })
         setListgl({ ...data?.data })
       }).catch((err) => {
         console.log(err)
       })
     }
+  }
+  const onloadAutomaticGl = () => {
+    axios.get("/accounting/api/report/reportAutoGL").then((data) => {
+      console.log(data)
+    }).catch((err) => {
+      console.log(err)
+    })
   }
 
   // const onloadreportGl = () => {
@@ -1246,8 +1247,14 @@ function RowComponent({ id, name_eng, OnEditJournal, total1, childrenFirstFloor,
           }
           return (
             <>
-              <TableRow key={index} >
-                <TableCell
+              <TableRow key={index} style={{paddingLeft:45}}>
+                {
+                  data?.begining_balance == '0' ? (
+                  <>
+                  <TableCell >Beginning Balance</TableCell>
+                  </>):(
+                  <>
+                    <TableCell
                   style={{
                     paddingLeft: 45, cursor: "pointer",
                     fontWeight:
@@ -1257,9 +1264,12 @@ function RowComponent({ id, name_eng, OnEditJournal, total1, childrenFirstFloor,
                   onMouseOver={() => setActive(moment(data?.createdate).format("DD-MM-YYYY"))}
                   onMouseLeave={() => setActive(null)}
                 >{moment(data?.createdate).format("DD-MM-YYYY")}</TableCell>
+                  </>)
+                }
+
                 {
                   data?.begining_balance == '0' ? (
-                    <TableCell align="left">Beginning Balance</TableCell>
+                    <TableCell align="left"></TableCell>
 
                   ) : (
                     <TableCell align="left" style={{
@@ -1739,10 +1749,18 @@ function SecondRowComponent({ id, name_eng, level, OnEditJournal, childrenSecond
           return (
             <>
               <TableRow key={index} >
-                <TableCell style={{ paddingLeft: level, cursor: "pointer" }} onClick={() => { OnEditJournal(data?.tr_id) }}>{moment(data?.createdate).format("DD-MM-YYYY")}</TableCell>
+                {
+                  data?.begining_balance == '0' ? (<>
+                 <TableCell style={{marginLeft:level}}>Beginning Balance</TableCell>
+                  </>):(<>
+                    <TableCell style={{ paddingLeft: level, cursor: "pointer" }} onClick={() => { OnEditJournal(data?.tr_id) }}>{moment(data?.createdate).format("DD-MM-YYYY")}</TableCell>
+               
+                  </>)
+                }
+          
                 {
                   data?.begining_balance == '0' ? (
-                    <TableCell align="left">Beginning Balance</TableCell>
+                    <TableCell align="left"></TableCell>
                   ) : (
                     <TableCell align="left" onClick={() => { OnEditJournal(data?.tr_id) }} style={{ cursor: "pointer" }}>Journal Entry</TableCell>
                   )

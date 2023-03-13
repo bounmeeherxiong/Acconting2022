@@ -81,6 +81,7 @@ export default function Journal() {
   const [errjournal, setErrjournal] = useState("")
   const [erragain, setErragain] = useState("")
   const addMore = () => {
+    console.log('data=',[...data])
     setData([...data, {}]);
   };
   const addLines = (index) => {
@@ -264,6 +265,13 @@ export default function Journal() {
       setDefaultValue(moment(e).format("DD-MM-YYYY"))
     }
   }
+  const onloadAutomaticGl = () => {
+  axios.get("/accounting/api/report/reportAutoGL").then((data) => {
+    console.log(data)
+  }).catch((err) => {
+    console.log(err)
+  })
+}
   const defaultDate = (e) => {
     setErragain('')
     setDefaultValue(e)
@@ -359,8 +367,8 @@ export default function Journal() {
         setShowToast(true);
         onloadreportGl();
         OnloadResetCondition()
-        // OnloadBalancesheet();
-        // onloadAutomaticGl();
+        // OnloadBalancesheet();   
+        onloadAutomaticGl();
     
       }).catch((err) => {
         let statusCode = err.response?.data?.statusCode

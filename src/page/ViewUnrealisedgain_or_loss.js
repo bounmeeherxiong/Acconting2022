@@ -20,6 +20,7 @@ import axios from "axios";
 import { Button } from "@material-ui/core";
 import { useNavigate } from "react-router-dom";
 import SettingsIcon from "@material-ui/icons/Settings";
+import { useParams } from "react-router-dom";
 
 
 import moment from 'moment';
@@ -44,6 +45,8 @@ function createData(name, calories, fat, carbs, protein) {
 
 export default function ViewUnrealisedgain_or_loss() {
     const navigate = useNavigate();
+    const { id } = useParams();
+    
     const [list, setList] = useState({})
     const [listtotal, setListTotal] = useState([])
     const [balances, setBalances] = useState(false)
@@ -52,14 +55,24 @@ export default function ViewUnrealisedgain_or_loss() {
     const [foreignBalance, setForeignBalance] = useState(false)
     const [gain_Loss, setgain_loss] = useState(false)
     const [showSetting, setShowSetting] = useState(false)
+    const [searchlist,setSeachlist]=useState([])
+    const [searchtotal,setSearchtotal]=useState([])
     const OnloadListData = () => {
         axios.get('/accounting/api/listLossAndGain/getList').then((data) => {
-            console.log("data=", { ...data?.data })
+            console.log("data=",{...data?.data})
             setListTotal([...data?.data?.totalGainAndLoss])
-
-
             setList({ ...data?.data })
         }).catch((err) => {
+            console.log(err)
+        })
+    }
+    const OnloadSearchListData =()=>{
+        axios.get('/accounting/api/listLossAndGain/callLossAndgain').then((data)=>{
+            console.log("searchlistdata=",{...data?.data})
+            setSearchtotal([...data?.data?.totalGainAndLoss])
+            setSeachlist({...data?.data})
+
+        }).catch((err)=>{
             console.log(err)
         })
     }
@@ -72,6 +85,7 @@ export default function ViewUnrealisedgain_or_loss() {
 
     useEffect(() => {
         OnloadListData()
+        OnloadSearchListData()
     }, [])
 
     const goback = () => {
@@ -122,6 +136,7 @@ export default function ViewUnrealisedgain_or_loss() {
                         <SettingsIcon style={{ cursor: 'pointer' }}
                         />
                     </button>
+
                     {showSetting ?
                         (
                             <>
@@ -211,7 +226,10 @@ export default function ViewUnrealisedgain_or_loss() {
                     height: 10,
                 }}
             ></div>
-            <TableContainer component={Paper}>
+            {
+                id == 1 ? (
+                <>
+                <TableContainer component={Paper}>
                 <Table aria-label="collapsible table" size='small'>
                     <TableHead>
                         <TableRow>
@@ -271,6 +289,71 @@ export default function ViewUnrealisedgain_or_loss() {
                     </TableHead>
                 </Table>
             </TableContainer>
+                </>):(<>
+                <TableContainer component={Paper}>
+                <Table aria-label="collapsible table" size='small'>
+                    <TableHead>
+                        <TableRow>
+                            <TableCell style={{ fontWeight: 'bold' }}>Unrealised Gains & Losses</TableCell>
+                            <TableCell></TableCell>
+                            <TableCell align="right"></TableCell>
+                            <TableCell align="right"></TableCell>
+                            <TableCell align="right"></TableCell>
+                            <TableCell align="right"></TableCell>
+                            <TableCell align="right"></TableCell>
+                            <TableCell align="right">gain/loss</TableCell>
+                        </TableRow>
+                    </TableHead>
+                    <TableBody>
+                        {
+                            searchlist.fistList && searchlist.fistList.map((data, index) => {
+                                return (
+                                    <>
+                                        <TableCellComponent
+                                            key={index}
+                                            data={data}
+                                            gain_losses={data.p_and_l_status}
+                                            secondList={searchlist.secondList}
+                                            balances={balances}
+                                            currentbalances={currentbalances}
+                                            rate={rate}
+                                            foreignBalance={foreignBalance}
+                                            gain_Loss={gain_Loss}
+                                        />
+                                    </>
+                                )
+                            })
+                        }
+
+                    </TableBody>
+                    <TableHead>
+                        {
+                            searchtotal && searchtotal.map((data, index) => {
+                                return (
+                                    <>
+                                        <TableRow key={index}>
+                                            <TableCell>{data?.name_eng}</TableCell>
+                                            <TableCell></TableCell>
+                                            <TableCell align="right"></TableCell>
+                                            <TableCell align="right"></TableCell>
+                                            <TableCell align="right"></TableCell>
+                                            <TableCell align="right"></TableCell>
+                                            <TableCell align="right"></TableCell>
+                                            <TableCell align="right">{getFormatNumber(data?.bs_amount)} ₭ </TableCell>
+                                        </TableRow>
+
+                                    </>
+                                )
+                            })
+                        }
+
+                    </TableHead>
+                </Table>
+            </TableContainer>
+                
+                </>)
+            }
+
         </>
     );
 }

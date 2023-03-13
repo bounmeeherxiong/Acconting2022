@@ -279,6 +279,13 @@ export default function Journal() {
     const changeOpent = () => {
         setShowBoxEdit(!showBoxEdit);
     }
+    const onloadAutomaticGl = () => {
+        axios.get("/accounting/api/report/reportAutoGL").then((data) => {
+          console.log(data)
+        }).catch((err) => {
+          console.log(err)
+        })
+      }
     useEffect(() => {
         _onLoad()
         countnumber()
@@ -321,6 +328,7 @@ export default function Journal() {
                 setUsd('')
                 setDefaultValue('')
                 setShowToast(true);
+                onloadAutomaticGl();
 
             }).catch((err) => {
                 console.log(err)
