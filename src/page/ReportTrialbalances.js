@@ -393,12 +393,17 @@ export default function ReportTrialbalances() {
                             listTrailbalance.result && listTrailbalance.result.map((data, index) => {
                                 let balance = data?.balances
                                 let usingObjectAssign = Object.assign([], balance);
-                                let condition = usingObjectAssign[0]
                                 let createstatus = data?.createstatus
+                                let loss=data?.statu_auto_GainAndLoss
+                                let condition = usingObjectAssign[0]
                                 if (createstatus == 'As' || createstatus == 'Ex') {
-
                                     if (condition == "-") {
+                                         if (loss == '1'){
+                                        creditAllTotal += parseFloat(data?.balances)
+                                         }else{
                                         creditAllTotal += parseFloat(data?.balances.replace('-', ''))
+                                         }
+                                 
                                     } else {
 
                                         debitAllTotal += parseFloat(data?.balances)
@@ -410,7 +415,6 @@ export default function ReportTrialbalances() {
 
                                         debitAllTotal += parseFloat(data?.balances.replace('-', ''))
                                     }
-
                                 }
                                 return (
                                     <>
@@ -445,7 +449,6 @@ export default function ReportTrialbalances() {
                                                                 <TableCell style={{cursor:'pointer'}} onClick={()=>{Gotodetailaccount(data?.c_uid)}} align="right">{getFormatNumber(data?.balances)}</TableCell>
                                                             </>) : (
                                                             <>
-
                                                                 <TableCell style={{cursor:'pointer'}} onClick={()=>{Gotodetailaccount(data?.c_uid)}} align="right">{getFormatNumber(data?.balances).replace('-', '')}</TableCell>
                                                                 <TableCell onClick={()=>{Gotodetailaccount(data?.c_uid)}} align="right">0.00</TableCell>
                                                             </>

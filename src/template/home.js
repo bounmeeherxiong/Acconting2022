@@ -285,12 +285,12 @@ export default function Home(props) {
                   </ListItem>
                   <Collapse in={listOpentExchange} timeout="auto" unmountOnExit>
                     <List component="div" disablePadding>
-                      <ListItem button className={classes.nested} onClick={() => handleExchangeShow()}>
+                      {/* <ListItem button className={classes.nested} onClick={() => handleExchangeShow()}>
                         <ListItemIcon>
                         </ListItemIcon>
                         Transaction Rate
-                      </ListItem>
-                      <ListItem button className={classes.nested} onClick={() => handleShow()}>
+                      </ListItem> */}
+                      <ListItem button className={classes.nested} onClick={() => Navigate(`ExchangeRate/${1}`)}>
                         <ListItemIcon>
                         </ListItemIcon>
                         Exchange Rate
@@ -332,13 +332,13 @@ export default function Home(props) {
                     Test
                     <ListItemText />
                   </ListItem> */}
-                  <ListItem button onClick={() => Navigate(`ExchangeRate/${1}`)} >
+                  {/* <ListItem button onClick={() => Navigate(`ExchangeRate/${1}`)} >
                     <ListItemIcon>
                       <BarChartIcon />
                     </ListItemIcon>
                     Test
                     <ListItemText />
-                  </ListItem>
+                  </ListItem> */}
                   <ListItem button onClick={() => Navigate("ReportTrialbalances")} >
                     <ListItemIcon>
                       <BarChartIcon />
@@ -761,6 +761,13 @@ function EditComponentJournal({ id, CloseShoFullScrreen }) {
     currencies()
     _searchstartdate()
   }, [])
+  const onloadAutomaticGl = () => {
+    axios.get("/accounting/api/report/reportAutoGL").then((data) => {
+      console.log(data)
+    }).catch((err) => {
+      console.log(err)
+    })
+  }
   const createdata = async () => {
     let cure;
     let images
@@ -814,6 +821,7 @@ function EditComponentJournal({ id, CloseShoFullScrreen }) {
         setUsd('')
         setDefaultValue('')
         setShowToast(true);
+        onloadAutomaticGl();
       }).catch((err) => {
         console.log(err)
         console.log(err)

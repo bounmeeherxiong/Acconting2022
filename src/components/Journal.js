@@ -200,12 +200,15 @@ export default function Journal() {
   }
   const changeText = (value, key, index) => {
     const object = { ...data[index] };
+  
+    console.log("object=",object)
     if (key == 'debit' || key == 'credit') {
       object[key] = value.toString().replaceAll(',', '').replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1,");
     } else {
       object[key] = value;
     }
     const cloneData = [...data];
+    console.log("cloneData=",cloneData)
     cloneData[index] = { ...object };
     setData([...cloneData]);
   };
@@ -692,7 +695,7 @@ export default function Journal() {
           }}>
             <ToastShow show={showToast} setShow={setShowToast} iconNmame={<CheckCircle size={24} style={{ marginTop: 20, color: "#EC7380" }} />} />
           </div>
-          {/* {JSON.stringify(data)} */}
+          {JSON.stringify(data)}
           <div className={classes.root} style={{ position: "absolute" }}>
             {
               errInforCurrency == '405' || errInforCurrency == '401' || errInforCurrency == '402' || errInforCurrency == '403' ?

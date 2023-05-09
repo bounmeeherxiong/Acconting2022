@@ -73,6 +73,7 @@ export default function ReportallGL() {
   const [exchangerate, setExchangeRate] = useState(false);
   const [exchange, setExchange] = useState([])
   const [isLoading, setIsLoading,] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   const [clearData, setClearData] = useState([
     { name: 'USD', rate: '' },
@@ -374,11 +375,13 @@ export default function ReportallGL() {
     }
   };
   useEffect(() => {
+
     _onShow();
     onloadreportGl()
     _searchstartdate();
     _searchbydate();
-    onLoadExchangeRates()
+    onLoadExchangeRates();
+
 
   }, [])
   // useEffect(() => {
@@ -962,7 +965,7 @@ export default function ReportallGL() {
         </>
       )}
       <div style={{ height: 20 }}></div>
-      <TableContainer component={Paper} ref={(el) => (componentRef = el)}>
+      <TableContainer  ref={(el) => (componentRef = el)}>
         <Table className={classes.table} aria-label="sticky table" size="small">
           <TableHead>
             <TableRow>
@@ -1063,12 +1066,15 @@ export default function ReportallGL() {
         </Table>
       </TableContainer>
 
+
+
+
     </>
   )
 }
 function GLRowComponent({ name_eng, id, second, childrenFirstFloor, childrenSecondFloor, onGotoEditjournal, OnEditJournal, defaultValue, defaultValue1, getvalues, ch_id, showcredit, showdebit, foreigndebit, foreigncredit, foreignamount, foreignbalance, rate, exchangerate, gain_Loss, currentbalance, OnShowAatumaticTransaction }) {
   const [open, setOpen] = useState(true);
-  const [netTotal1, setNetTotal1] = useState("0")
+  const [netTotal1, setNetTotal1] = useState([])
   let total1 = 0;
   const handleClick = () => {
     setOpen(!open);
@@ -1101,7 +1107,7 @@ function GLRowComponent({ name_eng, id, second, childrenFirstFloor, childrenSeco
         c_id
       }
       axios.post("/accounting/api/report/sumdata", data).then((data) => {
-        setNetTotal1(data?.data?.result[0].balances)
+        setNetTotal1([...data?.data?.result][0].balances)
       }).catch((err) => {
         console.log(err)
       })
@@ -1121,7 +1127,7 @@ function GLRowComponent({ name_eng, id, second, childrenFirstFloor, childrenSeco
             <TableCell align="left"></TableCell>
           ) : (
 
-            <TableCell align="right" >{getFormatNumber(netTotal1)} ₭</TableCell>
+            <TableCell align="right" >{getFormatNumber(netTotal1)}₭</TableCell>
           )
         }
         {
@@ -1368,7 +1374,7 @@ function RowComponent({ id, name_eng, OnEditJournal, total1, childrenFirstFloor,
                         data?.foreign_code === 'USD' || data?.foreign_code === 'THB' ? (
                           <>
                             {
-                              data?.foreign_code === 'USD' ?
+                              data?.foreign_code === 'USD' ||  data.foreign_code == 'THB' ?
                                 (
                                   <>
                                     <TableCell align="right" style={{ cursor: "pointer" }} >{getFormatNumber(data?.foreign_amount)}$</TableCell>
@@ -1387,6 +1393,9 @@ function RowComponent({ id, name_eng, OnEditJournal, total1, childrenFirstFloor,
                             <TableCell align="right" style={{ cursor: "pointer" }} ></TableCell>
                           </>
                         )
+                        
+                        
+
                       }
                     </>
                   ) : null
@@ -1454,7 +1463,7 @@ function RowComponent({ id, name_eng, OnEditJournal, total1, childrenFirstFloor,
                       {
                         data?.foreign_code === 'USD' || data?.foreign_code === 'THB' ? (
                           <>
-                            <TableCell align="right" style={{ cursor: "pointer", color: 'red' }} onClick={() => { OnShowAatumaticTransaction(data?.automatic_status) }} >{getFormatNumber(data?.gain_loss)} ₭</TableCell>
+                            <TableCell align="right" style={{ cursor: "pointer", color: 'red' }} onClick={() => { OnShowAatumaticTransaction(data?.automatic_status) }} >{getFormatNumber(data?.gain_loss)}₭</TableCell>
                           </>
                         ) : (
                           <>
@@ -1570,7 +1579,7 @@ function SecondFloorRowComponent({ level, second, id, OnEditJournal, childrenSec
 }
 function TableCellComponent({ data, level, index, second, OnEditJournal, childrenSecondFloor, ch_id, getvalues, defaultValue, defaultValue1, showcredit, showdebit, foreigndebit, foreigncredit, foreignamount, foreignbalance, rate, exchangerate, gain_Loss, currentbalance, OnShowAatumaticTransaction }) {
   const [open, setOpen] = useState(true);
-  const [netTotal1, setNetTotal1] = useState("0")
+  const [netTotal1, setNetTotal1] = useState([])
   const handleClick = () => {
     setOpen(!open);
   };
@@ -1603,7 +1612,7 @@ function TableCellComponent({ data, level, index, second, OnEditJournal, childre
       }
 
       axios.post("/accounting/api/report/sumdata", data).then((data) => {
-        setNetTotal1(data?.data?.result[0].balances)
+        setNetTotal1([...data?.data?.data][0].balances)
 
       }).catch((err) => {
         console.log(err)
@@ -1623,7 +1632,7 @@ function TableCellComponent({ data, level, index, second, OnEditJournal, childre
             <TableCell align="left"></TableCell>
           ) : (
             <>
-              <TableCell align="right">{getFormatNumber(netTotal1)} ₭</TableCell>
+              <TableCell align="right">{getFormatNumber(netTotal1)}₭</TableCell>
             </>
           )
         }

@@ -146,7 +146,15 @@ export default function Profitandloss() {
     const ViewUnrealised = (e) => {
         navigate(`/ViewUnrealisedgain_or_loss/${e}`);
     }
+    const onloadAutomaticGl = () => {
+        axios.get("/accounting/api/report/reportAutoGL").then((data) => {
+          console.log(data)
+        }).catch((err) => {
+          console.log(err)
+        })
+      }
     const OnRunReport = () => {
+        setLoading(false)
         setCondition(2)
         if (getvalues == 'custom') {
             let data = {
@@ -175,6 +183,8 @@ export default function Profitandloss() {
                 // } else {
                 //     setShow(false)
                 // }
+                setLoading(true)
+                onloadAutomaticGl();
             }).catch((err) => {
                 console.log(err)
             })
@@ -508,7 +518,6 @@ export default function Profitandloss() {
                                                         return (
                                                             <>
                                                                 <ComponentHeading
-                                                               
                                                                     data={data}
                                                                     key={index}
                                                                     childrenFirstFloor={headingprofi?.childrenFirst}
@@ -516,7 +525,6 @@ export default function Profitandloss() {
                                                                     TotaldrenFirstFloor={headingprofi?.firsttotal}
                                                                     totalgain={totalgain}
                                                                     exchangegainloss={headingprofi?.ExchangeTotalGainAndLosses}
-                                                               
                                                                     Gotodetailaccount={Gotodetailaccount}
                                                                     ViewUnrealised={ViewUnrealised}
                                                                     gain={gain}
@@ -704,7 +712,8 @@ function TableCellComponentIncome({ data, childrenSecondFloor, TotaldrenFirstFlo
             c_id: e
         }
         axios.post("/accounting/api/balance-sheet/sumtotal", data).then((data) => {
-            setNetTotal(data?.data?.data?.balances)
+          
+            setNetTotal([...data?.data?.data][0].balances)
         }).catch((err) => {
             console.log(err)
         })
@@ -714,15 +723,18 @@ function TableCellComponentIncome({ data, childrenSecondFloor, TotaldrenFirstFlo
             <TableRow>
                 <TableCell onClick={() => { handleClick(); OnSumTotal(data?.c_id) }} style={{ cursor: 'pointer', paddingLeft: 30 }}>
                     {
-                        checkvalues === 0 ? (<></>) : (<>
-                            {open ? <ExpandLess /> : <ExpandMore />}
-                        </>)
+                        checkvalues === 0 ? (<></>) : (<>{open ? <ExpandLess /> : <ExpandMore />}</>)
                     }
                     {data?.name_eng}
                 </TableCell>
-                <TableCell align="right" style={{ cursor: 'pointer' }} onClick={() => { Gotodetailaccount(data?.c_uid) }}>
-                    {getFormatNumber(data?.balances)}₭
-                </TableCell>
+                {
+                    open ? (
+                        <>
+                            <TableCell align="right" style={{ cursor: 'pointer' }} onClick={() => { Gotodetailaccount(data?.c_uid) }}>{getFormatNumber(data?.balances)}₭</TableCell>
+                        </>) : (<>
+                            <TableCell align="right">{getFormatNumber(netTotal)}₭</TableCell>
+                        </>)
+                }
             </TableRow>
             {open ? (
                 <>
@@ -740,7 +752,7 @@ function TableCellComponentIncome({ data, childrenSecondFloor, TotaldrenFirstFlo
                                     Total: {data?.name_eng}
                                 </TableCell>
                                 <TableCell align="right" >
-                                    {getFormatNumber(filter[0].balances)} ₭
+                                    {getFormatNumber(filter[0].balances)}₭
                                 </TableCell>
 
                             </TableRow>
@@ -804,7 +816,7 @@ function TableCellComponentIncome2({ data, childrenSecondFloor, TotaldrenSecondF
             c_id: e
         }
         axios.post("/accounting/api/balance-sheet/sumtotal", data).then((data) => {
-            setNetTotal(data?.data?.data?.balances)
+            setNetTotal([...data?.data?.data][0].balances)
         }).catch((err) => {
             console.log(err)
         })
@@ -825,11 +837,11 @@ function TableCellComponentIncome2({ data, childrenSecondFloor, TotaldrenSecondF
                 </TableCell >
                 {
                     open ? (<>
-                        <TableCell align="right" style={{ cursor: 'pointer' }} onClick={() => { Gotodetailaccount(data?.c_uid) }}> {getFormatNumber(data?.balances)}</TableCell>
+                        <TableCell align="right" style={{ cursor: 'pointer' }} onClick={() => { Gotodetailaccount(data?.c_uid) }}> {getFormatNumber(data?.balances)}₭</TableCell>
 
                     </>) : (<>
 
-                        <TableCell align="right" style={{ cursor: 'pointer' }} onClick={() => { Gotodetailaccount(data?.c_uid) }}> {getFormatNumber(netTotal)}</TableCell>
+                        <TableCell align="right" style={{ cursor: 'pointer' }} onClick={() => { Gotodetailaccount(data?.c_uid) }}> {getFormatNumber(netTotal)}₭</TableCell>
                     </>)
                 }
             </TableRow>
@@ -849,7 +861,7 @@ function TableCellComponentIncome2({ data, childrenSecondFloor, TotaldrenSecondF
                                     Total:  {data?.name_eng}
                                 </TableCell>
                                 <TableCell align="right">
-                                    {getFormatNumber(filter[0].balances)} ₭
+                                    {getFormatNumber(filter[0].balances)}₭
                                 </TableCell>
                             </TableRow>
                         </>)
@@ -905,7 +917,7 @@ function TableCellComponentIncome4({ data, childrenSecondFloor, TotaldrenSecondF
             c_id: e
         }
         axios.post("/accounting/api/balance-sheet/sumtotal", data).then((data) => {
-            setNetTotal(data?.data?.data?.balances)
+            setNetTotal([...data?.data?.data][0].balances)
         }).catch((err) => {
             console.log(err)
         })
@@ -928,9 +940,9 @@ function TableCellComponentIncome4({ data, childrenSecondFloor, TotaldrenSecondF
                 <TableCell align="right" style={{ cursor: 'pointer' }} onClick={() => { Gotodetailaccount(data?.c_uid) }}>
                     {
                         open ? (<>
-                            {getFormatNumber(data?.balances)}
+                            {getFormatNumber(data?.balances)}₭
                         </>) : (<>
-                            {getFormatNumber(netTotal)}
+                            {getFormatNumber(netTotal)}₭
                         </>)
                     }
                 </TableCell>
@@ -953,7 +965,7 @@ function TableCellComponentIncome4({ data, childrenSecondFloor, TotaldrenSecondF
                                     Total:  {data?.name_eng}
                                 </TableCell>
                                 <TableCell align="right">
-                                    {getFormatNumber(filter[0].balances)} ₭
+                                    {getFormatNumber(filter[0].balances)}₭
                                 </TableCell>
                             </TableRow>
                         </>)
@@ -1009,7 +1021,7 @@ function TableCellComponentIncome6({ data, childrenSecondFloor, TotaldrenSecondF
             c_id: e
         }
         axios.post("/accounting/api/balance-sheet/sumtotal", data).then((data) => {
-            setNetTotal(data?.data?.data?.balances)
+            setNetTotal([...data?.data?.data][0].balances)
         }).catch((err) => {
             console.log(err)
         })
@@ -1032,9 +1044,9 @@ function TableCellComponentIncome6({ data, childrenSecondFloor, TotaldrenSecondF
                 <TableCell align="right" style={{ cursor: 'pointer' }} onClick={() => { Gotodetailaccount(data?.c_uid) }}>
                     {
                         open ? (<>
-                            {getFormatNumber(data?.balances)}
+                            {getFormatNumber(data?.balances)}₭
                         </>) : (<>
-                            {getFormatNumber(netTotal)}
+                            {getFormatNumber(netTotal)}₭
                         </>)
                     }
                 </TableCell>
@@ -1057,7 +1069,7 @@ function TableCellComponentIncome6({ data, childrenSecondFloor, TotaldrenSecondF
                                     Total:  {data?.name_eng}
                                 </TableCell>
                                 <TableCell align="right" >
-                                    {getFormatNumber(filter[0].balances)} ₭
+                                    {getFormatNumber(filter[0].balances)}₭
                                 </TableCell>
                             </TableRow>
                         </>)
@@ -1112,7 +1124,7 @@ function TableCellComponentIncome8({ data, childrenSecondFloor, TotaldrenSecondF
             c_id: e
         }
         axios.post("/accounting/api/balance-sheet/sumtotal", data).then((data) => {
-            setNetTotal(data?.data?.data?.balances)
+            setNetTotal([...data?.data?.data][0].balances)
         }).catch((err) => {
             console.log(err)
         })
@@ -1135,9 +1147,9 @@ function TableCellComponentIncome8({ data, childrenSecondFloor, TotaldrenSecondF
                 <TableCell align="right" style={{ cursor: 'pointer' }} onClick={() => { Gotodetailaccount(data?.c_uid) }}>
                     {
                         open ? (<>
-                            {getFormatNumber(data?.balances)}
+                            {getFormatNumber(data?.balances)}₭
                         </>) : (<>
-                            {getFormatNumber(netTotal)}
+                            {getFormatNumber(netTotal)}₭
                         </>)
                     }
                 </TableCell>
@@ -1160,7 +1172,7 @@ function TableCellComponentIncome8({ data, childrenSecondFloor, TotaldrenSecondF
                                     Total:  {data?.name_eng}
                                 </TableCell>
                                 <TableCell align="right" >
-                                    {getFormatNumber(filter[0].balances)} ₭
+                                    {getFormatNumber(filter[0].balances)}₭
                                 </TableCell>
                             </TableRow>
                         </>)
@@ -1218,7 +1230,7 @@ function TableCellComponentIncome10({ data, childrenSecondFloor, TotaldrenSecond
             c_id: e
         }
         axios.post("/accounting/api/balance-sheet/sumtotal", data).then((data) => {
-            setNetTotal(data?.data?.data?.balances)
+            setNetTotal([...data?.data?.data][0].balances)
         }).catch((err) => {
             console.log(err)
         })
@@ -1241,9 +1253,9 @@ function TableCellComponentIncome10({ data, childrenSecondFloor, TotaldrenSecond
                 <TableCell align="right" style={{ cursor: 'pointer' }} onClick={() => { Gotodetailaccount(data?.c_uid) }}>
                     {
                         open ? (<>
-                            {getFormatNumber(data?.balances)}
+                            {getFormatNumber(data?.balances)}₭
                         </>) : (<>
-                            {getFormatNumber(netTotal)}
+                            {getFormatNumber(netTotal)}₭
                         </>)
                     }
                 </TableCell>
@@ -1264,7 +1276,7 @@ function TableCellComponentIncome10({ data, childrenSecondFloor, TotaldrenSecond
                                     Total:  {data?.name_eng}
                                 </TableCell>
                                 <TableCell align="right" >
-                                    {getFormatNumber(filter[0].balances)} ₭
+                                    {getFormatNumber(filter[0].balances)}₭
                                 </TableCell>
                             </TableRow>
                         </>)
@@ -1321,7 +1333,7 @@ function TableCellComponentIncome12({ data, childrenSecondFloor, TotaldrenSecond
             c_id: e
         }
         axios.post("/accounting/api/balance-sheet/sumtotal", data).then((data) => {
-            setNetTotal(data?.data?.data?.balances)
+            setNetTotal([...data?.data?.data][0].balances)
         }).catch((err) => {
             console.log(err)
         })
@@ -1372,7 +1384,7 @@ function ComponentHeading({ data, childrenFirstFloor, childrenSecondFloor, Total
                 <TableCell align="right">
                     {
                         open ? (<></>) : (<>
-                            {getFormatNumber(data?.balance)}
+                            {getFormatNumber(data?.balance)}₭
                         </>)
                     }
                 </TableCell>
@@ -1400,14 +1412,14 @@ function ComponentHeading({ data, childrenFirstFloor, childrenSecondFloor, Total
                         </TableCell>
                         {
                             gain === true ? (<>
-                                <TableCell align="right" >{getFormatNumber(data?.balance)}</TableCell>
+                                <TableCell align="right" >{getFormatNumber(data?.balance)}₭</TableCell>
                             </>) : (
                                 <>
                                     {
                                         datafilter.length === 0 ? (<>
-                                            <TableCell align="right" >{getFormatNumber(data?.balance)}</TableCell>
+                                            <TableCell align="right" >{getFormatNumber(data?.balance)}₭</TableCell>
                                         </>) : (<>
-                                            <TableCell align="right" >{getFormatNumber(data?.balance - datafilter[0].balance)}</TableCell>
+                                            <TableCell align="right" >{getFormatNumber(data?.balance - datafilter[0].balance)}₭</TableCell>
                                         </>)
                                     }
 
@@ -1464,6 +1476,7 @@ function UnrealisedGainorLoss({ totalgain }) {
 function ComponentExpenseFirst({ id, childrenFirstFloor, childrenSecondFloor, TotaldrenFirstFloor, rows, Gotodetailaccount, ViewUnrealised, gain,e }) {
     if (childrenFirstFloor === null) return <></>
     const filter = childrenFirstFloor.filter((el) => el.bs_id === id);
+    
 
     // const datafilter = rows.filter((el) => el.id === id);
     // let tax;
@@ -1515,6 +1528,7 @@ function ComponentExpenseFirst({ id, childrenFirstFloor, childrenSecondFloor, To
             } */}
             {
                 filter && filter.map((data, index) => {
+                  
                     return (
                         <>
                             <TableCellComponentExpense
@@ -1543,6 +1557,7 @@ function TableCellComponentExpense({ data, childrenSecondFloor, TotaldrenFirstFl
     if (TotaldrenFirstFloor === null) return <></>
     const filter = TotaldrenFirstFloor.filter((el) => el.id === id);
 
+
     
     if (filter.length === 0) return <></>;
     const handleClick = () => {
@@ -1553,7 +1568,8 @@ function TableCellComponentExpense({ data, childrenSecondFloor, TotaldrenFirstFl
             c_id: e
         }
         axios.post("/accounting/api/balance-sheet/sumtotal", data).then((data) => {
-            setNetTotal1(data?.data?.data?.balances)
+            
+            setNetTotal1([...data?.data?.data][0].balances)
         }).catch((err) => {
             console.log(err)
         })
@@ -1632,7 +1648,7 @@ function TableCellComponentExpense({ data, childrenSecondFloor, TotaldrenFirstFl
                                         {
                                             open ? (
                                                 <>
-                                                    {getFormatNumber(data?.balances)}
+                                                    {getFormatNumber(data?.balances)}₭
 
                                                 </>
                                             ) : (<>
@@ -1668,7 +1684,7 @@ function TableCellComponentExpense({ data, childrenSecondFloor, TotaldrenFirstFl
                                     Total: {data?.name_eng}
                                 </TableCell>
                                 <TableCell align="right"  >
-                                    {getFormatNumber(filter[0].balances)} ₭
+                                    {getFormatNumber(filter[0].balances)}₭
                                 </TableCell>
                             </TableRow>
                             
@@ -1732,7 +1748,7 @@ function TableCellComponentExpense2({ data, childrenSecondFloor, TotaldrenSecond
             c_id: e
         }
         axios.post("/accounting/api/balance-sheet/sumtotal", data).then((data) => {
-            setNetTotal(data?.data?.data?.balances)
+            setNetTotal([...data?.data?.data][0].balances)
         }).catch((err) => {
             console.log(err)
         })
@@ -1755,9 +1771,9 @@ function TableCellComponentExpense2({ data, childrenSecondFloor, TotaldrenSecond
                 <TableCell align="right" style={{ cursor: 'pointer' }} onClick={() => { Gotodetailaccount(data?.c_uid) }}>
                     {
                         open ? (<>
-                            {getFormatNumber(data?.balances)}
+                            {getFormatNumber(data?.balances)}₭
                         </>) : (<>
-                            {getFormatNumber(netTotal)}
+                            {getFormatNumber(netTotal)}₭
                         </>)
                     }
                 </TableCell>
@@ -1780,7 +1796,7 @@ function TableCellComponentExpense2({ data, childrenSecondFloor, TotaldrenSecond
                                     Total:  {data?.name_eng}
                                 </TableCell>
                                 <TableCell align="right"  >
-                                    {getFormatNumber(filter[0].balances)} ₭
+                                    {getFormatNumber(filter[0].balances)}₭
                                 </TableCell>
                             </TableRow>
                         </>)
@@ -1842,7 +1858,7 @@ function TableCellComponentExpense4({ data, childrenSecondFloor, TotaldrenSecond
             c_id: e
         }
         axios.post("/accounting/api/balance-sheet/sumtotal", data).then((data) => {
-            setNetTotal(data?.data?.data?.balances)
+            setNetTotal([...data?.data?.data][0].balances)
         }).catch((err) => {
             console.log(err)
         })
@@ -1866,13 +1882,11 @@ function TableCellComponentExpense4({ data, childrenSecondFloor, TotaldrenSecond
                 <TableCell align="right" style={{ cursor: 'pointer' }} onClick={() => { Gotodetailaccount(data?.c_uid) }}>
                     {
                         open ? (<>
-                            {getFormatNumber(data?.balances)}
+                            {getFormatNumber(data?.balances)}₭
                         </>) : (<>
-                            {getFormatNumber(netTotal)}
+                            {getFormatNumber(netTotal)}₭
                         </>)
-                    }
-
-                    ₭</TableCell>
+                    }₭</TableCell>
             </TableRow>
             {
                 open ? (<>
@@ -1890,7 +1904,7 @@ function TableCellComponentExpense4({ data, childrenSecondFloor, TotaldrenSecond
                                     Total:  {data?.name_eng}
                                 </TableCell>
                                 <TableCell align="right"  >
-                                    {getFormatNumber(filter[0].balances)} ₭
+                                    {getFormatNumber(filter[0].balances)}₭
                                 </TableCell>
                             </TableRow>
                         </>)
@@ -1948,7 +1962,7 @@ function TableCellComponentExpense6({ data, childrenSecondFloor, TotaldrenSecond
             c_id: e
         }
         axios.post("/accounting/api/balance-sheet/sumtotal", data).then((data) => {
-            setNetTotal(data?.data?.data?.balances)
+            setNetTotal([...data?.data?.data][0].balances)
         }).catch((err) => {
             console.log(err)
         })
@@ -1972,13 +1986,11 @@ function TableCellComponentExpense6({ data, childrenSecondFloor, TotaldrenSecond
                 <TableCell align="right" style={{ cursor: 'pointer' }} onClick={() => { Gotodetailaccount(data?.c_uid) }}>
                     {
                         open ? (<>
-                            {getFormatNumber(data?.balances)}
+                            {getFormatNumber(data?.balances)}₭
                         </>) : (<>
-                            {getFormatNumber(netTotal)}
+                            {getFormatNumber(netTotal)}₭
                         </>)
-                    }
-
-                    ₭</TableCell>
+                    }₭</TableCell>
             </TableRow>
             {
                 open ? (<>
@@ -1996,7 +2008,7 @@ function TableCellComponentExpense6({ data, childrenSecondFloor, TotaldrenSecond
                                     Total:  {data?.name_eng}
                                 </TableCell>
                                 <TableCell align="right"  >
-                                    {getFormatNumber(filter[0].balances)} ₭
+                                    {getFormatNumber(filter[0].balances)}₭
                                 </TableCell>
                             </TableRow>
                         </>)
@@ -2055,7 +2067,7 @@ function TableCellComponentExpense8({ data, childrenSecondFloor, TotaldrenSecond
             c_id: e
         }
         axios.post("/accounting/api/balance-sheet/sumtotal", data).then((data) => {
-            setNetTotal(data?.data?.data?.balances)
+            setNetTotal([...data?.data?.data][0].balances)
         }).catch((err) => {
             console.log(err)
         })
@@ -2083,8 +2095,7 @@ function TableCellComponentExpense8({ data, childrenSecondFloor, TotaldrenSecond
                         </>) : (<>
                             {getFormatNumber(netTotal)}
                         </>)
-                    }
-                    ₭</TableCell>
+                    }₭</TableCell>
             </TableRow>
             {
                 open ? (<>
@@ -2102,7 +2113,7 @@ function TableCellComponentExpense8({ data, childrenSecondFloor, TotaldrenSecond
                                     Total:  {data?.name_eng}
                                 </TableCell>
                                 <TableCell align="right" >
-                                    {getFormatNumber(filter[0].balances)} ₭
+                                    {getFormatNumber(filter[0].balances)}₭
                                 </TableCell>
                             </TableRow>
                         </>)
@@ -2161,7 +2172,7 @@ function TableCellComponentExpense10({ data, childrenSecondFloor, TotaldrenSecon
             c_id: e
         }
         axios.post("/accounting/api/balance-sheet/sumtotal", data).then((data) => {
-            setNetTotal(data?.data?.data?.balances)
+            setNetTotal([...data?.data?.data][0].balances)
         }).catch((err) => {
             console.log(err)
         })
@@ -2185,9 +2196,9 @@ function TableCellComponentExpense10({ data, childrenSecondFloor, TotaldrenSecon
                 <TableCell align="right" style={{ cursor: 'pointer' }} onClick={() => { Gotodetailaccount(data?.c_uid) }}>
                     {
                         open ? (<>
-                            {getFormatNumber(data?.balances)}
+                            {getFormatNumber(data?.balances)}₭
                         </>) : (<>
-                            {getFormatNumber(netTotal)}
+                            {getFormatNumber(netTotal)}₭
                         </>)
                     }
 
@@ -2209,7 +2220,7 @@ function TableCellComponentExpense10({ data, childrenSecondFloor, TotaldrenSecon
                                     Total:  {data?.name_eng}
                                 </TableCell>
                                 <TableCell align="right"  >
-                                    {getFormatNumber(filter[0].balances)} ₭
+                                    {getFormatNumber(filter[0].balances)}₭
                                 </TableCell>
                             </TableRow>
                         </>)
@@ -2267,7 +2278,7 @@ function TableCellComponentExpense12({ data, childrenSecondFloor, TotaldrenSecon
             c_id: e
         }
         axios.post("/accounting/api/balance-sheet/sumtotal", data).then((data) => {
-            setNetTotal(data?.data?.data?.balances)
+            setNetTotal([...data?.data?.data][0].balances)
         }).catch((err) => {
             console.log(err)
         })
@@ -2291,13 +2302,11 @@ function TableCellComponentExpense12({ data, childrenSecondFloor, TotaldrenSecon
                 <TableCell align="right" style={{ cursor: 'pointer' }} onClick={() => { Gotodetailaccount(data?.c_uid) }}>
                     {
                         open ? (<>
-                            {getFormatNumber(data?.balances)}
+                            {getFormatNumber(data?.balances)}₭
                         </>) : (<>
-                            {getFormatNumber(netTotal)}
+                            {getFormatNumber(netTotal)}₭
                         </>)
-                    }
-
-                    ₭</TableCell>
+                    }₭</TableCell>
             </TableRow>
             {
                 open ? (<>
@@ -2315,7 +2324,7 @@ function TableCellComponentExpense12({ data, childrenSecondFloor, TotaldrenSecon
                                     Total:  {data?.name_eng}
                                 </TableCell>
                                 <TableCell align="right"  >
-                                    {getFormatNumber(filter[0].balances)} ₭
+                                    {getFormatNumber(filter[0].balances)}₭
                                 </TableCell>
                             </TableRow>
                         </>)
@@ -2374,7 +2383,7 @@ function TableCellComponentExpense14({ data, childrenSecondFloor, TotaldrenSecon
             c_id: e
         }
         axios.post("/accounting/api/balance-sheet/sumtotal", data).then((data) => {
-            setNetTotal(data?.data?.data?.balances)
+            setNetTotal([...data?.data?.data][0].balances)
         }).catch((err) => {
             console.log(err)
         })
@@ -2398,13 +2407,11 @@ function TableCellComponentExpense14({ data, childrenSecondFloor, TotaldrenSecon
                 <TableCell align="right" style={{ cursor: 'pointer' }} onClick={() => Gotodetailaccount(data?.c_uid)}>
                     {
                         open ? (<>
-                            {getFormatNumber(data?.balances)}
+                            {getFormatNumber(data?.balances)}₭
                         </>) : (<>
-                            {getFormatNumber(netTotal)}
+                            {getFormatNumber(netTotal)}₭
                         </>)
-                    }
-
-                    ₭</TableCell>
+                    }₭</TableCell>
             </TableRow>
             {
                 open ? (<>
@@ -2421,7 +2428,7 @@ function TableCellComponentExpense14({ data, childrenSecondFloor, TotaldrenSecon
                                     Total:  {data?.name_eng}
                                 </TableCell>
                                 <TableCell align="right"  >
-                                    {getFormatNumber(filter[0].balances)} ₭
+                                    {getFormatNumber(filter[0].balances)}₭
                                 </TableCell>
                             </TableRow>
                         </>)

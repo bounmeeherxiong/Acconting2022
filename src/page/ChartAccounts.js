@@ -245,6 +245,7 @@ export default function ChartAccounts() {
   }, [ac_type]);
 
   const _ongetCurrencyvalues = (e) => {
+    
     setErrselectcurrency('')
     setErrorcurrency('')
     setCurrency(e)
@@ -355,7 +356,6 @@ export default function ChartAccounts() {
       setCredit('')
     }
   }
-
   const editaccountype = (ac_type) => {
     axios.get(`/accounting/api/chartofaccounts/accountsType/${ac_type}`).then((data) => {
       setAc_type([...data?.data?.result][0].ac_type)
@@ -372,8 +372,8 @@ export default function ChartAccounts() {
       setDefaultValue(moment(e).format("DD-MM-YYYY"))
     }
   }
-
   const editbeginningbalanceSecond = (e) => {
+    console.log("secondedit=",e)
     setGetid(e)
     axios.get(`/accounting/api/chartofaccounts/openingData/${e}`).then((data) => {
       functionCheck([...data?.data?.editCondition][0])
@@ -823,7 +823,6 @@ export default function ChartAccounts() {
   }
   const _Onsearch = (e) => {
     setSearch(e)
-
     let searchName = listallaccount.filter((el) => el.account_name.toLowerCase().includes(e.toLowerCase()));
     let children = listallaccountchildren.filter((el) => el.account_name.toLowerCase().includes(e.toLowerCase()));
     if (!e) {
@@ -1190,10 +1189,7 @@ export default function ChartAccounts() {
                           <>
                             <small style={{ position: "absolute", marginTop: 80, marginLeft: 200, color: "red", fontSize: 16 }}>Please enter changeRate</small>
                           </>
-                        ) : (
-                          <>
-                          </>
-                        )
+                        ) : null
                       }
                     </div>
                   </>
@@ -1241,7 +1237,6 @@ export default function ChartAccounts() {
                       paddingLeft: 10,
                     }}
                     onClick={() => setShowBox(!showBox)}
-
                   />
                   <div
                     style={{
@@ -1863,14 +1858,41 @@ export default function ChartAccounts() {
                     {secondSearch &&
                       secondSearch.map((item, index) => {
                         return (
+                          <>
                           
                             <TableRow key={index}>
                               <TableCell>{item.account_name}</TableCell>
                               <TableCell align="left">{item.accounttype_name}</TableCell>
                               <TableCell align="left">{item.currencesname}</TableCell>
                               <TableCell align="left">{item.c_desc}</TableCell>
-                              <TableCell align="right">{item.c_balance}</TableCell>
+                              <TableCell align="right">{getFormatNumber(item.c_balance)}</TableCell>
                             </TableRow>
+                            <RowEditComponentfirst
+                                Gotodetailaccount={Gotodetailaccount}
+                                c_uid={item?.c_uid}
+                                id={item?.c_id}
+                                c_id={item?.c_id}
+                                handleShow={handleShow}
+                                setShowUpdate={setShowUpdate}
+                                account_name={item?.account_name}
+                                type_id={item?.type_id}
+                                detail_type_id={item?.detail_type_id}
+                                balance={item?.c_balance}
+                                desc={item?.c_desc}
+                                setName={setName}
+                                editaccountype={editaccountype}
+                                ac_ty_id={item?.ac_ty_id}
+                                _onshowcreatestatus={_onshowcreatestatus}
+                                _oneditshowcurrency={_oneditshowcurrency}
+                                currencies_id={item?.currency_uid}
+                                setDescription={setDescription}
+                                editbeginningbalancefirst={editbeginningbalancefirst}
+                                _ongetCurrencyvalues={_ongetCurrencyvalues}
+                                getstutas={getstutas}
+                                _onsearchaccountid={_onsearchaccountid}
+                              />
+
+                            </>
                           
                         )
                       })}
@@ -1942,17 +1964,16 @@ export default function ChartAccounts() {
               {
                 listallaccount && listallaccount == 0 ? (
                   <>
-                    {secondSearch &&
-                      secondSearch.map((item, index) => {
+                    {secondSearch && secondSearch.map((item, index) => {
                         return (
                           <>
                             <TableRow key={index}>
                               <TableCell>{item.account_name}</TableCell>
-                              <TableCell align="left">{item.accounttype_name}</TableCell>
+                              <TableCell align="left">{item.accounttype_name}sssssss</TableCell>
                               <TableCell align="left">{item.detailtypename}</TableCell>
                               <TableCell align="left">{item.currencesname}</TableCell>
                               <TableCell align="left">{item.c_desc}</TableCell>
-                              <TableCell align="right">{item.c_balance}</TableCell>
+                              <TableCell align="right">{getFormatNumber(item.c_balance)}</TableCell>
                               <TableCell align="right">
                                 {
                                   item?.createstatus == "In" || item?.createstatus == "Ex" ? (
@@ -1976,6 +1997,7 @@ export default function ChartAccounts() {
                                     </>
                                   )
                                 }
+                                
                                 <RowEditComponentfirst
                                   Gotodetailaccount={Gotodetailaccount}
                                   c_uid={item?.c_uid}
@@ -2000,6 +2022,28 @@ export default function ChartAccounts() {
                                   getstutas={getstutas}
                                   _onsearchaccountid={_onsearchaccountid}
                                 />
+                                < RowComponent
+                                children={listallaccountchildren}
+                                id={item.c_id}
+                                level={20}
+                                Gotodetailaccount={Gotodetailaccount}
+                                Gotohistory={Gotohistory}
+                                handleShow={handleShow}
+                                setShowUpdate={setShowUpdate}
+                                setName={setName}
+                                editaccountype={editaccountype}
+                                _onshowcreatestatus={_onshowcreatestatus}
+                                _oneditshowcurrency={_oneditshowcurrency}
+                                currencies_id={item.currency_uid}
+                                setDescription={setDescription}
+                                getNameList={getNameList}
+                                checkedtrue={checkedtrue}
+                                listsubaccountname={listsubaccountname}
+                                editbeginningbalanceSecond={editbeginningbalanceSecond}
+                                _ongetCurrencyvalues={_ongetCurrencyvalues}
+                                getstutas={getstutas}
+                                _onsearchaccountid={_onsearchaccountid}
+                              />
                               </TableCell>
                             </TableRow>
                           </>
@@ -2103,15 +2147,6 @@ export default function ChartAccounts() {
           </Table>
         </TableContainer>
         <div style={{ display: "flex", justifyContent: "space-between", flexDirection: "row", width: "100%" }}>
-          {/* <TablePagination
-            rowsPerPageOptions={[10, 25, 100]}
-            component="div"
-            count={listallaccount.length}
-            rowsPerPage={rowsPerPage}
-            page={page}
-            onPageChange={handleChangePage}
-            onRowsPerPageChange={handleChangeRowsPerPage}
-          /> */}
 
           <Row>
             <Col className="bulletinPagination" md={12}>

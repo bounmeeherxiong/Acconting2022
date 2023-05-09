@@ -102,6 +102,8 @@ function App() {
   };
   const onloadallaccount = () => {
     axios.get("/accounting/api/chartofaccounts/all/accountname").then((data) => {
+      console.log("data=",data?.data?.message)
+      console.log("Children=",data?.data?.children)
       setListallaccount([...data?.data?.message])
       setListallaccountchildren([...data?.data?.children])
     }).catch((err) => {
@@ -260,6 +262,18 @@ const OnloadResetCondition = () => {
     // OnloadHeading();
  
   }, []); 
+  // if(!login){
+  //   return <Login setLogin={setLogin}/>
+  // }
+  if(login === false){
+    return(
+      <Login 
+      setLogin={setLogin}
+      
+      />
+    )
+  }
+  
   return (
     <div>
       <LoginContext.Provider

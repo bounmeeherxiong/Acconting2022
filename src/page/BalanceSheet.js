@@ -102,8 +102,17 @@ export default function BalanceSheet() {
     }
     const Reset = () => {
         OnloadBalancesheet()
+        window.location.reload();
     }
+    const onloadAutomaticGl = () => {
+        axios.get("/accounting/api/report/reportAutoGL").then((data) => {
+          console.log(data)
+        }).catch((err) => {
+          console.log(err)
+        })
+      }
     const OnRunReport = () => {
+        setLoading(false)
         setBalancesheetandloss('')
         if (getvalues == 'custom') {
             let data = {
@@ -121,11 +130,14 @@ export default function BalanceSheet() {
                 } else {
                     setBalancesheetandloss([...data?.data?.sumBalanceSheet][0].balances)
                 }
+                setLoading(true)
+                onloadAutomaticGl()
             }).catch((err) => {
                 console.log(err)
             })
         }
     }
+
 
     useEffect(() => {
         OnloadBalancesheet();
@@ -387,7 +399,6 @@ function GLRowComponent2({ name, id, subject, childrenFirst, childrenSecond, net
     let totalliabTotal;
     const [open, setOpen] = useState(true);
     const total = netTotalLiabilities.filter((el) => el.bs_status == 2);
-
     if (total.length === 0) {
         totalliabTotal = 0
     } else {
@@ -534,6 +545,7 @@ function ComponetOwner({ childrenFirst, id_Owner, childrenSecond, TotaldrenFirst
     )
 }
 function ComponetOwnerFirstChild({ data, id, childrenSecond, TotaldrenFirstFloor, Gotodetailaccount }) {
+     
     const [checkvalues, setCheckvalues] = useState(0)
     const [open, setOpen] = useState(true);
     const [netTotal, setNetTotal] = useState(0)
@@ -548,7 +560,7 @@ function ComponetOwnerFirstChild({ data, id, childrenSecond, TotaldrenFirstFloor
             c_id: e
         }
         axios.post("/accounting/api/balance-sheet/sumtotal", data).then((data) => {
-            setNetTotal(data?.data?.data?.balances)
+            setNetTotal([...data?.data?.data][0].balances)
         }).catch((err) => {
             console.log(err)
         })
@@ -645,7 +657,7 @@ function TableCellComponentOwner({ data, childrenSecond, id, TotaldrenFirstFloor
             c_id: e
         }
         axios.post("/accounting/api/balance-sheet/sumtotal", data).then((data) => {
-            setNetTotal(data?.data?.data?.balances)
+            setNetTotal([...data?.data?.data][0].balances)
         }).catch((err) => {
             console.log(err)
         })
@@ -742,7 +754,7 @@ function TableCellComponentOwner2({ data, childrenSecond, id, TotaldrenFirstFloo
             c_id: e
         }
         axios.post("/accounting/api/balance-sheet/sumtotal", data).then((data) => {
-            setNetTotal(data?.data?.data?.balances)
+            setNetTotal([...data?.data?.data][0].balances)
         }).catch((err) => {
             console.log(err)
         })
@@ -835,7 +847,7 @@ function TableCellComponentOwner4({ data, childrenSecond, id, TotaldrenFirstFloo
             c_id: e
         }
         axios.post("/accounting/api/balance-sheet/sumtotal", data).then((data) => {
-            setNetTotal(data?.data?.data?.balances)
+            setNetTotal([...data?.data?.data][0].balances)
         }).catch((err) => {
             console.log(err)
         })
@@ -930,7 +942,7 @@ function TableCellComponentOwner6({ data, childrenSecond, id, TotaldrenFirstFloo
             c_id: e
         }
         axios.post("/accounting/api/balance-sheet/sumtotal", data).then((data) => {
-            setNetTotal(data?.data?.data?.balances)
+            setNetTotal([...data?.data?.data][0].balances)
         }).catch((err) => {
             console.log(err)
         })
@@ -950,7 +962,7 @@ function TableCellComponentOwner6({ data, childrenSecond, id, TotaldrenFirstFloo
                 </TableCell>
                 {
                     open ? (<>
-                        <TableCell align="right" style={{ cursor: 'pointer' }} onClick={() => { Gotodetailaccount(data?.c_uid) }}>{getFormatNumber(data?.balances)} ₭ </TableCell>
+                        <TableCell align="right" style={{ cursor: 'pointer' }} onClick={() => { Gotodetailaccount(data?.c_uid) }}>{getFormatNumber(data?.balances)}₭ </TableCell>
                     </>) : (<>
                         <TableCell align="right">{getFormatNumber(netTotal)}₭</TableCell>
                     </>)
@@ -1026,7 +1038,7 @@ function TableCellComponentOwner8({ data, childrenSecond, id, TotaldrenFirstFloo
             c_id: e
         }
         axios.post("/accounting/api/balance-sheet/sumtotal", data).then((data) => {
-            setNetTotal(data?.data?.data?.balances)
+            setNetTotal([...data?.data?.data][0].balances)
         }).catch((err) => {
             console.log(err)
         })
@@ -1046,7 +1058,7 @@ function TableCellComponentOwner8({ data, childrenSecond, id, TotaldrenFirstFloo
                 </TableCell>
                 {
                     open ? (<>
-                        <TableCell align="right" style={{ cursor: 'pointer' }} onClick={() => { Gotodetailaccount(data?.c_uid) }}>{getFormatNumber(data?.balances)} ₭ </TableCell>
+                        <TableCell align="right" style={{ cursor: 'pointer' }} onClick={() => { Gotodetailaccount(data?.c_uid) }}>{getFormatNumber(data?.balances)}₭ </TableCell>
                     </>) : (<>
                         <TableCell align="right">{getFormatNumber(netTotal)}₭</TableCell>
                     </>)
@@ -1122,7 +1134,7 @@ function TableCellComponentOwner10({ data, childrenSecond, id, TotaldrenFirstFlo
             c_id: e
         }
         axios.post("/accounting/api/balance-sheet/sumtotal", data).then((data) => {
-            setNetTotal(data?.data?.data?.balances)
+            setNetTotal([...data?.data?.data][0].balances)
         }).catch((err) => {
             console.log(err)
         })
@@ -1143,9 +1155,9 @@ function TableCellComponentOwner10({ data, childrenSecond, id, TotaldrenFirstFlo
                 </TableCell>
                 {
                     open ? (<>
-                        <TableCell align="right" style={{ cursor: 'pointer' }} onClick={() => { Gotodetailaccount(data?.c_uid) }}>{getFormatNumber(data?.balances)} ₭ </TableCell>
+                        <TableCell align="right" style={{ cursor: 'pointer' }} onClick={() => { Gotodetailaccount(data?.c_uid) }}>{getFormatNumber(data?.balances)}₭ </TableCell>
                     </>) : (<>
-                        <TableCell align="right">{getFormatNumber(netTotal)} ₭ </TableCell>
+                        <TableCell align="right">{getFormatNumber(netTotal)}₭ </TableCell>
                     </>)
                 }
             </TableRow>
@@ -1165,7 +1177,7 @@ function TableCellComponentOwner10({ data, childrenSecond, id, TotaldrenFirstFlo
                                     Total: {data?.name_eng}
                                 </TableCell>
                                 <TableCell align="right" >
-                                    {getFormatNumber(filter[0].balances)} ₭
+                                    {getFormatNumber(filter[0].balances)}₭
                                 </TableCell>
                             </TableRow>
                         </>)
@@ -1219,7 +1231,7 @@ function TableCellComponentOwner12({ data, id, childrenSecond, Gotodetailaccount
             c_id: e
         }
         axios.post("/accounting/api/balance-sheet/sumtotal", data).then((data) => {
-            setNetTotal(data?.data?.data?.balances)
+            setNetTotal([...data?.data?.data][0].balances)
         }).catch((err) => {
             console.log(err)
         })
@@ -1239,9 +1251,9 @@ function TableCellComponentOwner12({ data, id, childrenSecond, Gotodetailaccount
                 </TableCell>
                 {
                     open ? (<>
-                        <TableCell align="right" style={{ cursor: 'pointer' }} onClick={() => { Gotodetailaccount(data?.c_uid) }}>{getFormatNumber(data?.balances)} ₭ </TableCell>
+                        <TableCell align="right" style={{ cursor: 'pointer' }} onClick={() => { Gotodetailaccount(data?.c_uid) }}>{getFormatNumber(data?.balances)}₭ </TableCell>
                     </>) : (<>
-                        <TableCell align="right">{getFormatNumber(netTotal)} ₭ </TableCell>
+                        <TableCell align="right">{getFormatNumber(netTotal)}₭ </TableCell>
                     </>)
                 }
             </TableRow>
@@ -1255,7 +1267,7 @@ function TableCellComponentOwner12({ data, id, childrenSecond, Gotodetailaccount
                                     Total: {data?.name_eng}
                                 </TableCell>
                                 <TableCell align="right"  >
-                                    {getFormatNumber(filter[0].balances)} ₭
+                                    {getFormatNumber(filter[0].balances)}₭
                                 </TableCell>
                             </TableRow>
                         </>)
@@ -1340,7 +1352,7 @@ function Component({ item, size, index, id, Totalsubject, childrenFirst, Totaldr
                     open ? (<>
                         <TableCell align="right"></TableCell>
                     </>) : (<>
-                        <TableCell align="right">{getFormatNumber(TotalFilter[0].amout)}</TableCell>
+                        <TableCell align="right">{getFormatNumber(TotalFilter[0].amout)}₭</TableCell>
                     </>)
                 }
             </TableRow>
@@ -1401,12 +1413,9 @@ function Componentsub({ id, childrenFirst, TotaldrenFirstFloor, childrenSecond, 
     )
 }
 function Componetfirst({ data, id, childrenSecond, TotaldrenFirstFloor, Gotodetailaccount }) {
-    
-
-
     const [checkvalues, setCheckvalues] = useState('')
     const [open, setOpen] = useState(true);
-    const [netTotal, setNetTotal] = useState(0)
+    const [netTotal, setNetTotal] = useState([])
     if (TotaldrenFirstFloor === null) return <></>
     const filter = TotaldrenFirstFloor.filter((el) => el.id === data?.c_id);
     if (filter.length === 0) return <></>;
@@ -1418,7 +1427,7 @@ function Componetfirst({ data, id, childrenSecond, TotaldrenFirstFloor, Gotodeta
             c_id: e
         }
         axios.post("/accounting/api/balance-sheet/sumtotal", data).then((data) => {
-            setNetTotal(data?.data?.data?.balances)
+            setNetTotal([...data?.data?.data][0].balances)
         }).catch((err) => {
             console.log(err)
         })
@@ -1460,9 +1469,8 @@ function Componetfirst({ data, id, childrenSecond, TotaldrenFirstFloor, Gotodeta
                                         Total:{data?.name_eng}
                                     </TableCell>
                                     <TableCell align="right">
-                                        {getFormatNumber(filter[0].balances)} ₭
+                                        {getFormatNumber(filter[0].balances)}₭
                                     </TableCell>
-
                                 </TableRow>
                             </>)
                     }
@@ -1516,7 +1524,7 @@ function TableCellComponent({ data, childrenSecond, id, TotaldrenFirstFloor, Got
 
         axios.post("/accounting/api/balance-sheet/sumtotal", data).then((data) => {
 
-            setNetTotal(data?.data?.data?.balances)
+            setNetTotal([...data?.data?.data][0].balances)
         }).catch((err) => {
             console.log(err)
         })
@@ -1541,7 +1549,7 @@ function TableCellComponent({ data, childrenSecond, id, TotaldrenFirstFloor, Got
                     open ? (<>
                         <TableCell align="right" style={{ cursor: 'pointer' }} onClick={() => { Gotodetailaccount(data?.c_uid) }}>{getFormatNumber(data?.balances)}₭</TableCell>
                     </>) : (<>
-                        <TableCell align="right">{getFormatNumber(netTotal)}₭ </TableCell>
+                        <TableCell align="right">{getFormatNumber(netTotal)}₭</TableCell>
                     </>)
                 }
             </TableRow>
@@ -1562,7 +1570,7 @@ function TableCellComponent({ data, childrenSecond, id, TotaldrenFirstFloor, Got
                                     Total:  {data?.name_eng}
                                 </TableCell>
                                 <TableCell align="right">
-                                    {getFormatNumber(filter[0].balances)} ₭
+                                    {getFormatNumber(filter[0].balances)}₭
                                 </TableCell>
                             </TableRow>
                         </>)
@@ -1573,8 +1581,6 @@ function TableCellComponent({ data, childrenSecond, id, TotaldrenFirstFloor, Got
     )
 }
 function TableCellComponent1({ id, childrenSecond, setCheckvalues, TotaldrenFirstFloor, Gotodetailaccount }) {
-
-
     const filter = childrenSecond.filter((el) => el.parents == id);
 
     if (filter.length === 0) {
@@ -1616,7 +1622,7 @@ function TableCellComponent2({ id, childrenSecond, data, TotaldrenFirstFloor, Go
             c_id: e
         }
         axios.post("/accounting/api/balance-sheet/sumtotal", data).then((data) => {
-            setNetTotal(data?.data?.data?.balances)
+            setNetTotal([...data?.data?.data][0].balances)
         }).catch((err) => {
             console.log(err)
         })
@@ -1662,7 +1668,7 @@ function TableCellComponent2({ id, childrenSecond, data, TotaldrenFirstFloor, Go
                                     Total:  {data?.name_eng}
                                 </TableCell>
                                 <TableCell align="right" >
-                                    {getFormatNumber(filter[0].balances)} ₭
+                                    {getFormatNumber(filter[0].balances)}₭
                                 </TableCell>
                             </TableRow>
 
@@ -1715,7 +1721,7 @@ function TableCellComponent4({ data, childrenSecond, id, TotaldrenFirstFloor, Go
             c_id: e
         }
         axios.post("/accounting/api/balance-sheet/sumtotal", data).then((data) => {
-            setNetTotal(data?.data?.data?.balances)
+            setNetTotal([...data?.data?.data][0].balances)
         }).catch((err) => {
             console.log(err)
         })
@@ -1758,7 +1764,7 @@ function TableCellComponent4({ data, childrenSecond, id, TotaldrenFirstFloor, Go
                                     Total:  {data?.name_eng}
                                 </TableCell>
                                 <TableCell align="right">
-                                    {getFormatNumber(filter[0].balances)} ₭
+                                    {getFormatNumber(filter[0].balances)}₭
                                 </TableCell>
                             </TableRow>
 
@@ -1811,7 +1817,7 @@ function TableCellComponent6({ data, childrenSecond, TotaldrenFirstFloor, id, Go
             c_id: e
         }
         axios.post("/accounting/api/balance-sheet/sumtotal", data).then((data) => {
-            setNetTotal(data?.data?.data?.balances)
+            setNetTotal([...data?.data?.data][0].balances)
         }).catch((err) => {
             console.log(err)
         })
@@ -1853,7 +1859,7 @@ function TableCellComponent6({ data, childrenSecond, TotaldrenFirstFloor, id, Go
                                     Total:  {data?.name_eng}
                                 </TableCell>
                                 <TableCell align="right" >
-                                    {getFormatNumber(filter[0].balances)} ₭
+                                    {getFormatNumber(filter[0].balances)}₭
                                 </TableCell>
                             </TableRow>
 
@@ -1905,7 +1911,7 @@ function TableCellComponent8({ data, childrenSecond, TotaldrenFirstFloor, id, Go
             c_id: e
         }
         axios.post("/accounting/api/balance-sheet/sumtotal", data).then((data) => {
-            setNetTotal(data?.data?.data?.balances)
+            setNetTotal([...data?.data?.data][0].balances)
         }).catch((err) => {
             console.log(err)
         })
@@ -1947,7 +1953,7 @@ function TableCellComponent8({ data, childrenSecond, TotaldrenFirstFloor, id, Go
                                     Total:  {data?.name_eng}
                                 </TableCell>
                                 <TableCell align="right">
-                                    {getFormatNumber(filter[0].balances)} ₭
+                                    {getFormatNumber(filter[0].balances)}₭
                                 </TableCell>
                             </TableRow>
 
@@ -1999,7 +2005,7 @@ function TableCellComponent10({ data, childrenSecond, TotaldrenFirstFloor, id, G
             c_id: e
         }
         axios.post("/accounting/api/balance-sheet/sumtotal", data).then((data) => {
-            setNetTotal(data?.data?.data?.balances)
+            setNetTotal([...data?.data?.data][0].balances)
         }).catch((err) => {
             console.log(err)
         })
@@ -2042,7 +2048,7 @@ function TableCellComponent10({ data, childrenSecond, TotaldrenFirstFloor, id, G
                                     Total:  {data?.name_eng}
                                 </TableCell>
                                 <TableCell align="right" >
-                                    {getFormatNumber(filter[0].balances)} ₭
+                                    {getFormatNumber(filter[0].balances)}₭
                                 </TableCell>
                             </TableRow>
 
@@ -2188,7 +2194,7 @@ function TableCellComponentFirstLiability({ data, childrenSecond, TotaldrenFirst
             c_id: e
         }
         axios.post("/accounting/api/balance-sheet/sumtotal", data).then((data) => {
-            setNetTotal(data?.data?.data?.balances)
+            setNetTotal([...data?.data?.data][0].balances)
         }).catch((err) => {
             console.log(err)
         })
@@ -2291,7 +2297,7 @@ function TableCellComponentLiability({ data, childrenSecond, id, TotaldrenFirstF
         }
 
         axios.post("/accounting/api/balance-sheet/sumtotal", data).then((data) => {
-            setNetTotal(data?.data?.data?.balances)
+            setNetTotal([...data?.data?.data][0].balances)
         }).catch((err) => {
             console.log(err)
         })
@@ -2337,7 +2343,7 @@ function TableCellComponentLiability({ data, childrenSecond, id, TotaldrenFirstF
                                     Total:{data?.name_eng}
                                 </TableCell>
                                 <TableCell align="right" >
-                                    {getFormatNumber(filter[0].balances)} ₭
+                                    {getFormatNumber(filter[0].balances)}₭
                                 </TableCell>
                             </TableRow>
                         </>)
@@ -2394,7 +2400,7 @@ function TableCellComponentLiability2({ data, childrenSecond, id, TotaldrenFirst
         }
 
         axios.post("/accounting/api/balance-sheet/sumtotal", data).then((data) => {
-            setNetTotal(data?.data?.data?.balances)
+            setNetTotal([...data?.data?.data][0].balances)
         }).catch((err) => {
             console.log(err)
         })
@@ -2437,7 +2443,7 @@ function TableCellComponentLiability2({ data, childrenSecond, id, TotaldrenFirst
                                     Total:{data?.name_eng}
                                 </TableCell>
                                 <TableCell align="right"  >
-                                    {getFormatNumber(filter[0].balances)} ₭
+                                    {getFormatNumber(filter[0].balances)}₭
                                 </TableCell>
                             </TableRow>
                         </>)
@@ -2492,8 +2498,7 @@ function TableCellComponentLiability4({ data, childrenSecond, id, TotaldrenFirst
 
         axios.post("/accounting/api/balance-sheet/sumtotal", data).then((data) => {
 
-
-            setNetTotal(data?.data?.data?.balances)
+            setNetTotal([...data?.data?.data][0].balances)
         }).catch((err) => {
             console.log(err)
         })
@@ -2540,7 +2545,7 @@ function TableCellComponentLiability4({ data, childrenSecond, id, TotaldrenFirst
                                     Total:{data?.name_eng}
                                 </TableCell>
                                 <TableCell align="right"  >
-                                    {getFormatNumber(filter[0].balances)} ₭
+                                    {getFormatNumber(filter[0].balances)}₭
                                 </TableCell>
                             </TableRow>
                         </>)
@@ -2597,7 +2602,7 @@ function TableCellComponentLiability6({ data, childrenSecond, id, TotaldrenFirst
             c_id: e
         }
         axios.post("/accounting/api/balance-sheet/sumtotal", data).then((data) => {
-            setNetTotal(data?.data?.data?.balances)
+            setNetTotal([...data?.data?.data][0].balances)
         }).catch((err) => {
             console.log(err)
         })
@@ -2641,7 +2646,7 @@ function TableCellComponentLiability6({ data, childrenSecond, id, TotaldrenFirst
                                     Total:{data?.name_eng}
                                 </TableCell>
                                 <TableCell align="right"  >
-                                    {getFormatNumber(filter[0].balances)} ₭
+                                    {getFormatNumber(filter[0].balances)}₭
                                 </TableCell>
                             </TableRow></>)
                     }
@@ -2699,9 +2704,7 @@ function TableCellComponentLiability8({ data, childrenSecond, id, TotaldrenFirst
         }
 
         axios.post("/accounting/api/balance-sheet/sumtotal", data).then((data) => {
-
-
-            setNetTotal(data?.data?.data?.balances)
+            setNetTotal([...data?.data?.data][0].balances)
         }).catch((err) => {
             console.log(err)
         })
@@ -2747,7 +2750,7 @@ function TableCellComponentLiability8({ data, childrenSecond, id, TotaldrenFirst
                                     Total:{data?.name_eng}
                                 </TableCell>
                                 <TableCell align="right"  >
-                                    {getFormatNumber(filter[0].balances)} ₭
+                                    {getFormatNumber(filter[0].balances)}₭
                                 </TableCell>
                             </TableRow>
 
@@ -2806,9 +2809,7 @@ function TableCellComponentLiability10({ data, childrenSecond, id, TotaldrenFirs
         }
 
         axios.post("/accounting/api/balance-sheet/sumtotal", data).then((data) => {
-
-
-            setNetTotal(data?.data?.data?.balances)
+            setNetTotal([...data?.data?.data][0].balances)
         }).catch((err) => {
             console.log(err)
         })
@@ -2853,7 +2854,7 @@ function TableCellComponentLiability10({ data, childrenSecond, id, TotaldrenFirs
                                     Total:{data?.name_eng}
                                 </TableCell>
                                 <TableCell align="right" >
-                                    {getFormatNumber(filter[0].balances)} ₭
+                                    {getFormatNumber(filter[0].balances)}₭
                                 </TableCell>
                             </TableRow>
 
@@ -2912,9 +2913,7 @@ function TableCellComponentLiability12({ data, childrenSecond, id, TotaldrenFirs
         }
 
         axios.post("/accounting/api/balance-sheet/sumtotal", data).then((data) => {
-
-
-            setNetTotal(data?.data?.data?.balances)
+            setNetTotal([...data?.data?.data][0].balances)
         }).catch((err) => {
             console.log(err)
         })
@@ -2954,7 +2953,7 @@ function TableCellComponentLiability12({ data, childrenSecond, id, TotaldrenFirs
                             Total:{data?.name_eng}
                         </TableCell>
                         <TableCell align="right"  >
-                            {getFormatNumber(filter[0].balances)} ₭
+                            {getFormatNumber(filter[0].balances)}₭
                         </TableCell>
                     </TableRow>
                 </>)
