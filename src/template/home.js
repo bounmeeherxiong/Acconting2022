@@ -128,8 +128,6 @@ export default function Home(props) {
     onloadreportGl,
     OnloadBalancesheet,
     OnloadResetCondition,
-
-
   } = useContext(LoginContext);
   const handleShow = () => {
     setShow(true)
@@ -146,6 +144,7 @@ export default function Home(props) {
   const CloseShoFullScrreen = () => {
     setShowEditJournal(false)
   }
+  
   const ShowfullscreenJournal = () => {
     setShowfullscreen(true)
   }
@@ -177,6 +176,7 @@ export default function Home(props) {
           </>
         ) : (showEditJournal == true) ? (<>
           <EditComponentJournal
+            onloadreportGl={ onloadreportGl}
             id={id}
             CloseShoFullScrreen={CloseShoFullScrreen}
           />
@@ -285,11 +285,7 @@ export default function Home(props) {
                   </ListItem>
                   <Collapse in={listOpentExchange} timeout="auto" unmountOnExit>
                     <List component="div" disablePadding>
-                      {/* <ListItem button className={classes.nested} onClick={() => handleExchangeShow()}>
-                        <ListItemIcon>
-                        </ListItemIcon>
-                        Transaction Rate
-                      </ListItem> */}
+            
                       <ListItem button className={classes.nested} onClick={() => Navigate(`ExchangeRate/${1}`)}>
                         <ListItemIcon>
                         </ListItemIcon>
@@ -311,32 +307,11 @@ export default function Home(props) {
                     Journal entry
                     <ListItemText />
                   </ListItem>
-                  <ListItem button onClick={() => setShowReferent(true)} >
+                  {/* <ListItem button onClick={() => setShowReferent(true)} >
                     <ListItemIcon>
                       <BarChartIcon />
                     </ListItemIcon>
                     Referent
-                    <ListItemText />
-                  </ListItem>
-                  {/* <ListItem button onClick={() => Navigate("Reportjournal")} >
-                    <ListItemIcon>
-                      <BarChartIcon />
-                    </ListItemIcon>
-                    Run Report
-                    <ListItemText />
-                  </ListItem> */}
-                  {/* <ListItem button onClick={() => Navigate("Test")} >
-                    <ListItemIcon>
-                      <BarChartIcon />
-                    </ListItemIcon>
-                    Test
-                    <ListItemText />
-                  </ListItem> */}
-                  {/* <ListItem button onClick={() => Navigate(`ExchangeRate/${1}`)} >
-                    <ListItemIcon>
-                      <BarChartIcon />
-                    </ListItemIcon>
-                    Test
                     <ListItemText />
                   </ListItem> */}
                   <ListItem button onClick={() => Navigate("ReportTrialbalances")} >
@@ -360,20 +335,14 @@ export default function Home(props) {
                     BalanceSheet
                     <ListItemText />
                   </ListItem>
-                  <ListItem button onClick={() => Navigate("Profitandloss")} >
+                  <ListItem button onClick={() => Navigate("Profitandloss/2")} >
                     <ListItemIcon>
                       <BarChartIcon />
                     </ListItemIcon>
                     Profit and loss
                     <ListItemText />
                   </ListItem>
-                  <ListItem button onClick={() => { handleShow() }} >
-                    <ListItemIcon>
-                      <BarChartIcon />
-                    </ListItemIcon>
-                    Unrealised Gains & Losses
-                    <ListItemText />
-                  </ListItem>
+                 
                 </List>
               </Drawer>
               <main className={classes.content}>
@@ -389,7 +358,7 @@ export default function Home(props) {
 }
 
 
-function EditComponentJournal({ id, CloseShoFullScrreen }) {
+function EditComponentJournal({ id, CloseShoFullScrreen, onloadreportGl }) {
   const classes = useStyles();
 
   const [data, setData] = useState([
@@ -544,7 +513,6 @@ function EditComponentJournal({ id, CloseShoFullScrreen }) {
   let convertcredit = credit.replaceAll('$', '')
   let agconvertdebit = convertdebit.replaceAll(',', '')
   let agconvertcredit = convertcredit.replaceAll(',', '')
-
   const _onLoad = () => {
     axios.get(`/accounting/api/journal-entries/selectledger/${id}`).then((data) => {
       let inforData = [...data?.data?.ledger]
@@ -567,7 +535,6 @@ function EditComponentJournal({ id, CloseShoFullScrreen }) {
         let sumcredit = [...data?.data?.ledger]?.reduce(function (previousValue, currentValue) {
           return parseFloat(previousValue) + (currentValue['credit'] != undefined && currentValue['credit'] != '' ? parseFloat(currentValue['credit'].replaceAll(',', '')) : 0)
         }, initialValue)
-        // setCurrency_id([...data?.data?.transactions][0].currency_status)
         if ([...data?.data?.transactions][0].currency_status == 'LAK') {
           setCheckCurrency(null)
         } else {
@@ -576,8 +543,9 @@ function EditComponentJournal({ id, CloseShoFullScrreen }) {
         setUid([...data?.data?.transactions][0].currency_uid)
         setGetcheckcurrency([...data?.data?.transactions][0].currency_uid)
         let money_rate = [...data?.data?.transactions][0].rate
-        let format_number = new Intl.NumberFormat("en-US", { style: 'currency', currency: 'USD' }).format(money_rate)
-        let rate = format_number.replaceAll('$', '')
+        // let format_number = new Intl.NumberFormat("en-US", { style: 'currency', currency: 'USD' }).format(money_rate)
+        // let rate = format_number.replaceAll('$', '')
+        let rate=money_rate.toString().replaceAll(',', '').replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1,");
         let exchange = rate.replaceAll(',', '')
         let TotalDebit = (parseFloat(exchange) * parseFloat(sumdebit))
         let TotalCredit = (parseFloat(exchange) * parseFloat(sumcredit))
@@ -608,12 +576,11 @@ function EditComponentJournal({ id, CloseShoFullScrreen }) {
     })
   }
   const deleteTransaction = (e) => {
-    console.log("e=", e)
+   
     const transitionID = e
     let data = {
       tr_id: transitionID
     }
-
     axios.put("/accounting/api/journal-entries/delete", data).then((data) => {
       CloseShoFullScrreen(false)
     }).catch((err) => {
@@ -686,7 +653,7 @@ function EditComponentJournal({ id, CloseShoFullScrreen }) {
   const changeText = (value, key, index) => {
     const object = { ...data[index] };
     if (key == 'debit' || key == 'credit') {
-      // object[key] = value != '' ? Intl.NumberFormat().format(parseInt(value.replaceAll(',', ''))) : '';
+    
       object[key] = value.toString().replaceAll(',', '').replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1,");
     } else {
       object[key] = value;
@@ -698,22 +665,24 @@ function EditComponentJournal({ id, CloseShoFullScrreen }) {
   const onBlurCurrency = (value, key, x, y) => {
     if (key == "USD") {
       let number = value.replaceAll(',', '')
-      let format_number = new Intl.NumberFormat("en-US", { style: 'currency', currency: 'USD' }).format(number)
-      let rate = format_number.replaceAll('$', '')
+      let rate=number.toString().replaceAll(',', '').replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1,");
+      // let format_number = new Intl.NumberFormat("en-US", { style: 'currency', currency: 'USD' }).format(number)
+      // let rate = format_number.replaceAll('$', '')
       let exchange = rate.replaceAll(',', '')
-      setUsd(format_number.replaceAll('$', ''))
-      let TotalDebit = (parseFloat(exchange) * parseFloat(x))
-      let TotalCredit = (parseFloat(exchange) * parseFloat(y))
+      setUsd(rate)
+      let TotalDebit = (parseFloat(exchange) * parseFloat(x.replaceAll(',','')))
+      let TotalCredit = (parseFloat(exchange) * parseFloat(y.replaceAll(',','')))
       setNetTotalDebit(Intl.NumberFormat("en-US", { style: 'currency', currency: 'USD' }).format(TotalDebit))
       setNetTotalCrebit(Intl.NumberFormat("en-US", { style: 'currency', currency: 'USD' }).format(TotalCredit))
     } else {
       let number = value.replaceAll(',', '')
-      let format_number = new Intl.NumberFormat("en-US", { style: 'currency', currency: 'USD' }).format(number)
-      let rate = format_number.replaceAll('$', '')
+      let rate=number.toString().replaceAll(',', '').replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1,");
+      // let format_number = new Intl.NumberFormat("en-US", { style: 'currency', currency: 'USD' }).format(number)
+      // let rate = format_number.replaceAll('$', '')
       let exchange = rate.replaceAll(',', '')
-      setThb(format_number.replaceAll('$', ''))
-      let TotalDebit = (parseFloat(exchange) * parseFloat(x))
-      let TotalCredit = (parseFloat(exchange) * parseFloat(y))
+      setThb(rate)
+      let TotalDebit = (parseFloat(exchange) * parseFloat(x.replaceAll(',','')))
+      let TotalCredit = (parseFloat(exchange) * parseFloat(y.replaceAll(',','')))
       setNetTotalDebit(Intl.NumberFormat("en-US", { style: 'currency', currency: 'USD' }).format(TotalDebit))
       setNetTotalCrebit(Intl.NumberFormat("en-US", { style: 'currency', currency: 'USD' }).format(TotalCredit))
     }
@@ -757,7 +726,6 @@ function EditComponentJournal({ id, CloseShoFullScrreen }) {
   }
   useEffect(() => {
     _onLoad()
-
     currencies()
     _searchstartdate()
   }, [])
@@ -783,11 +751,7 @@ function EditComponentJournal({ id, CloseShoFullScrreen }) {
     } else {
       maincurrency = '1'
     }
-    // if (!currency) {
-    //   cure = uid
-    // } else {
-    //   cure = currency
-    // }
+
     if (!file) {
       images = 0
     } else {
@@ -809,21 +773,18 @@ function EditComponentJournal({ id, CloseShoFullScrreen }) {
       tr_id: tr_id,
       file_attachment: images
     }
-
-    console.log("journaldata=", journaldata)
     if (debit != credit) {
       setIsLoading(false);
       setSomething(true)
     } else {
-
       axios.put("/accounting/api/journal-entries/update", journaldata).then((data) => {
-        setThb('')
-        setUsd('')
+ 
         setDefaultValue('')
         setShowToast(true);
+        onloadreportGl();
         onloadAutomaticGl();
+      
       }).catch((err) => {
-        console.log(err)
         console.log(err)
         let statusCode = err.response?.data?.statusCode
         console.log("statusCode=", statusCode)
@@ -971,10 +932,7 @@ function EditComponentJournal({ id, CloseShoFullScrreen }) {
                 <small style={{ fontSize: 20, marginLeft: 10, color: "red" }}>Something's not quite right</small> < br />
                 <small style={{ marginLeft: 10 }}>Please check balance debits and credits.</small></div>
             </>
-          ) : (
-            <>
-            </>
-          )
+          ) : null
         }
         <div style={{
           display: 'flex',
@@ -1079,10 +1037,7 @@ function EditComponentJournal({ id, CloseShoFullScrreen }) {
                     <div style={{ marginTop: 5, paddingLeft: 10 }}>LAK</div>
                   </div>
                 </>
-              ) : (
-                <>
-                </>
-              )
+              ) :null
             }
           </div>
         </div>

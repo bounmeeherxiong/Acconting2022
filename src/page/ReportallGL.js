@@ -7,7 +7,6 @@ import TableCell from '@material-ui/core/TableCell';
 import TableContainer from '@material-ui/core/TableContainer';
 import TableHead from '@material-ui/core/TableHead';
 import TableRow from '@material-ui/core/TableRow';
-import Paper from '@material-ui/core/Paper';
 import ExpandLess from '@material-ui/icons/ExpandLess';
 import ExpandMore from '@material-ui/icons/ExpandMore';
 import moment from 'moment';
@@ -34,11 +33,13 @@ export default function ReportallGL() {
   let componentRef = useRef(null)
   const navigate = useNavigate();
   const {
-    listaccountname, EditJournal, listgl, setListgl, onloadreportGl, listcondition, OnloadResetCondition
+    listaccountname, EditJournal, listgl, setListgl, onloadreportGl
   } = useContext(LoginContext);
   const goback = () => {
     navigate("/ChartAccount");
   }
+
+ 
   const classes = useStyles();
   const [getvalues, setGetvalues] = useState([]);
   const [start_date, setStart_date] = useState("");
@@ -55,6 +56,7 @@ export default function ReportallGL() {
   const [ch_id, setCh_id] = useState("")
   const [open, setOpen] = useState(true);
   const [account, setAccount] = useState(false)
+  const [alldates, setAlldates] = useState(false)
   const [journal, setJournal] = useState(false)
   const [getjournal, setGetjournal] = useState('')
   const [errdate, setErrdate] = useState(false)
@@ -74,11 +76,9 @@ export default function ReportallGL() {
   const [exchange, setExchange] = useState([])
   const [isLoading, setIsLoading,] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [listcondition, setListcondition] = useState([])
 
-  const [clearData, setClearData] = useState([
-    { name: 'USD', rate: '' },
-    { name: 'THB', rate: '' },
-  ])
+
   const [data, setData] = useState([
     { name: '', rate: '' },
   ]);
@@ -99,15 +99,27 @@ export default function ReportallGL() {
     setShow(false);
 
   };
+  const OnResetConditions=()=>{
+    axios.get('/accounting/api/profit-loss/reset-condition').then((data)=>{
+    }).catch((err)=>{
+        console.log(err)
+    })
+}
   const handleShow = () => {
     setShow(true)
   };
-  const ReportExchange=()=>{
-    axios.get('/accounting/api/report/report_Exchange').then((data)=>{
-      console.log(data)      
+  const OnloadResetCondition = () => {
+  axios.get('/accounting/api/report/ConditionResetGL').then((data) => {
+    setListcondition([...data?.data?.results][0].counts)
+  }).catch((err) => {
+    console.log(err)
+  })
+}
+  const ReportExchange = () => {
+    axios.get('/accounting/api/report/report_Exchange').then((data) => {
       onloadreportGl();
       OnloadResetCondition();
-    }).catch((err)=>{
+    }).catch((err) => {
       console.log(err)
     })
   }
@@ -172,14 +184,11 @@ export default function ReportallGL() {
     setCurrentbalance(!currentbalance)
   }
   const insert = () => {
-
   }
   const OnGain_loss = () => {
     setLeave(0)
     setGain_loss(!gain_Loss)
   }
-
-
   const handleClicks = () => {
     setShowBox(!showBox);
   };
@@ -189,10 +198,11 @@ export default function ReportallGL() {
   const _onShow = (e) => {
     if (e == "custom") {
       setAccount(false)
+      setAlldates(false)
+      
+      
     } else if (e == "all") {
-      setErr('')
-      setAccount(false)
-      onloadreportGl();
+      setAlldates(true)
     } else if (e == "today") {
       setErr('')
       setAccount(false)
@@ -217,7 +227,6 @@ export default function ReportallGL() {
         }
       }
       axios.post("/accounting/api/report/reportGlbydate", data).then((data) => {
-        console.log("SearchDataList=",{...data?.data})
         setListgl({ ...data?.data })
       }).catch((err) => {
         console.log(err)
@@ -262,30 +271,19 @@ export default function ReportallGL() {
     })
   }
   const Search = () => {
-    if (getvalues == "account") {
-      if (!nameShow) {
-        setErr('102')
-        return;
-      }
-      const start = defaultValue
-      const end = defaultValue1
-      let data = {
-        start,
-        end,
-        ch_id
-      }
-      axios.post("/accounting/api/report/reportbyaccount", data).then((data) => {
-
+    setLoading(true)
+    if (getvalues == "all") {
+      axios.get('/accounting/api/report/reportGlAlldate').then((data) => {
+        console.log("alldatas=", data)
         setListgl({ ...data?.data })
+        setLoading(false)
       }).catch((err) => {
         console.log(err)
       })
     } else if (getvalues === 'journal_no') {
-
       let data = {
         journal_no: getjournal
       }
-
       axios.post("/accounting/api/report/reportGlbyJournalno", data).then((data) => {
         setListgl({ ...data?.data })
       }).catch((err) => {
@@ -299,26 +297,14 @@ export default function ReportallGL() {
         end
       }
       axios.post("/accounting/api/report/reportGlbydate", data).then((data) => {
-        console.log("ssssDataList=", { ...data?.data })
+
         setListgl({ ...data?.data })
+        setLoading(false)
       }).catch((err) => {
         console.log(err)
       })
     }
   }
-  const onloadAutomaticGl = () => {
-    axios.get("/accounting/api/report/reportAutoGL").then((data) => {
-      console.log(data)
-    }).catch((err) => {
-      console.log(err)
-    })
-  }
-
-  // const onloadreportGl = () => {
-  //   axios.get("/accounting/api/report/reportGl").then((data) => {
-  //     setListgl({ ...data?.data })
-  //   })
-  // }
 
   const onGotoEditjournal = (id) => {
     const baseUrl = window.location.pathname;
@@ -328,28 +314,17 @@ export default function ReportallGL() {
     navigate(`/DetailAutomatic/${e}`)
   }
   const Onloadreset = () => {
-
     window.location.reload();
-    // axios.get('/accounting/api/report/createResetExchange_gl').then((data) => {
-    //   onloadreportGl();
-    //   OnloadResetCondition();
-    //   onloadAutomaticGl();
-    // }).catch((err) => {
-    //   console.log(err)
-    // })
 
   }
   const Onloadreset1 = () => {
     axios.get('/accounting/api/report/createResetExchange_gl').then((data) => {
-      console.log(data)
       onloadreportGl()
       OnloadResetCondition()
-      onloadAutomaticGl();
-      // window.location.reload();
+ 
     }).catch((err) => {
       console.log(err)
     })
-
   }
   const getNameList = (c_id) => {
     axios.get(`/accounting/api/chartofaccounts/all/parents/${c_id}`).then((data) => {
@@ -375,14 +350,12 @@ export default function ReportallGL() {
     }
   };
   useEffect(() => {
-
     _onShow();
-    onloadreportGl()
+    OnloadResetCondition()
+    OnResetConditions()
     _searchstartdate();
     _searchbydate();
     onLoadExchangeRates();
-
-
   }, [])
   // useEffect(() => {
   //   if (listcondition !== 0) {
@@ -414,66 +387,70 @@ export default function ReportallGL() {
               outline: 'none'
             }}
           >
+            <option value="thismonth">This Month-to-date</option>
             <option value="all">All Dates</option>
             <option value="today">Today</option>
             <option value="custom">Custom</option>
-            <option value="account">Report by Account</option>
-            <option value="journal_no">Report by journal no</option>
-            <option value="exchange_rate">Exchange Rate</option>
           </select>
-          <input
-            type="text"
-            defaultValue={defaultValue}
-            onChange={(e) => setDefaultValue(e.target.value)}
-            style={{
-              border: '1px solid #ccc',
-              height: 30,
-              borderRadius: 3,
-              width: 100,
-              paddingLeft: 10,
-              marginLeft: 25,
-              textAlign: "right",
-              borderRight: "none",
-            }}
-          />
-          <input
-            type="date"
-            onChange={(e) => _searchstartdate(e.target.value)}
-            style={{
-              border: '1px solid #ccc',
-              height: 30,
-              borderRadius: 3,
-              width: 30,
-              paddingLeft: 10,
-            }}
-          />
-          <span style={{ marginLeft: 10, paddingTop: 5 }}>To</span>
-          <input
-            type="text"
-            defaultValue={defaultValue1}
-            onChange={(e) => setDefaultValue1(e.target.value)}
-            style={{
-              border: '1px solid #ccc',
-              height: 30,
-              borderRadius: 3,
-              width: 100,
-              paddingLeft: 10,
-              marginLeft: 25,
-              textAlign: "right",
-              borderRight: "none",
-            }}
-          />
-          <input
-            type="date"
-            onChange={(e) => _searchbydate(e.target.value)}
-            style={{
-              border: '1px solid #ccc',
-              height: 30,
-              borderRadius: 3,
-              width: 30,
-              paddingLeft: 10,
-            }}
-          />
+          {
+            alldates == false ? (
+              <>
+                <input
+                  type="text"
+                  defaultValue={defaultValue}
+                  onChange={(e) => setDefaultValue(e.target.value)}
+                  style={{
+                    border: '1px solid #ccc',
+                    height: 30,
+                    borderRadius: 3,
+                    width: 100,
+                    paddingLeft: 10,
+                    marginLeft: 25,
+                    textAlign: "right",
+                    borderRight: "none",
+                  }}
+                />
+                <input
+                  type="date"
+                  onChange={(e) => _searchstartdate(e.target.value)}
+                  style={{
+                    border: '1px solid #ccc',
+                    height: 30,
+                    borderRadius: 3,
+                    width: 30,
+                    paddingLeft: 10,
+                  }}
+                />
+                <span style={{ marginLeft: 10, paddingTop: 5 }}>To</span>
+                <input
+                  type="text"
+                  defaultValue={defaultValue1}
+                  onChange={(e) => setDefaultValue1(e.target.value)}
+                  style={{
+                    border: '1px solid #ccc',
+                    height: 30,
+                    borderRadius: 3,
+                    width: 100,
+                    paddingLeft: 10,
+                    marginLeft: 25,
+                    textAlign: "right",
+                    borderRight: "none",
+                  }}
+                />
+                <input
+                  type="date"
+                  onChange={(e) => _searchbydate(e.target.value)}
+                  style={{
+                    border: '1px solid #ccc',
+                    height: 30,
+                    borderRadius: 3,
+                    width: 30,
+                    paddingLeft: 10,
+                  }}
+                />
+              </>) : null
+          }
+
           {
             account === true ?
               (
@@ -562,11 +539,31 @@ export default function ReportallGL() {
             }}
             onClick={() => Search()}
           >
-            {/* <SearchIcon /> */}
+
             Run Report
           </button>
           {
-            listcondition === 0 ? (
+            listcondition == 1 ? (
+              <>
+                <button
+                  style={{
+                    backgroundColor: "red",
+                    border: "none",
+                    height: 30,
+                    borderRadius: 2,
+                    paddingLeft: 10,
+                    paddingRight: 10,
+                    color: "white",
+                    alignItems: "center",
+                    marginLeft: 10,
+                  }}
+                  onClick={() => Onloadreset1()}
+                >
+                  Reset
+                </button>
+
+              </>
+            ) : (
               <>
                 <button
                   style={{
@@ -585,25 +582,6 @@ export default function ReportallGL() {
                   Reset
                 </button>
 
-              </>
-            ) : (
-              <>
-                <button
-                  style={{
-                    backgroundColor: "red",
-                    border: "none",
-                    height: 30,
-                    borderRadius: 2,
-                    paddingLeft: 10,
-                    paddingRight: 10,
-                    color: "white",
-                    alignItems: "center",
-                    marginLeft: 10,
-                  }}
-                  onClick={() => Onloadreset1()}
-                >
-                  Reset
-                </button>
               </>
             )
           }
@@ -627,28 +605,7 @@ export default function ReportallGL() {
             content={() => componentRef}
             style={{ marginRight: 10 }}
           />
-          {/* {
-            account !== true ? (<>
-              <button
-                style={{
-                  backgroundColor: "#3f51b5",
-                  border: "none",
-                  height: 30,
-                  borderRadius: 2,
-                  paddingLeft: 10,
-                  paddingRight: 10,
-                  color: "white",
-                  alignItems: "center",
-                  marginLeft: 10,
-                }}
-                onClick={() => { handleShow() }}
-              >
-                <AddIcon />
-                Exchange Rate
-              </button>
 
-            </>) : null
-          } */}
           <button
             style={{
               backgroundColor: "#3f51b5",
@@ -661,7 +618,7 @@ export default function ReportallGL() {
               alignItems: "center",
               marginLeft: 10,
             }}
-            onClick={() => { ReportExchange()}}
+            onClick={() => { ReportExchange() }}
           >
             <AddIcon />
             Report Exchange
@@ -965,108 +922,119 @@ export default function ReportallGL() {
         </>
       )}
       <div style={{ height: 20 }}></div>
-      <TableContainer  ref={(el) => (componentRef = el)}>
-        <Table className={classes.table} aria-label="sticky table" size="small">
-          <TableHead>
-            <TableRow>
-              <TableCell style={{ width: 300, fontWeight: 'bold' }}>DATE</TableCell>
-              <TableCell align="left" style={{ width: 300, fontWeight: 'bold' }}>TRANSACTION TYPE</TableCell>
-              <TableCell align="left" style={{ width: 100, fontWeight: 'bold' }}>NO</TableCell>
-              <TableCell align="left" style={{ width: 200, fontWeight: 'bold' }}>DESCRIPTION</TableCell>
-              <TableCell align="right" style={{ width: 200, fontWeight: 'bold' }}>AMOUNT</TableCell>
-              <TableCell align="right" style={{ fontWeight: 'bold' }}>BALANCE</TableCell>
-              {
-                currentbalance === true ? (<>
-                  <TableCell align="right" style={{ fontWeight: 'bold' }}>CURRENT BALANCE</TableCell>
-                </>) : null
-              }
+      {
+        loading == true ? (
+          <>
+            <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+              <Spinner animation="border" variant="primary" style={{ width: 100, height: 100, marginTop: 100 }} />
+            </div>
+          </>
+        ) : (
+          <>
+            <TableContainer ref={(el) => (componentRef = el)}>
+              <Table className={classes.table} aria-label="sticky table" size="small">
+                <TableHead>
+                  <TableRow>
+                    <TableCell style={{ width: 500, fontWeight: 'bold' }}>DATE</TableCell>
+                    <TableCell align="left" style={{ width: 300, fontWeight: 'bold' }}>TRANSACTION TYPE</TableCell>
+                    <TableCell align="left" style={{ width: 100, fontWeight: 'bold' }}>NO</TableCell>
+                    <TableCell align="left" style={{ width: 200, fontWeight: 'bold' }}>DESCRIPTION</TableCell>
+                    <TableCell align="right" style={{ width: 200, fontWeight: 'bold' }}>AMOUNT</TableCell>
+                    <TableCell align="right" style={{ fontWeight: 'bold' }}>BALANCE</TableCell>
+                    {
+                      currentbalance === true ? (<>
+                        <TableCell align="right" style={{ fontWeight: 'bold' }}>CURRENT BALANCE</TableCell>
+                      </>) : null
+                    }
 
 
-              {
-                showdebit === true ? (
-                  <TableCell align="right" style={{ width: 200, fontWeight: 'bold' }}>Debit</TableCell>
-                ) : null
-              }
-              {
-                showcredit === true ? (
-                  <TableCell align="right" style={{ width: 200, fontWeight: 'bold' }}>Credit</TableCell>
-                ) : null
-              }
-              {
-                foreigndebit === true ? (<>
-                  <TableCell align="right" style={{ width: 500, fontWeight: 'bold' }}>Foreign Debit</TableCell>
-                </>) : null
-              }
-              {
-                foreigncredit === true ? (<>
-                  <TableCell align="right" style={{ width: 500, fontWeight: 'bold' }}>Foreign Credit</TableCell>
-                </>) : null
-              }
-              {
-                foreignamount === true ? (<>
-                  <TableCell align="right" style={{ width: 500, fontWeight: 'bold' }}>Foreign Amount</TableCell>
-                </>) : null
-              }
-              {
-                foreignbalance === true ? (<>
-                  <TableCell align="right" style={{ width: 500, fontWeight: 'bold' }}>Foreign Balance</TableCell>
-                </>) : null
-              }
-              {
-                rate === true ? (<>
-                  <TableCell align="right" style={{ width: 100, fontWeight: 'bold' }}>Rate</TableCell>
-                </>) : null
-              }
-              {
-                exchangerate === true ? (<>
-                  <TableCell align="right" style={{ width: 500, fontWeight: 'bold' }}>Exchange Rate</TableCell>
-                </>) : null
-              }
-              {
-                gain_Loss === true ? (<>
-                  <TableCell align="right" style={{ width: 500, fontWeight: 'bold' }}>Gain/Loss</TableCell>
-                </>) : null
-              }
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {listgl.firstFloor && listgl.firstFloor.map((item, index) => {
-              return (
-                <>
-                  < GLRowComponent
-                    name_eng={item.name_eng}
-                    id={item.c_id}
-                    index={index}
-                    second={listgl && listgl.SecondFloor}
-                    childrenFirstFloor={listgl && listgl.childrenFirstFloor}
-                    childrenSecondFloor={listgl && listgl.childrenSecondFloor}
-                    onGotoEditjournal={onGotoEditjournal}
-                    OnEditJournal={OnEditJournal}
-                    defaultValue={defaultValue}
-                    defaultValue1={defaultValue1}
-                    getvalues={getvalues}
-                    ch_id={ch_id}
-                    showdebit={showdebit}
-                    showcredit={showcredit}
-                    foreigndebit={foreigndebit}
-                    foreigncredit={foreigncredit}
-                    foreignamount={foreignamount}
-                    foreignbalance={foreignbalance}
-                    rate={rate}
-                    exchangerate={exchangerate}
-                    gain_Loss={gain_Loss}
-                    currentbalance={currentbalance}
-                    OnShowAatumaticTransaction={OnShowAatumaticTransaction}
-                  />
-                </>
-              )
-            })
-            }
-          </TableBody>
-        </Table>
-      </TableContainer>
+                    {
+                      showdebit === true ? (
+                        <TableCell align="right" style={{ width: 200, fontWeight: 'bold' }}>Debit</TableCell>
+                      ) : null
+                    }
+                    {
+                      showcredit === true ? (
+                        <TableCell align="right" style={{ width: 200, fontWeight: 'bold' }}>Credit</TableCell>
+                      ) : null
+                    }
+                    {
+                      foreigndebit === true ? (<>
+                        <TableCell align="right" style={{ width: 500, fontWeight: 'bold' }}>Foreign Debit</TableCell>
+                      </>) : null
+                    }
+                    {
+                      foreigncredit === true ? (<>
+                        <TableCell align="right" style={{ width: 500, fontWeight: 'bold' }}>Foreign Credit</TableCell>
+                      </>) : null
+                    }
+                    {
+                      foreignamount === true ? (<>
+                        <TableCell align="right" style={{ width: 500, fontWeight: 'bold' }}>Foreign Amount</TableCell>
+                      </>) : null
+                    }
+                    {
+                      foreignbalance === true ? (<>
+                        <TableCell align="right" style={{ width: 500, fontWeight: 'bold' }}>Foreign Balance</TableCell>
+                      </>) : null
+                    }
+                    {
+                      rate === true ? (<>
+                        <TableCell align="right" style={{ width: 100, fontWeight: 'bold' }}>Rate</TableCell>
+                      </>) : null
+                    }
+                    {
+                      exchangerate === true ? (<>
+                        <TableCell align="right" style={{ width: 500, fontWeight: 'bold' }}>Exchange Rate</TableCell>
+                      </>) : null
+                    }
+                    {
+                      gain_Loss === true ? (<>
+                        <TableCell align="right" style={{ width: 500, fontWeight: 'bold' }}>Gain/Loss</TableCell>
+                      </>) : null
+                    }
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {listgl.firstFloor && listgl.firstFloor.map((item, index) => {
+                    return (
+                      <>
+                        < GLRowComponent
+                          name_eng={item.name_eng}
+                          id={item.c_id}
+                          index={index}
+                          second={listgl && listgl.SecondFloor}
+                          childrenFirstFloor={listgl && listgl.childrenFirstFloor}
+                          childrenSecondFloor={listgl && listgl.childrenSecondFloor}
+                          onGotoEditjournal={onGotoEditjournal}
+                          OnEditJournal={OnEditJournal}
+                          defaultValue={defaultValue}
+                          defaultValue1={defaultValue1}
+                          getvalues={getvalues}
+                          ch_id={ch_id}
+                          showdebit={showdebit}
+                          showcredit={showcredit}
+                          foreigndebit={foreigndebit}
+                          foreigncredit={foreigncredit}
+                          foreignamount={foreignamount}
+                          foreignbalance={foreignbalance}
+                          rate={rate}
+                          exchangerate={exchangerate}
+                          gain_Loss={gain_Loss}
+                          currentbalance={currentbalance}
+                          OnShowAatumaticTransaction={OnShowAatumaticTransaction}
+                        />
+                      </>
+                    )
+                  })
+                  }
+                </TableBody>
+              </Table>
+            </TableContainer>
 
-
+          </>
+        )
+      }
 
 
     </>
@@ -1253,24 +1221,24 @@ function RowComponent({ id, name_eng, OnEditJournal, total1, childrenFirstFloor,
           }
           return (
             <>
-              <TableRow key={index} style={{paddingLeft:45}}>
+              <TableRow key={index} style={{ paddingLeft: 45 }}>
                 {
                   data?.begining_balance == '0' ? (
-                  <>
-                  <TableCell >Beginning Balance</TableCell>
-                  </>):(
-                  <>
-                    <TableCell
-                  style={{
-                    paddingLeft: 45, cursor: "pointer",
-                    fontWeight:
-                      active === moment(data?.createdate).format("DD-MM-YYYY") ? "bold" : "",
-                  }}
-                  onClick={() => { OnEditJournal(data?.tr_id) }}
-                  onMouseOver={() => setActive(moment(data?.createdate).format("DD-MM-YYYY"))}
-                  onMouseLeave={() => setActive(null)}
-                >{moment(data?.createdate).format("DD-MM-YYYY")}</TableCell>
-                  </>)
+                    <>
+                      <TableCell ><small style={{ fontWeight: 'bold', fontSize: 15 }}>Beginning Balance</small></TableCell>
+                    </>) : (
+                    <>
+                      <TableCell
+                        style={{
+                          paddingLeft: 45, cursor: "pointer",
+                          fontWeight:
+                            active === moment(data?.createdate).format("DD-MM-YYYY") ? "bold" : "",
+                        }}
+                        onClick={() => { OnEditJournal(data?.tr_id) }}
+                        onMouseOver={() => setActive(moment(data?.createdate).format("DD-MM-YYYY"))}
+                        onMouseLeave={() => setActive(null)}
+                      >{moment(data?.createdate).format("DD-MM-YYYY")}</TableCell>
+                    </>)
                 }
 
                 {
@@ -1374,7 +1342,7 @@ function RowComponent({ id, name_eng, OnEditJournal, total1, childrenFirstFloor,
                         data?.foreign_code === 'USD' || data?.foreign_code === 'THB' ? (
                           <>
                             {
-                              data?.foreign_code === 'USD' ||  data.foreign_code == 'THB' ?
+                              data?.foreign_code === 'USD' || data.foreign_code == 'THB' ?
                                 (
                                   <>
                                     <TableCell align="right" style={{ cursor: "pointer" }} >{getFormatNumber(data?.foreign_amount)}$</TableCell>
@@ -1382,7 +1350,7 @@ function RowComponent({ id, name_eng, OnEditJournal, total1, childrenFirstFloor,
                                   </>
                                 ) : (
                                   <>
-                                    <TableCell align="right" style={{ cursor: "pointer" }} >{getFormatNumber(data?.foreign_balances)}฿</TableCell>
+                                    <TableCell align="right" style={{ cursor: "pointer" }} >{getFormatNumber(data?.foreign_amount)}fff฿</TableCell>
 
                                   </>
                                 )
@@ -1393,8 +1361,7 @@ function RowComponent({ id, name_eng, OnEditJournal, total1, childrenFirstFloor,
                             <TableCell align="right" style={{ cursor: "pointer" }} ></TableCell>
                           </>
                         )
-                        
-                        
+
 
                       }
                     </>
@@ -1410,11 +1377,11 @@ function RowComponent({ id, name_eng, OnEditJournal, total1, childrenFirstFloor,
                               {
                                 data?.foreign_code === 'USD' ? (
                                   <>
-                                    <TableCell align="right" style={{ cursor: "pointer" }} >{getFormatNumber(data?.foreign_balances)}$</TableCell>
+                                    <TableCell align="right" style={{ cursor: "pointer" }} >{getFormatNumber(data?.current_balance)}$</TableCell>
                                   </>
                                 ) : (
                                   <>
-                                    <TableCell align="right" style={{ cursor: "pointer" }} >{getFormatNumber(data?.foreign_balances)}฿</TableCell>
+                                    <TableCell align="right" style={{ cursor: "pointer" }} >{getFormatNumber(data?.current_balance)}฿</TableCell>
                                   </>
                                 )
                               }
@@ -1433,7 +1400,11 @@ function RowComponent({ id, name_eng, OnEditJournal, total1, childrenFirstFloor,
                       {
                         data?.foreign_code === 'USD' || data?.foreign_code === 'THB' ? (
                           <>
-                            <TableCell align="right" style={{ cursor: "pointer", color: '#0d6efd' }} >{getFormatNumber(data?.money_rate)}</TableCell>
+                            <TableCell align="right" style={{ cursor: "pointer", color: '#0d6efd' }} >
+                              {
+                                data?.money_rate
+                              }
+                              </TableCell>
                           </>
                         ) : (
                           <>
@@ -1448,7 +1419,13 @@ function RowComponent({ id, name_eng, OnEditJournal, total1, childrenFirstFloor,
                       {
                         data?.foreign_code === 'USD' || data?.foreign_code === 'THB' ? (
                           <>
-                            <TableCell align="right" style={{ cursor: "pointer", color: 'green' }} >{getFormatNumber(data?.money_rate)}</TableCell>
+                            <TableCell align="right" style={{ cursor: "pointer", color: 'green' }} >
+                              {
+                                 data?.money_rate
+                              }
+           
+                              
+                              </TableCell>
                           </>
                         ) : (
                           <>
@@ -1591,7 +1568,7 @@ function TableCellComponent({ data, level, index, second, OnEditJournal, childre
         end: defaultValue1
       }
       axios.post("/accounting/api/report/reportsumTotalAccountBydate", datas).then((data) => {
-        setNetTotal1(data?.data?.data.balances)
+        setNetTotal1([...data?.data?.result][0].balances)
       }).catch((err) => {
         console.log(err)
       })
@@ -1602,6 +1579,9 @@ function TableCellComponent({ data, level, index, second, OnEditJournal, childre
         end: defaultValue1
       }
       axios.post("/accounting/api/report/reportsumTotalCustomAndTodayBydate", datas).then((data) => {
+
+
+
         setNetTotal1(data?.data?.data.balances)
       }).catch((err) => {
         console.log(err)
@@ -1610,10 +1590,8 @@ function TableCellComponent({ data, level, index, second, OnEditJournal, childre
       let data = {
         c_id
       }
-
       axios.post("/accounting/api/report/sumdata", data).then((data) => {
-        setNetTotal1([...data?.data?.data][0].balances)
-
+        setNetTotal1([...data?.data?.result][0].balances)
       }).catch((err) => {
         console.log(err)
       })
@@ -1738,6 +1716,7 @@ function TableCellComponent({ data, level, index, second, OnEditJournal, childre
 function SecondRowComponent({ id, name_eng, level, OnEditJournal, childrenSecondFloor, showdebit, showcredit, foreigndebit, foreigncredit, foreignamount, foreignbalance, rate, exchangerate, gain_Loss, currentbalance, OnShowAatumaticTransaction }) {
   let debittotal = 0;
   let credittoal = 0;
+
   if (childrenSecondFloor === null) return <></>
   const filter = childrenSecondFloor.filter((el) => el.ch_id == id);
   var total = 0;
@@ -1760,22 +1739,26 @@ function SecondRowComponent({ id, name_eng, level, OnEditJournal, childrenSecond
               <TableRow key={index} >
                 {
                   data?.begining_balance == '0' ? (<>
-                 <TableCell style={{marginLeft:level}}>Beginning Balance</TableCell>
-                  </>):(<>
-                    <TableCell style={{ paddingLeft: level, cursor: "pointer" }} onClick={() => { OnEditJournal(data?.tr_id) }}>{moment(data?.createdate).format("DD-MM-YYYY")}</TableCell>
-               
+                    <TableCell>
+                      <div style={{ width: '100%' }}>
+                        <small style={{ marginLeft: level, fontWeight: 'bold', fontSize: 15 }}>Beginning Balance</small>
+
+                      </div>
+                    </TableCell>
+                  </>) : (<>
+                    <TableCell style={{ paddingLeft: level, cursor: "pointer", justifyContent: 'center' }}>{moment(data?.createdate).format("DD-MM-YYYY")}</TableCell>
                   </>)
                 }
-          
+
                 {
                   data?.begining_balance == '0' ? (
                     <TableCell align="left"></TableCell>
                   ) : (
-                    <TableCell align="left" onClick={() => { OnEditJournal(data?.tr_id) }} style={{ cursor: "pointer" }}>Journal Entry</TableCell>
+                    <TableCell align="left" onClick={() => { OnEditJournal(data?.tr_id) }} style={{ cursor: "pointer" }} >Journal Entry</TableCell>
                   )
                 }
                 <TableCell align="left" onClick={() => { OnEditJournal(data?.tr_id) }} style={{ cursor: "pointer" }}>{data?.journal_no}</TableCell>
-                <TableCell align="left" onClick={() => { OnEditJournal(data?.tr_id) }} style={{ cursor: "pointer" }}>{data?.lg_desc}</TableCell>
+                <TableCell align="left" style={{ cursor: "pointer" }}><ReadMore children={data?.lg_desc} /></TableCell>
 
                 {
                   data?.begining_balance == '0' ? (<>
@@ -1801,7 +1784,6 @@ function SecondRowComponent({ id, name_eng, level, OnEditJournal, childrenSecond
 
                     </>) : null
                 }
-
 
                 {
                   showdebit === true ? (
@@ -1874,7 +1856,7 @@ function SecondRowComponent({ id, name_eng, level, OnEditJournal, childrenSecond
                                   </>
                                 ) : (
                                   <>
-                                    <TableCell align="right" style={{ cursor: "pointer" }} >{getFormatNumber(data?.foreign_balances)}฿</TableCell>
+                                    <TableCell align="right" style={{ cursor: "pointer" }} >{getFormatNumber(data?.foreign_amount)}฿</TableCell>
 
                                   </>
                                 )
@@ -1899,11 +1881,11 @@ function SecondRowComponent({ id, name_eng, level, OnEditJournal, childrenSecond
                               {
                                 data?.foreign_code === 'USD' ? (
                                   <>
-                                    <TableCell align="right" style={{ cursor: "pointer" }} >{getFormatNumber(data?.foreign_balances)}$</TableCell>
+                                    <TableCell align="right" style={{ cursor: "pointer" }} >{getFormatNumber(data?.current_balance)}$</TableCell>
                                   </>
                                 ) : (
                                   <>
-                                    <TableCell align="right" style={{ cursor: "pointer" }} >{getFormatNumber(data?.foreign_balances)}฿</TableCell>
+                                    <TableCell align="right" style={{ cursor: "pointer" }} >{getFormatNumber(data?.current_balance)}฿</TableCell>
                                   </>
                                 )
                               }
@@ -1922,7 +1904,14 @@ function SecondRowComponent({ id, name_eng, level, OnEditJournal, childrenSecond
                       {
                         data?.foreign_code === 'USD' || data?.foreign_code === 'THB' ? (
                           <>
-                            <TableCell align="right" style={{ cursor: "pointer", color: '#0d6efd' }} >{getFormatNumber(data?.money_rate)}</TableCell>
+                            <TableCell align="right" style={{ cursor: "pointer", color: '#0d6efd' }} >
+                            
+
+                              {
+                                data?.money_rate
+                              }
+                              
+                              </TableCell>
                           </>
                         ) : (
                           <>
@@ -1937,7 +1926,13 @@ function SecondRowComponent({ id, name_eng, level, OnEditJournal, childrenSecond
                       {
                         data?.foreign_code === 'USD' || data?.foreign_code === 'THB' ? (
                           <>
-                            <TableCell align="right" style={{ cursor: "pointer", color: 'green' }} >{getFormatNumber(data?.money_rate)}</TableCell>
+                            <TableCell align="right" style={{ cursor: "pointer", color: 'green' }} >
+                      
+                              {
+                                data?.money_rate
+                              }
+                              
+                              </TableCell>
                           </>
                         ) : (
                           <>
@@ -2035,7 +2030,7 @@ function ReadMore({ children }) {
       {
         text == null ? (<></>) : (<>
           {isReadMore ? text.slice(0, 10) : text}
-          <span onClick={toggleReadMore} className="read-or-hide">
+          <span onClick={toggleReadMore} className="read-or-hide" style={{ color: "green" }}>
             {isReadMore ? "...read more" : " show less"}
           </span>
         </>)

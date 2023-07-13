@@ -31,11 +31,12 @@ export default function AccountCategory() {
   const [shows, setShows] = useState(false)
   let [loading, setLoading] = useState(false);
   const [successffuly, setsuccessffuly] = useState(false);
-
-  useEffect(() => {
-    onloadaccountType();
-
-  }, [])
+  const [main_type, setMain_type] = useState("");
+  const [name_eng, setName_eng] = useState("");
+  const [uid, setUid] = useState("");
+  const [main_type_name, setMain_type_name] = useState("");
+  const [showUpdate, setShowUpdate] = useState(false);
+  const classes = useStyles();
   const handleClose = () => {
     setShow(false);
     setMain_type_name('');
@@ -48,12 +49,6 @@ export default function AccountCategory() {
   }
   const handleShow = () => setShow(true);
   const handleshow1 = () => setShows(true)
-  const [main_type, setMain_type] = useState("");
-  const [name_eng, setName_eng] = useState("");
-  const [uid, setUid] = useState("");
-  const [main_type_name, setMain_type_name] = useState("");
-  const [showUpdate, setShowUpdate] = useState(false);
-  const classes = useStyles();
   const { listaccount, listaccountType, onloadaccountType } =
     useContext(LoginContext);
   const createaccountType = () => {
@@ -109,6 +104,9 @@ export default function AccountCategory() {
       console.log(err)
     })
   }
+  useEffect(() => {
+    onloadaccountType();
+  }, [])
   return (
     <>
       <Modal show={show} onHide={handleClose} style={{ paddingTop: 50 }}>

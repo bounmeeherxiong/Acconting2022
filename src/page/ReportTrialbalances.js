@@ -82,7 +82,7 @@ export default function ReportTrialbalances() {
                 end
             }
             axios.post("/accounting/api/reportbydate/searchreport", data).then((data) => {
-                // setListTrailbalance([...data?.data.result])
+                setListTrailbalance([...data?.data.result])
                 setListTrailbalance({...data?.data})
      
             }).catch((err) => {
@@ -382,10 +382,10 @@ export default function ReportTrialbalances() {
                 <Table className={classes.table} aria-label="simple table">
                     <TableHead>
                         <TableRow>
+                         
                             <TableCell>Account</TableCell>
                             <TableCell align="right">Debit</TableCell>
                             <TableCell align="right">Credit</TableCell>
-
                         </TableRow>
                     </TableHead>
                     <TableBody>
@@ -398,7 +398,7 @@ export default function ReportTrialbalances() {
                                 let condition = usingObjectAssign[0]
                                 if (createstatus == 'As' || createstatus == 'Ex') {
                                     if (condition == "-") {
-                                         if (loss == '1'){
+                                        if (loss == '1'){
                                         creditAllTotal += parseFloat(data?.balances)
                                          }else{
                                         creditAllTotal += parseFloat(data?.balances.replace('-', ''))
@@ -409,6 +409,7 @@ export default function ReportTrialbalances() {
                                         debitAllTotal += parseFloat(data?.balances)
                                     }
                                 } else {
+
                                     if (condition != "-") {
                                         creditAllTotal += parseFloat(data?.balances.replace('-', ''))
                                     } else {
@@ -419,12 +420,13 @@ export default function ReportTrialbalances() {
                                 return (
                                     <>
                                         <TableRow key={index}>
+                        
                                             <TableCell style={{cursor:'pointer'}} onClick={()=>{Gotodetailaccount(data?.c_uid)}}>
                                                 <ComponentTableCell
                                                     secondFloor={listTrailbalance.secondFloor}
                                                     id={data?.parents}
                                                 />
-                                                : {data.name_eng.slice(0, 20)}
+                                                : {data.name_eng.slice(0, 50)}
                                             </TableCell>
                                             {
                                                 createstatus == "As" || createstatus == "Ex" ? (<>
@@ -444,7 +446,6 @@ export default function ReportTrialbalances() {
                                                     {
                                                         condition != '-' ? (
                                                             <>
-
                                                                 <TableCell onClick={()=>{Gotodetailaccount(data?.c_uid)}} align="right">0.00</TableCell>
                                                                 <TableCell style={{cursor:'pointer'}} onClick={()=>{Gotodetailaccount(data?.c_uid)}} align="right">{getFormatNumber(data?.balances)}</TableCell>
                                                             </>) : (
@@ -464,7 +465,7 @@ export default function ReportTrialbalances() {
                     <TableHead>
                         <TableRow>
                             <TableCell>Total:</TableCell>
-                            <TableCell align="right">{getFormatNumber(debitAllTotal)} ₭</TableCell>
+                            <TableCell align="right">{getFormatNumber(debitAllTotal)}₭</TableCell>
                             <TableCell align="right">{getFormatNumber(creditAllTotal)}₭</TableCell>
                         </TableRow>
                     </TableHead>

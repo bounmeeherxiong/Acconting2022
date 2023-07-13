@@ -18,6 +18,8 @@ import ReactToPrint from "react-to-print";
 import moment from 'moment';
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import SettingsIcon from "@material-ui/icons/Settings";
+import { LoginContext } from "../page/contexts/LoginContext";
 const useStyles = makeStyles({
     table: {
         minWidth: 650,
@@ -61,30 +63,53 @@ const createrowlist = [
 export default function BalanceSheet() {
     const navigate = useNavigate();
     let componentRef = useRef(null)
-    const Gotodetailaccount = (id) => {
-        navigate(`/DetailBalancSheet/${id}`);
-    }
+
     const [getvalues, setGetvalues] = useState('')
     const [heading, setHeading] = useState([]);
     const [netTotal, setNetTotal] = useState([])
     const [netTotalLiabilities, setNetTotalLiabilities] = useState([])
     const [balancesheetandloss, setBalancesheetandloss] = useState([])
+    const [transactions_balance, setTransactions_balance] = useState([])
+
     const [defaultValue, setDefaultValue] = useState("")
     const [defaultValue1, setDefaultValue1] = useState("")
     const [loading, setLoading] = useState(false);
+    const [showSetting, setShowSetting] = useState(false)
+    const [isDisabled, setIsDisabled] = useState(false);
+    const [isChecked,setIsChecked]=useState(true)
     const [id, setid] = useState([])
     const classes = useStyles();
+    const [listcondition, setListcondition] = useState([])
+    const {
+
+        setSearchcondition,
+        tra_balance,
+        setTra_balance,
+
+    } = useContext(LoginContext);
+
+    const Gotodetailaccount = (id) => {
+        navigate(`/DetailBalancSheet/${id}`);
+    }
+    const GotoProfitandloss=()=>{
+        navigate('/Profitandloss/2');
+    }
+    const GotoProfitandlossofconditions=(e)=>{
+        navigate(`/Profitandloss/${e}`)
+    }
     const OnloadBalancesheet = () => {
         axios.get('/accounting/api/balance-sheet/reports').then((data) => {
-            console.log("databalancesheet=",{...data?.data})
+            console.log("datassssssss=",data)
             setHeading({ ...data?.data })
             setNetTotal([...data?.data?.sumAsset])
             setid([...data?.data?.Ownersequity][0].bs_id)
             setNetTotalLiabilities([...data?.data?.sumliabilitiesAndOwnerequity])
             if ([...data?.data?.sumBalanceSheet][0].balances == null) {
                 setBalancesheetandloss(0)
+                setTransactions_balance(0)
             } else {
                 setBalancesheetandloss([...data?.data?.sumBalanceSheet][0].balances)
+                setTransactions_balance([...data?.data?.sumBalanceSheet][0].transact_balance)
             }
             setLoading(true)
         }).catch((err) => {
@@ -103,14 +128,107 @@ export default function BalanceSheet() {
     const Reset = () => {
         OnloadBalancesheet()
         window.location.reload();
+        _searchbydate()
+        _searchstartdate()
+        setGetvalues('')
+    }
+    const OnloadResetCondition = () => {
+        axios.get('/accounting/api/report/ConditionResetGL').then((data) => {
+            setListcondition([...data?.data?.results][0].counts)
+        }).catch((err) => {
+            console.log(err)
+        })
+    }
+    const Onloadreset1 = () => {
+        axios.get('/accounting/api/report/createResetExchange_gl').then((data) => {
+            OnloadBalancesheet();
+            OnloadResetCondition();
+        }).catch((err) => {
+            console.log(err)
+        })
+
     }
     const onloadAutomaticGl = () => {
         axios.get("/accounting/api/report/reportAutoGL").then((data) => {
-          console.log(data)
+            console.log(data)
         }).catch((err) => {
-          console.log(err)
+            console.log(err)
         })
-      }
+    }
+
+    const Setting = () => {
+        setShowSetting(!showSetting)
+    }
+
+    const handleChange = event => {
+        if (event.target.checked) {
+            setTra_balance(true)
+            setIsChecked(false)
+
+        //     let infdata={
+        //         data:'true'
+        //     }
+        //    axios.post('/accounting/api/balance-sheet/checkdata',infdata).then((data)=>{
+        //         onloadChecktrue_and_false()
+        //     }).catch((err)=>{
+        //         console.log(err)
+        //     })
+        // } else {
+        //     setTra_balance(false)
+        //     let infdata={
+        //         data:'false'
+        //     }
+        //    axios.post('/accounting/api/balance-sheet/checkdata',infdata).then((data)=>{
+        //         onloadChecktrue_and_false()
+        //     }).catch((err)=>{
+        //         console.log(err)
+        //     })
+    
+        }
+
+      };
+      const handleChange1 = event => {
+        if (event.target.checked) {
+            setTra_balance(false)
+            setIsDisabled(false)
+
+
+        //     let infdata={
+        //         data:'true'
+        //     }
+        //    axios.post('/accounting/api/balance-sheet/checkdata',infdata).then((data)=>{
+        //         onloadChecktrue_and_false()
+        //     }).catch((err)=>{
+        //         console.log(err)
+        //     })
+        // } else {
+        //     setTra_balance(false)
+        //     let infdata={
+        //         data:'false'
+        //     }
+        //    axios.post('/accounting/api/balance-sheet/checkdata',infdata).then((data)=>{
+        //         onloadChecktrue_and_false()
+        //     }).catch((err)=>{
+        //         console.log(err)
+        //     })
+    
+        }
+
+      };
+    const ReportExchange = () => {
+        axios.get('/accounting/api/report/report_Exchange').then((data) => {
+            OnloadBalancesheet();
+            OnloadResetCondition()
+        }).catch((err) => {
+            console.log(err)
+        })
+    }
+    const OnResetConditions=()=>{
+        axios.get('/accounting/api/profit-loss/reset-condition').then((data)=>{
+        }).catch((err)=>{
+            console.log(err)
+        })
+    }
     const OnRunReport = () => {
         setLoading(false)
         setBalancesheetandloss('')
@@ -120,27 +238,30 @@ export default function BalanceSheet() {
                 end: defaultValue1
             }
             axios.post('/accounting/api/balance-sheet/report/allreports', data).then((data) => {
-                console.log("datasearch=",{...data?.data})
                 setHeading({ ...data?.data })
+                console.log("Search=",data)
                 setid([...data?.data?.Ownersequity][0].bs_id)
                 setNetTotal([...data?.data?.sumAsset])
                 setNetTotalLiabilities([...data?.data?.sumliabilitiesAndOwnerequity])
                 if ([...data?.data?.sumBalanceSheet][0].balances == null) {
                     setBalancesheetandloss(0)
+                    setTransactions_balance(0)
                 } else {
                     setBalancesheetandloss([...data?.data?.sumBalanceSheet][0].balances)
+                    setTransactions_balance([...data?.data?.sumBalanceSheet][0].transact_balance)
                 }
-                setLoading(true)
                 onloadAutomaticGl()
+                setLoading(true)
+                setSearchcondition(true)
             }).catch((err) => {
                 console.log(err)
             })
         }
     }
-
-
     useEffect(() => {
         OnloadBalancesheet();
+        OnloadResetCondition()
+        OnResetConditions();
         _searchbydate();
         _searchstartdate();
     }, [])
@@ -152,121 +273,229 @@ export default function BalanceSheet() {
                 <span style={{ color: "#3f51b5", cursor: "pointer" }}
                 >Back to report list</span><br />
             </div>
-            <div style={{ display: 'flex', flexDirection: "row", width: "100%" }} >
-                <select
-                    onChange={(e) => _onShow(e.target.value)}
-                    value={getvalues}
-                    style={{
-                        border: '1px solid #ccc',
+            <div style={{ display: 'flex', flexDirection: "row", width: "100%", justifyContent: 'space-between' }} >
+                <div>
+                    <select
+                        onChange={(e) => _onShow(e.target.value)}
+                        value={getvalues}
+                        style={{
+                            border: '1px solid #ccc',
+                            height: 30,
+                            borderRadius: 3,
+                            width: 200,
+                            outline: 'none'
+                        }}
+                    >
+                        <option value="all"> This Year-to-date</option>
+                        <option value="all">All Dates</option>
+                        <option value="today">Today</option>
+                        <option value="custom">Custom</option>
+                    </select>
+                    <input
+                        type="text"
+                        defaultValue={defaultValue}
+                        onChange={(e) => setDefaultValue(e.target.value)}
+                        style={{
+                            border: '1px solid #ccc',
+                            height: 30,
+                            borderRadius: 3,
+                            width: 100,
+                            paddingLeft: 10,
+                            marginLeft: 25,
+                            textAlign: "right",
+                            borderRight: "none",
+                        }}
+                    />
+                    <input
+                        type="date"
+                        onChange={(e) => _searchstartdate(e.target.value)}
+                        style={{
+                            border: '1px solid #ccc',
+                            height: 30,
+                            borderRadius: 3,
+                            width: 30,
+                            paddingLeft: 10,
+                        }}
+                    />
+                    <span style={{ marginLeft: 10, paddingTop: 5 }}>To</span>
+                    <input
+                        type="text"
+                        defaultValue={defaultValue1}
+                        onChange={(e) => setDefaultValue1(e.target.value)}
+                        style={{
+                            border: '1px solid #ccc',
+                            height: 30,
+                            borderRadius: 3,
+                            width: 100,
+                            paddingLeft: 10,
+                            marginLeft: 25,
+                            textAlign: "right",
+                            borderRight: "none",
+                        }}
+                    />
+                    <input
+                        type="date"
+                        onChange={(e) => _searchbydate(e.target.value)}
+                        style={{
+                            border: '1px solid #ccc',
+                            height: 30,
+                            borderRadius: 3,
+                            width: 30,
+                            paddingLeft: 10,
+                        }}
+                    />
+                    <Button variant="contained" color="primary" style={{
+                        border: "none",
                         height: 30,
-                        borderRadius: 3,
-                        width: 200,
-                        outline: 'none'
-                    }}
-                >
-                    <option value="all">All Dates</option>
-                    <option value="today">Today</option>
-                    <option value="custom">Custom</option>
-                </select>
-                <input
-                    type="text"
-                    defaultValue={defaultValue}
-                    onChange={(e) => setDefaultValue(e.target.value)}
-                    style={{
-                        border: '1px solid #ccc',
-                        height: 30,
-                        borderRadius: 3,
-                        width: 100,
+                        borderRadius: 2,
                         paddingLeft: 10,
-                        marginLeft: 25,
-                        textAlign: "right",
-                        borderRight: "none",
+                        paddingRight: 10,
+                        color: "white",
+                        alignItems: "center",
+                        marginLeft: 10,
                     }}
-                />
-                <input
-                    type="date"
-                    onChange={(e) => _searchstartdate(e.target.value)}
-                    style={{
-                        border: '1px solid #ccc',
-                        height: 30,
-                        borderRadius: 3,
-                        width: 30,
-                        paddingLeft: 10,
-                    }}
-                />
-                <span style={{ marginLeft: 10, paddingTop: 5 }}>To</span>
-                <input
-                    type="text"
-                    defaultValue={defaultValue1}
-                    onChange={(e) => setDefaultValue1(e.target.value)}
-                    style={{
-                        border: '1px solid #ccc',
-                        height: 30,
-                        borderRadius: 3,
-                        width: 100,
-                        paddingLeft: 10,
-                        marginLeft: 25,
-                        textAlign: "right",
-                        borderRight: "none",
-                    }}
-                />
-                <input
-                    type="date"
-                    onChange={(e) => _searchbydate(e.target.value)}
-                    style={{
-                        border: '1px solid #ccc',
-                        height: 30,
-                        borderRadius: 3,
-                        width: 30,
-                        paddingLeft: 10,
-                    }}
-                />
-                <Button variant="contained" color="primary" style={{
-                    border: "none",
-                    height: 30,
-                    borderRadius: 2,
-                    paddingLeft: 10,
-                    paddingRight: 10,
-                    color: "white",
-                    alignItems: "center",
-                    marginLeft: 10,
-                }}
-                    onClick={() => { OnRunReport() }}
-                >
-                    Run report
-                </Button>
-                <Button variant="contained" color="primary" style={{
-                    border: "none",
-                    height: 30,
-                    borderRadius: 2,
-                    paddingLeft: 10,
-                    paddingRight: 10,
-                    color: "white",
-                    alignItems: "center",
-                    marginLeft: 10,
-                }}
-                    onClick={() => { Reset() }}
-                >
-                    Reset
-                </Button>
-                <ReactToPrint
-                    trigger={() =>
-                        <Button variant="contained" color="primary" style={{
+                        onClick={() => { OnRunReport() }}
+                    >
+                        Run report
+                    </Button>
+
+                    {
+                        listcondition == 1 ? (
+                            <>
+                                <Button variant="contained" color="primary"
+                                    style={{
+                                        backgroundColor: "red",
+                                        border: "none",
+                                        height: 30,
+                                        borderRadius: 2,
+                                        paddingLeft: 10,
+                                        paddingRight: 10,
+                                        color: "white",
+                                        alignItems: "center",
+                                        marginLeft: 10,
+                                    }}
+                                    onClick={() => Onloadreset1()}
+                                >
+                                    RESET
+                                </Button>
+                            </>
+                        ) : (
+                            <>
+                                <Button variant="contained" color="primary"
+                                    style={{
+                                        border: "none",
+                                        height: 30,
+                                        borderRadius: 2,
+                                        paddingLeft: 10,
+                                        paddingRight: 10,
+                                        color: "white",
+                                        alignItems: "center",
+                                        marginLeft: 10,
+                                    }}
+                                    onClick={() => Reset()}
+                                >
+                                    RESET
+                                </Button>
+                            </>
+                        )
+                    }
+                    <ReactToPrint
+                        trigger={() =>
+                            <Button variant="contained" color="primary" style={{
+                                border: "none",
+                                height: 30,
+                                borderRadius: 2,
+                                paddingLeft: 5,
+                                paddingRight: 5,
+                                color: "white",
+                                alignItems: "center",
+                                marginLeft: 10,
+                            }}>
+                                <PrintIcon />
+                            </Button>
+                        }
+                        content={() => componentRef}
+                        style={{ marginLeft: 10 }}
+                    />
+                    <Button variant="contained" color="primary"
+                        style={{
                             border: "none",
                             height: 30,
                             borderRadius: 2,
-                            paddingLeft: 5,
-                            paddingRight: 5,
+                            paddingLeft: 10,
+                            paddingRight: 10,
                             color: "white",
                             alignItems: "center",
                             marginLeft: 10,
-                        }}>
-                            <PrintIcon />
-                        </Button>
-                    }
-                    content={() => componentRef}
-                    style={{ marginLeft: 10 }}
-                />
+                        }}
+                        onClick={() => { ReportExchange() }}
+                    >
+                        RUN EXCHANGE
+                    </Button>
+                </div>
+                <div>
+                    <Button variant="contained" color="primary"
+                        onClick={() => { Setting() }}
+                        style={{
+                            border: "none",
+                            height: 30,
+                            borderRadius: 2,
+                            paddingLeft: 10,
+                            paddingRight: 10,
+                            color: "white",
+                            alignItems: "center",
+                            marginLeft: 10,
+                        }}
+                    >
+                        <SettingsIcon style={{ cursor: 'pointer' }}
+                        />
+                    </Button>
+
+                </div>
+
+                {showSetting ?
+                    (
+                        <>
+                            <div style={{
+                                backgroundColor: 'white',
+                                position: 'absolute',
+                                right: 30,
+                                border: '1px solid #ccc',
+                                borderRadius: 3,
+                                width: 200,
+                                height: 150,
+                                marginTop: 40
+                            }}>
+                                <h5 style={{ marginTop: 20, marginLeft: 10 }}>Display density</h5>
+                                <div style={{ height: 10 }}></div>
+                                <div style={{ display: 'flex', flexDirection: 'column', cursor: 'pointer' }}>
+                                    <div style={{ marginLeft: 20, display: 'flex', flexDirection: 'row' }}>
+                                    <input type="checkbox"
+                                        checked={isChecked}
+                                        onChange={handleChange1}
+                                        onClick={() => {
+                                            setIsChecked(!isChecked);
+                                          }}
+                                    />
+                                        <small style={{ marginLeft: 5, marginTop: 2 }}>Current Balances</small>
+                                    </div>
+                                    <div style={{ display: 'flex', flexDirection: 'row', marginTop: 20, marginLeft: 20 }}>
+                                        <input type="checkbox"
+                                          checked={isDisabled}
+                                            onChange={handleChange}
+                                            onClick={() => {
+                                                setIsDisabled(!isDisabled);
+                                              }}
+                                        />
+                                        <small style={{ marginLeft: 5, marginTop: 2 }}>Transaction Balanace</small>
+                                    </div>
+                                </div>
+
+
+                            </div>
+                        </>
+                    ) : null
+                }
             </div>
             <div style={{ height: 30 }}>
             </div>
@@ -287,7 +516,7 @@ export default function BalanceSheet() {
                                             return (
                                                 <>
                                                     <GLRowComponent
-                                                        key={index}           
+                                                        key={index}
                                                         id={data?.bs_id}
                                                         name={data?.bs_name}
                                                         subject={heading?.subject}
@@ -295,9 +524,9 @@ export default function BalanceSheet() {
                                                         childrenFirst={heading?.childrenFirst}
                                                         childrenSecond={heading?.childrenSecond}
                                                         TotaldrenFirstFloor={heading?.firsttotal}
-                                                        TotaldrenSecondFloor={heading?.secondtotal}
                                                         TotalSumAsset={netTotal}
                                                         Gotodetailaccount={Gotodetailaccount}
+                                                        tra_balance={tra_balance}
                                                     />
                                                 </>
                                             )
@@ -305,17 +534,19 @@ export default function BalanceSheet() {
                                     }
                                 </TableBody>
                             </Table>
+
                             <div style={{ border: '1px solid black' }}></div>
                             <Table className={classes.table} size="small" aria-label="a dense table">
                                 <TableBody>
                                     {
                                         heading.headingLibilities && heading.headingLibilities.map((data, index) => {
+
                                             return (
                                                 <>
                                                     <GLRowComponent2
                                                         key={index}
                                                         id={data?.bs_id}
-                                                        name={data?.bs_name}
+                                                        name={data?.bs_name}x
                                                         id_Owner={id}
                                                         subject={heading?.subject}
                                                         Totalsubject={heading?.subjecttotal}
@@ -324,7 +555,11 @@ export default function BalanceSheet() {
                                                         TotaldrenFirstFloor={heading?.firsttotal}
                                                         netTotalLiabilities={netTotalLiabilities}
                                                         balancesheetandloss={balancesheetandloss}
+                                                        transactions_balance={transactions_balance}
                                                         Gotodetailaccount={Gotodetailaccount}
+                                                        tra_balance={tra_balance}
+                                                        GotoProfitandloss={GotoProfitandloss}
+                                                        GotoProfitandlossofconditions={GotoProfitandlossofconditions}
                                                     />
                                                 </>
                                             )
@@ -346,14 +581,18 @@ export default function BalanceSheet() {
         </>
     );
 }
-function GLRowComponent({ name, id, subject, index, Totalsubject, TotalSumAsset, childrenFirst, TotaldrenFirstFloor, childrenSecond, Gotodetailaccount }) {
+function GLRowComponent({ name, id, subject, tra_balance, index, Totalsubject, TotalSumAsset, childrenFirst, TotaldrenFirstFloor, childrenSecond, Gotodetailaccount }) {
+
     let SumAsset = 0;
+    let transact_balance = 0;
     const [open, setOpen] = useState(true);
     const total = TotalSumAsset.filter((el) => el.bs_status == 1);
     if (total.length === 0) {
         SumAsset = 0
     } else {
         SumAsset = total[0].balances
+        transact_balance = total[0].transact_balance
+
     }
     const handleClick = () => {
         setOpen(!open);
@@ -382,12 +621,23 @@ function GLRowComponent({ name, id, subject, index, Totalsubject, TotalSumAsset,
                         TotaldrenFirstFloor={TotaldrenFirstFloor}
                         Totalsubject={Totalsubject}
                         Gotodetailaccount={Gotodetailaccount}
+                        tra_balance={tra_balance}
                     />
                     <TableRow>
                         <TableCell component="th" scope="row"  >
-                            Total {name}
+                            Total{name}
                         </TableCell>
-                        <TableCell align="right">{getFormatNumber(SumAsset)}₭</TableCell>
+                        {
+                            tra_balance == true ? (
+                                <>
+                                    <TableCell align="right">{getFormatNumber(transact_balance)}₭</TableCell>
+                                </>) : (
+                                <>
+                                    <TableCell align="right">{getFormatNumber(SumAsset)}₭</TableCell>
+
+                                </>)
+                        }
+
                     </TableRow>
                 </>
             ) : null
@@ -395,16 +645,28 @@ function GLRowComponent({ name, id, subject, index, Totalsubject, TotalSumAsset,
         </>
     )
 }
-function GLRowComponent2({ name, id, subject, childrenFirst, childrenSecond, netTotalLiabilities, TotaldrenFirstFloor, id_Owner, Totalsubject, balancesheetandloss, Gotodetailaccount }) {
+function GLRowComponent2({ name, id, subject,GotoProfitandloss,GotoProfitandlossofconditions, tra_balance, transactions_balance, childrenFirst, childrenSecond, netTotalLiabilities, TotaldrenFirstFloor, id_Owner, Totalsubject, balancesheetandloss, Gotodetailaccount }) {
+
     let totalliabTotal;
+    let allbalance;
+
     const [open, setOpen] = useState(true);
     const total = netTotalLiabilities.filter((el) => el.bs_status == 2);
+
+
     if (total.length === 0) {
         totalliabTotal = 0
+        allbalance = 0
+
     } else {
         totalliabTotal = total[0].balance
+        allbalance = total[0].transact_balance
+
+
     }
     let sumTotal = parseFloat(totalliabTotal) + parseFloat(balancesheetandloss)
+    let transactions_bal = parseFloat(allbalance) + parseFloat(transactions_balance)
+
     const handleClick = () => {
         setOpen(!open);
     };
@@ -418,7 +680,16 @@ function GLRowComponent2({ name, id, subject, childrenFirst, childrenSecond, net
                     open ? (<>
                         <TableCell align="right"></TableCell>
                     </>) : (<>
-                        <TableCell align="right">{getFormatNumber(sumTotal)}₭</TableCell>
+                        {
+                            tra_balance == true ? (<>
+
+                                <TableCell align="right">{getFormatNumber(transactions_bal)}₭</TableCell>
+                            </>) : (<>
+                                <TableCell align="right">{getFormatNumber(sumTotal)}₭</TableCell>
+                            </>)
+                        }
+
+
                     </>)
                 }
             </TableRow>
@@ -434,6 +705,7 @@ function GLRowComponent2({ name, id, subject, childrenFirst, childrenSecond, net
                         TotaldrenFirstFloor={TotaldrenFirstFloor}
                         Totalsubject={Totalsubject}
                         Gotodetailaccount={Gotodetailaccount}
+                        tra_balance={tra_balance}
                     />
                     <ComponentOwner
                         childrenFirst={childrenFirst}
@@ -445,12 +717,23 @@ function GLRowComponent2({ name, id, subject, childrenFirst, childrenSecond, net
                         size={30}
                         balancesheetandloss={balancesheetandloss}
                         Gotodetailaccount={Gotodetailaccount}
+                        tra_balance={tra_balance}
+                        transactions_balance={transactions_balance}
+                        GotoProfitandloss={GotoProfitandloss}
+                        GotoProfitandlossofconditions={GotoProfitandlossofconditions}
                     />
                     <TableRow>
                         <TableCell component="th" scope="row" style={{ fontWeight: 'bold' }}>
-                            Total {name}
+                            Total{name}
                         </TableCell>
-                        <TableCell align="right" >{getFormatNumber(parseFloat(sumTotal))}₭</TableCell>
+                        {
+                            tra_balance == true ? (<>
+
+                                <TableCell align="right">{getFormatNumber(transactions_bal)}₭</TableCell>
+                            </>) : (<>
+                                <TableCell align="right">{getFormatNumber(sumTotal)}₭</TableCell>
+                            </>)
+                        }
                     </TableRow>
                 </>
             ) : (
@@ -459,13 +742,14 @@ function GLRowComponent2({ name, id, subject, childrenFirst, childrenSecond, net
         </>
     )
 }
-function ComponentOwner({ childrenFirst, childrenSecond, id_Owner, Totalsubject, TotaldrenFirstFloor, id, size, balancesheetandloss, Gotodetailaccount }) {
+function ComponentOwner({ childrenFirst, tra_balance,GotoProfitandloss,GotoProfitandlossofconditions, transactions_balance, childrenSecond, id_Owner, Totalsubject, TotaldrenFirstFloor, id, size, balancesheetandloss, Gotodetailaccount }) {
     const [open, setOpen] = useState(true);
     let totalliabTotal;
     const handleClick = () => {
         setOpen(!open);
     };
     const filter = Totalsubject.filter((el) => el.bs_id == id_Owner);
+
     if (filter.length === 0) {
         totalliabTotal = 0
     } else {
@@ -475,13 +759,23 @@ function ComponentOwner({ childrenFirst, childrenSecond, id_Owner, Totalsubject,
     return (<>
         <TableRow>
             <TableCell component="th" scope="row" onClick={() => { handleClick() }} style={{ paddingLeft: size, cursor: "pointer" }} >{open ? <ExpandLess /> : <ExpandMore />}
-                Shareholders equity:
+                Shareholders equity
             </TableCell>
             {
                 open ? (<>
                     <TableCell align="right"></TableCell>
                 </>) : (<>
-                    <TableCell align="right" style={{ fontWeight: 'bold' }}>{getFormatNumber(parseFloat(totalliabTotal) + parseFloat(balancesheetandloss))} ₭ </TableCell>
+                    {
+                        tra_balance == true ? (<>
+                            <TableCell align="right" style={{ fontWeight: 'bold' }}>{getFormatNumber(parseFloat(totalliabTotal) + parseFloat(transactions_balance))}₭</TableCell>
+
+                        </>) : (<>
+                            <TableCell align="right" style={{ fontWeight: 'bold' }}>{getFormatNumber(parseFloat(totalliabTotal) + parseFloat(balancesheetandloss))}₭</TableCell>
+
+
+                        </>)
+                    }
+
                 </>)
             }
         </TableRow>
@@ -491,7 +785,15 @@ function ComponentOwner({ childrenFirst, childrenSecond, id_Owner, Totalsubject,
                     <TableCell component="th" style={{ paddingLeft: 65 }} >
                         Net Income
                     </TableCell>
-                    <TableCell align="right" style={{cursor:'pointer',color:'red'}}>{getFormatNumber(balancesheetandloss)}₭</TableCell>
+                    {
+                        tra_balance == true ? (<>
+                            <TableCell align="right" style={{ cursor: 'pointer', color: 'red' }} onClick={()=>{GotoProfitandlossofconditions(1)}}>{getFormatNumber(transactions_balance)}₭</TableCell>
+
+                        </>) : (<>
+                            <TableCell align="right" style={{ cursor: 'pointer', color: 'red' }} onClick={()=>{GotoProfitandloss()}}>{getFormatNumber(balancesheetandloss)}₭</TableCell>
+
+                        </>)
+                    }
                 </TableRow>
                 <ComponetOwner
                     childrenFirst={childrenFirst}
@@ -501,18 +803,31 @@ function ComponentOwner({ childrenFirst, childrenSecond, id_Owner, Totalsubject,
                     TotaldrenFirstFloor={TotaldrenFirstFloor}
                     id={id}
                     Gotodetailaccount={Gotodetailaccount}
+                    transactions_balance={transactions_balance}
+                    tra_balance={tra_balance}
                 />
                 <TableRow>
                     <TableCell component="th" scope="row" style={{ paddingLeft: size, cursor: "pointer", fontWeight: 'bold' }}>
                         Total: Shareholders equity
                     </TableCell>
-                    <TableCell align="right" >{getFormatNumber(parseFloat(totalliabTotal) + parseFloat(balancesheetandloss))}₭</TableCell>
+                    {
+                        tra_balance == true ? (
+                            <>
+                                <TableCell align="right" >{getFormatNumber(parseFloat(totalliabTotal) + parseFloat(transactions_balance))}₭</TableCell>
+                            </>) : (
+                            <>
+                                <TableCell align="right" >{getFormatNumber(parseFloat(totalliabTotal) + parseFloat(balancesheetandloss))}₭</TableCell>
+
+
+                            </>)
+                    }
+
                 </TableRow>
             </>) : null
         }
     </>)
 }
-function ComponetOwner({ childrenFirst, id_Owner, childrenSecond, TotaldrenFirstFloor, Gotodetailaccount }) {
+function ComponetOwner({ childrenFirst, tra_balance, transactions_balance, id_Owner, childrenSecond, TotaldrenFirstFloor, Gotodetailaccount }) {
     if (childrenFirst === null) return <></>
     const filter = childrenFirst.filter((el) => el.bs_id == id_Owner);
     if (filter.length === 0) return <></>;
@@ -529,6 +844,8 @@ function ComponetOwner({ childrenFirst, id_Owner, childrenSecond, TotaldrenFirst
                                 childrenSecond={childrenSecond}
                                 TotaldrenFirstFloor={TotaldrenFirstFloor}
                                 Gotodetailaccount={Gotodetailaccount}
+                                transactions_balance={transactions_balance}
+                                tra_balance={tra_balance}
                             />
                         </>
                     )
@@ -544,8 +861,8 @@ function ComponetOwner({ childrenFirst, id_Owner, childrenSecond, TotaldrenFirst
         </>
     )
 }
-function ComponetOwnerFirstChild({ data, id, childrenSecond, TotaldrenFirstFloor, Gotodetailaccount }) {
-     
+function ComponetOwnerFirstChild({ data, id, tra_balance, transactions_balance, childrenSecond, TotaldrenFirstFloor, Gotodetailaccount }) {
+
     const [checkvalues, setCheckvalues] = useState(0)
     const [open, setOpen] = useState(true);
     const [netTotal, setNetTotal] = useState(0)
@@ -676,7 +993,7 @@ function TableCellComponentOwner({ data, childrenSecond, id, TotaldrenFirstFloor
                 </TableCell>
                 {
                     open ? (<>
-                        <TableCell align="right" style={{ cursor: 'pointer' }} onClick={() => { Gotodetailaccount(data?.c_uid) }}>{getFormatNumber(data?.balances)} ₭ </TableCell>
+                        <TableCell align="right" style={{ cursor: 'pointer' }} onClick={() => { Gotodetailaccount(data?.c_uid) }}>{getFormatNumber(data?.balances)}₭</TableCell>
                     </>) : (<>
                         <TableCell align="right">{getFormatNumber(netTotal)}₭</TableCell>
                     </>)
@@ -768,12 +1085,11 @@ function TableCellComponentOwner2({ data, childrenSecond, id, TotaldrenFirstFloo
                             {open ? <ExpandLess /> : <ExpandMore />}
                         </>)
                     }
-
                     {data?.name_eng}
                 </TableCell>
                 {
                     open ? (<>
-                        <TableCell align="right" style={{ cursor: 'pointer' }} onClick={() => { Gotodetailaccount(data?.c_uid) }}>{getFormatNumber(data?.balances)} ₭ </TableCell>
+                        <TableCell align="right" style={{ cursor: 'pointer' }} onClick={() => { Gotodetailaccount(data?.c_uid) }}>{getFormatNumber(data?.balances)}₭</TableCell>
                     </>) : (<>
                         <TableCell align="right">{getFormatNumber(netTotal)}₭</TableCell>
                     </>)
@@ -1190,7 +1506,7 @@ function TableCellComponentOwner10({ data, childrenSecond, id, TotaldrenFirstFlo
         </>
     )
 }
-function TableCellComponentOwner11({ childrenSecond, id, TotaldrenSecondFloor, setCheckvalues, Gotodetailaccount }) {
+function TableCellComponentOwner11({ childrenSecond, id, setCheckvalues, Gotodetailaccount }) {
     if (childrenSecond === null) return <></>
     const filter = childrenSecond.filter((el) => el.parents == id);
     if (filter.length === 0) return <></>;
@@ -1208,7 +1524,6 @@ function TableCellComponentOwner11({ childrenSecond, id, TotaldrenSecondFloor, s
                         data={data}
                         id={data?.c_id}
                         childrenSecond={childrenSecond}
-                        TotaldrenSecondFloor={TotaldrenSecondFloor}
                         Gotodetailaccount={Gotodetailaccount}
                     />
                 </>)
@@ -1280,7 +1595,7 @@ function TableCellComponentOwner12({ data, id, childrenSecond, Gotodetailaccount
         </>
     )
 }
-function Componentchild({ id, size, subject, Totalsubject, childrenFirst, childrenSecond, TotaldrenFirstFloor, Gotodetailaccount }) {
+function Componentchild({ id, size, subject, Totalsubject, tra_balance, childrenFirst, childrenSecond, TotaldrenFirstFloor, Gotodetailaccount }) {
     const filter = subject.filter((el) => el.bs_status == id);
     if (filter.length === 0) return <></>;
     return (
@@ -1299,7 +1614,7 @@ function Componentchild({ id, size, subject, Totalsubject, childrenFirst, childr
                                 childrenSecond={childrenSecond}
                                 TotaldrenFirstFloor={TotaldrenFirstFloor}
                                 Gotodetailaccount={Gotodetailaccount}
-
+                                tra_balance={tra_balance}
                             />
                         </>
                     )
@@ -1308,8 +1623,7 @@ function Componentchild({ id, size, subject, Totalsubject, childrenFirst, childr
         </>
     )
 }
-
-function Componentchild2({ id, size, subject, childrenFirst, childrenSecond, Totalsubject, TotaldrenFirstFloor, Gotodetailaccount }) {
+function Componentchild2({ id, size, subject, tra_balance, childrenFirst, childrenSecond, Totalsubject, TotaldrenFirstFloor, Gotodetailaccount }) {
     const filter = subject.filter((el) => el.bs_status == id);
     if (filter.length === 0) return <></>;
     return (
@@ -1328,6 +1642,7 @@ function Componentchild2({ id, size, subject, childrenFirst, childrenSecond, Tot
                                 Totalsubject={Totalsubject}
                                 TotaldrenFirstFloor={TotaldrenFirstFloor}
                                 Gotodetailaccount={Gotodetailaccount}
+                                tra_balance={tra_balance}
                             />
                         </>
                     )
@@ -1336,7 +1651,7 @@ function Componentchild2({ id, size, subject, childrenFirst, childrenSecond, Tot
         </>
     )
 }
-function Component({ item, size, index, id, Totalsubject, childrenFirst, TotaldrenFirstFloor, childrenSecond, Gotodetailaccount }) {
+function Component({ item, size, index, id, tra_balance, Totalsubject, childrenFirst, TotaldrenFirstFloor, childrenSecond, Gotodetailaccount }) {
     const [open, setOpen] = useState(true);
     const handleClick = () => {
         setOpen(!open);
@@ -1367,6 +1682,7 @@ function Component({ item, size, index, id, Totalsubject, childrenFirst, Totaldr
                         Totalsubject={Totalsubject}
                         subject_name={item?.bs_name}
                         Gotodetailaccount={Gotodetailaccount}
+                        tra_balance={tra_balance}
                     />
                 </>
 
@@ -1377,20 +1693,17 @@ function Component({ item, size, index, id, Totalsubject, childrenFirst, Totaldr
     )
 }
 
-function Componentsub({ id, childrenFirst, TotaldrenFirstFloor, childrenSecond, Totalsubject, subject_name, Gotodetailaccount }) {
-  
+function Componentsub({ id, childrenFirst, tra_balance, TotaldrenFirstFloor, childrenSecond, Totalsubject, subject_name, Gotodetailaccount }) {
+
     if (childrenFirst === null) return <></>
     const filter = childrenFirst.filter((el) => el.bs_id == id);
-
-
     const TotalFilter = Totalsubject.filter((el) => el.bs_id == id);
-
     if (filter.length === 0) return <></>;
     return (
         <>
             {
                 filter && filter.map((data, index) => {
-                    
+
                     return (<>
                         <Componetfirst
                             data={data}
@@ -1399,6 +1712,7 @@ function Componentsub({ id, childrenFirst, TotaldrenFirstFloor, childrenSecond, 
                             childrenSecond={childrenSecond}
                             TotaldrenFirstFloor={TotaldrenFirstFloor}
                             Gotodetailaccount={Gotodetailaccount}
+                            tra_balance={tra_balance}
                         />
                     </>)
                 })
@@ -1407,12 +1721,21 @@ function Componentsub({ id, childrenFirst, TotaldrenFirstFloor, childrenSecond, 
                 <TableCell component="th" scope="row" style={{ paddingLeft: 25, fontWeight: "bold" }} >
                     Total: {subject_name}
                 </TableCell>
-                <TableCell align="right"> {getFormatNumber(TotalFilter[0].amout)}₭</TableCell>
+                {
+                    tra_balance == true ? (
+                        <>
+                            <TableCell align="right"> {getFormatNumber(TotalFilter[0].transact_balance)}₭</TableCell>
+                        </>) : (
+                        <>
+                            <TableCell align="right"> {getFormatNumber(TotalFilter[0].amout)}₭</TableCell>
+                        </>)
+                }
+
             </TableRow>
         </>
     )
 }
-function Componetfirst({ data, id, childrenSecond, TotaldrenFirstFloor, Gotodetailaccount }) {
+function Componetfirst({ data, id, childrenSecond, tra_balance, TotaldrenFirstFloor, Gotodetailaccount }) {
     const [checkvalues, setCheckvalues] = useState('')
     const [open, setOpen] = useState(true);
     const [netTotal, setNetTotal] = useState([])
@@ -1444,7 +1767,16 @@ function Componetfirst({ data, id, childrenSecond, TotaldrenFirstFloor, Gotodeta
                 {
                     open ? (
                         <>
-                            <TableCell align="right" style={{ cursor: 'pointer' }} onClick={() => { Gotodetailaccount(data?.c_uid) }}>{getFormatNumber(data?.balances)}₭</TableCell>
+                            {
+                                tra_balance == true ? (
+                                    <>
+                                        <TableCell align="right" style={{ cursor: 'pointer' }} onClick={() => { Gotodetailaccount(data?.c_uid) }}>{getFormatNumber(data?.transact_balance)}₭</TableCell>
+                                    </>
+                                ) : (
+                                    <>
+                                        <TableCell align="right" style={{ cursor: 'pointer' }} onClick={() => { Gotodetailaccount(data?.c_uid) }}>{getFormatNumber(data?.balances)}₭</TableCell>
+                                    </>)
+                            }
                         </>) : (<>
                             <TableCell align="right">{getFormatNumber(netTotal)}₭</TableCell>
                         </>)
@@ -1458,6 +1790,7 @@ function Componetfirst({ data, id, childrenSecond, TotaldrenFirstFloor, Gotodeta
                         id={id}
                         setCheckvalues={setCheckvalues}
                         Gotodetailaccount={Gotodetailaccount}
+                        tra_balance={tra_balance}
                     />
                     {
                         checkvalues === 0 ? (
@@ -1468,9 +1801,21 @@ function Componetfirst({ data, id, childrenSecond, TotaldrenFirstFloor, Gotodeta
                                     <TableCell component="th" scope="row" style={{ paddingLeft: 35, fontWeight: "bold" }} >
                                         Total:{data?.name_eng}
                                     </TableCell>
-                                    <TableCell align="right">
-                                        {getFormatNumber(filter[0].balances)}₭
-                                    </TableCell>
+                                    {
+                                        tra_balance == true ? (
+                                            <>
+                                                <TableCell align="right">
+                                                    {getFormatNumber(filter[0].transact_balance)}₭
+                                                </TableCell>
+
+                                            </>) : (<>
+                                                <TableCell align="right">
+                                                    {getFormatNumber(filter[0].balances)}₭
+                                                </TableCell>
+
+                                            </>)
+
+                                    }
                                 </TableRow>
                             </>)
                     }
@@ -1478,7 +1823,7 @@ function Componetfirst({ data, id, childrenSecond, TotaldrenFirstFloor, Gotodeta
             }
         </>)
 }
-function Componetsecond({ childrenSecond, id, setCheckvalues, TotaldrenFirstFloor, Gotodetailaccount }) {
+function Componetsecond({ childrenSecond, id, tra_balance, setCheckvalues, TotaldrenFirstFloor, Gotodetailaccount }) {
     if (childrenSecond === null) return <></>
     const filter = childrenSecond.filter((el) => el.parents == id);
     if (filter.length === 0) {
@@ -1500,6 +1845,7 @@ function Componetsecond({ childrenSecond, id, setCheckvalues, TotaldrenFirstFloo
                                 childrenSecond={childrenSecond}
                                 TotaldrenFirstFloor={TotaldrenFirstFloor}
                                 Gotodetailaccount={Gotodetailaccount}
+                                tra_balance={tra_balance}
 
                             />
                         </>
@@ -1509,7 +1855,7 @@ function Componetsecond({ childrenSecond, id, setCheckvalues, TotaldrenFirstFloo
         </>
     )
 }
-function TableCellComponent({ data, childrenSecond, id, TotaldrenFirstFloor, Gotodetailaccount }) {
+function TableCellComponent({ data, childrenSecond, tra_balance, id, TotaldrenFirstFloor, Gotodetailaccount }) {
     const [checkvalues, setCheckvalues] = useState(0)
     const [netTotal, setNetTotal] = useState(0)
 
@@ -1521,7 +1867,6 @@ function TableCellComponent({ data, childrenSecond, id, TotaldrenFirstFloor, Got
         let data = {
             c_id: e
         }
-
         axios.post("/accounting/api/balance-sheet/sumtotal", data).then((data) => {
 
             setNetTotal([...data?.data?.data][0].balances)
@@ -1531,8 +1876,6 @@ function TableCellComponent({ data, childrenSecond, id, TotaldrenFirstFloor, Got
     }
     if (TotaldrenFirstFloor === null) return <></>
     const filter = TotaldrenFirstFloor.filter((el) => el.id === id);
-
-
     if (filter.length === 0) return <></>;
     return (
         <>
@@ -1547,7 +1890,17 @@ function TableCellComponent({ data, childrenSecond, id, TotaldrenFirstFloor, Got
                 </TableCell>
                 {
                     open ? (<>
-                        <TableCell align="right" style={{ cursor: 'pointer' }} onClick={() => { Gotodetailaccount(data?.c_uid) }}>{getFormatNumber(data?.balances)}₭</TableCell>
+
+                        {
+                            tra_balance == true ? (
+                                <>
+                                    <TableCell align="right" style={{ cursor: 'pointer' }} onClick={() => { Gotodetailaccount(data?.c_uid) }}>{getFormatNumber(data?.transact_balance)}₭</TableCell>
+                                </>
+                            ) : (
+                                <>
+                                    <TableCell align="right" style={{ cursor: 'pointer' }} onClick={() => { Gotodetailaccount(data?.c_uid) }}>{getFormatNumber(data?.balances)}₭</TableCell>
+                                </>)
+                        }
                     </>) : (<>
                         <TableCell align="right">{getFormatNumber(netTotal)}₭</TableCell>
                     </>)
@@ -1561,6 +1914,7 @@ function TableCellComponent({ data, childrenSecond, id, TotaldrenFirstFloor, Got
                         setCheckvalues={setCheckvalues}
                         TotaldrenFirstFloor={TotaldrenFirstFloor}
                         Gotodetailaccount={Gotodetailaccount}
+                        tra_balance={tra_balance}
 
                     />
                     {
@@ -1580,7 +1934,7 @@ function TableCellComponent({ data, childrenSecond, id, TotaldrenFirstFloor, Got
         </>
     )
 }
-function TableCellComponent1({ id, childrenSecond, setCheckvalues, TotaldrenFirstFloor, Gotodetailaccount }) {
+function TableCellComponent1({ id, childrenSecond, tra_balance, setCheckvalues, TotaldrenFirstFloor, Gotodetailaccount }) {
     const filter = childrenSecond.filter((el) => el.parents == id);
 
     if (filter.length === 0) {
@@ -1602,6 +1956,7 @@ function TableCellComponent1({ id, childrenSecond, setCheckvalues, TotaldrenFirs
                                 childrenSecond={childrenSecond}
                                 TotaldrenFirstFloor={TotaldrenFirstFloor}
                                 Gotodetailaccount={Gotodetailaccount}
+                                tra_balance={tra_balance}
                             />
                         </>
                     )
@@ -1610,7 +1965,7 @@ function TableCellComponent1({ id, childrenSecond, setCheckvalues, TotaldrenFirs
         </>
     )
 }
-function TableCellComponent2({ id, childrenSecond, data, TotaldrenFirstFloor, Gotodetailaccount }) {
+function TableCellComponent2({ id, childrenSecond, data, tra_balance, TotaldrenFirstFloor, Gotodetailaccount }) {
     const [checkvalues, setCheckvalues] = useState(0)
     const [netTotal, setNetTotal] = useState(0)
     const [open, setOpen] = useState(true);
@@ -1644,9 +1999,22 @@ function TableCellComponent2({ id, childrenSecond, data, TotaldrenFirstFloor, Go
                     {data?.name_eng}
                 </TableCell>
                 {
-                    open ? (<>
-                        <TableCell align="right" style={{ cursor: 'pointer' }} onClick={() => { Gotodetailaccount(data?.c_uid) }}>{getFormatNumber(data?.balances)}₭</TableCell>
-                    </>) : (<>
+                    open ? (
+                        <>
+                            {
+                                tra_balance == true ? (
+                                    <>
+                                        <TableCell align="right" style={{ cursor: 'pointer' }} onClick={() => { Gotodetailaccount(data?.c_uid) }}>{getFormatNumber(data?.transact_balance)}₭</TableCell>
+                                    </>
+                                ) : (
+                                    <>
+                                        <TableCell align="right" style={{ cursor: 'pointer' }} onClick={() => { Gotodetailaccount(data?.c_uid) }}>{getFormatNumber(data?.balances)}₭</TableCell>
+                                    </>)
+                            }
+
+
+                        </>
+                    ) : (<>
                         <TableCell align="right">{getFormatNumber(netTotal)}₭</TableCell>
                     </>)
                 }
@@ -1660,6 +2028,7 @@ function TableCellComponent2({ id, childrenSecond, data, TotaldrenFirstFloor, Go
                         setCheckvalues={setCheckvalues}
                         TotaldrenFirstFloor={TotaldrenFirstFloor}
                         Gotodetailaccount={Gotodetailaccount}
+                        tra_balance={tra_balance}
                     />
                     {
                         checkvalues === 0 ? (<></>) : (<>
@@ -1679,7 +2048,7 @@ function TableCellComponent2({ id, childrenSecond, data, TotaldrenFirstFloor, Go
         </>
     )
 }
-function TableCellComponent3({ id, childrenSecond, setCheckvalues, TotaldrenFirstFloor, Gotodetailaccount }) {
+function TableCellComponent3({ id, childrenSecond, tra_balance, setCheckvalues, TotaldrenFirstFloor, Gotodetailaccount }) {
     const filter = childrenSecond.filter((el) => el.parents == id);
 
     if (filter.length === 0) {
@@ -1701,6 +2070,7 @@ function TableCellComponent3({ id, childrenSecond, setCheckvalues, TotaldrenFirs
                                 childrenSecond={childrenSecond}
                                 TotaldrenFirstFloor={TotaldrenFirstFloor}
                                 Gotodetailaccount={Gotodetailaccount}
+                                tra_balance={tra_balance}
                             />
                         </>
                     )
@@ -1709,7 +2079,7 @@ function TableCellComponent3({ id, childrenSecond, setCheckvalues, TotaldrenFirs
         </>
     )
 }
-function TableCellComponent4({ data, childrenSecond, id, TotaldrenFirstFloor, Gotodetailaccount }) {
+function TableCellComponent4({ data, childrenSecond, tra_balance, id, TotaldrenFirstFloor, Gotodetailaccount }) {
     const [checkvalues, setCheckvalues] = useState(0)
     const [open, setOpen] = useState(true);
     const [netTotal, setNetTotal] = useState(0)
@@ -1741,7 +2111,17 @@ function TableCellComponent4({ data, childrenSecond, id, TotaldrenFirstFloor, Go
                 </TableCell>
                 {
                     open ? (<>
-                        <TableCell align="right" style={{ cursor: 'pointer' }} onClick={() => { Gotodetailaccount(data?.c_uid) }}>{getFormatNumber(data?.balances)}₭</TableCell>
+
+                        {
+                            tra_balance == true ? (
+                                <>
+                                    <TableCell align="right" style={{ cursor: 'pointer' }} onClick={() => { Gotodetailaccount(data?.c_uid) }}>{getFormatNumber(data?.transact_balance)}₭</TableCell>
+                                </>
+                            ) : (
+                                <>
+                                    <TableCell align="right" style={{ cursor: 'pointer' }} onClick={() => { Gotodetailaccount(data?.c_uid) }}>{getFormatNumber(data?.balances)}₭</TableCell>
+                                </>)
+                        }
                     </>) : (<>
                         <TableCell align="right">{getFormatNumber(netTotal)}₭</TableCell>
                     </>)
@@ -1756,6 +2136,7 @@ function TableCellComponent4({ data, childrenSecond, id, TotaldrenFirstFloor, Go
                         setCheckvalues={setCheckvalues}
                         TotaldrenFirstFloor={TotaldrenFirstFloor}
                         Gotodetailaccount={Gotodetailaccount}
+                        tra_balance={tra_balance}
                     />
                     {
                         checkvalues === 0 ? (<></>) : (<>
@@ -1775,7 +2156,7 @@ function TableCellComponent4({ data, childrenSecond, id, TotaldrenFirstFloor, Go
         </>
     )
 }
-function TableCellComponent5({ id, childrenSecond, setCheckvalues, TotaldrenFirstFloor, Gotodetailaccount }) {
+function TableCellComponent5({ id, childrenSecond, tra_balance, setCheckvalues, TotaldrenFirstFloor, Gotodetailaccount }) {
     const filter = childrenSecond.filter((el) => el.parents == id);
     if (filter.length === 0) {
         setCheckvalues(0)
@@ -1796,6 +2177,7 @@ function TableCellComponent5({ id, childrenSecond, setCheckvalues, TotaldrenFirs
                                 TotaldrenFirstFloor={TotaldrenFirstFloor}
                                 id={data?.c_id}
                                 Gotodetailaccount={Gotodetailaccount}
+                                tra_balance={tra_balance}
                             />
                         </>
                     )
@@ -1805,7 +2187,7 @@ function TableCellComponent5({ id, childrenSecond, setCheckvalues, TotaldrenFirs
         </>
     )
 }
-function TableCellComponent6({ data, childrenSecond, TotaldrenFirstFloor, id, Gotodetailaccount }) {
+function TableCellComponent6({ data, childrenSecond, tra_balance, TotaldrenFirstFloor, id, Gotodetailaccount }) {
     const [checkvalues, setCheckvalues] = useState(0)
     const [open, setOpen] = useState(true);
     const [netTotal, setNetTotal] = useState(0)
@@ -1837,7 +2219,16 @@ function TableCellComponent6({ data, childrenSecond, TotaldrenFirstFloor, id, Go
                 </TableCell>
                 {
                     open ? (<>
-                        <TableCell align="right" style={{ cursor: 'pointer' }} onClick={() => { Gotodetailaccount(data?.c_uid) }}>{getFormatNumber(data?.balances)}₭</TableCell>
+                        {
+                            tra_balance == true ? (
+                                <>
+                                    <TableCell align="right" style={{ cursor: 'pointer' }} onClick={() => { Gotodetailaccount(data?.c_uid) }}>{getFormatNumber(data?.transact_balance)}₭</TableCell>
+                                </>
+                            ) : (
+                                <>
+                                    <TableCell align="right" style={{ cursor: 'pointer' }} onClick={() => { Gotodetailaccount(data?.c_uid) }}>{getFormatNumber(data?.balances)}₭</TableCell>
+                                </>)
+                        }
                     </>) : (<>
                         <TableCell align="right">{getFormatNumber(netTotal)}₭</TableCell>
                     </>)
@@ -1851,6 +2242,7 @@ function TableCellComponent6({ data, childrenSecond, TotaldrenFirstFloor, id, Go
                         setCheckvalues={setCheckvalues}
                         TotaldrenFirstFloor={TotaldrenFirstFloor}
                         Gotodetailaccount={Gotodetailaccount}
+                        tra_balance={tra_balance}
                     />
                     {
                         checkvalues === 0 ? (<></>) : (<>
@@ -1870,7 +2262,7 @@ function TableCellComponent6({ data, childrenSecond, TotaldrenFirstFloor, id, Go
         </>
     )
 }
-function TableCellComponent7({ id, childrenSecond, setCheckvalues, TotaldrenFirstFloor, Gotodetailaccount }) {
+function TableCellComponent7({ id, childrenSecond, tra_balance, setCheckvalues, TotaldrenFirstFloor, Gotodetailaccount }) {
     const filter = childrenSecond.filter((el) => el.parents == id);
     if (filter.length === 0) {
         setCheckvalues(0)
@@ -1891,6 +2283,7 @@ function TableCellComponent7({ id, childrenSecond, setCheckvalues, TotaldrenFirs
                                 TotaldrenFirstFloor={TotaldrenFirstFloor}
                                 id={data?.c_id}
                                 Gotodetailaccount={Gotodetailaccount}
+                                tra_balance={tra_balance}
                             />
                         </>
                     )
@@ -1899,7 +2292,8 @@ function TableCellComponent7({ id, childrenSecond, setCheckvalues, TotaldrenFirs
         </>
     )
 }
-function TableCellComponent8({ data, childrenSecond, TotaldrenFirstFloor, id, Gotodetailaccount }) {
+function TableCellComponent8({ data, childrenSecond, tra_balance, TotaldrenFirstFloor, id, Gotodetailaccount }) {
+
     const [checkvalues, setCheckvalues] = useState(0)
     const [open, setOpen] = useState(true);
     const [netTotal, setNetTotal] = useState(0)
@@ -1931,7 +2325,16 @@ function TableCellComponent8({ data, childrenSecond, TotaldrenFirstFloor, id, Go
                 </TableCell>
                 {
                     open ? (<>
-                        <TableCell align="right" style={{ cursor: 'pointer' }} onClick={() => { Gotodetailaccount(data?.c_uid) }}>{getFormatNumber(data?.balances)}₭</TableCell>
+                        {
+                            tra_balance == true ? (
+                                <>
+                                    <TableCell align="right" style={{ cursor: 'pointer' }} onClick={() => { Gotodetailaccount(data?.c_uid) }}>{getFormatNumber(data?.transact_balance)}₭</TableCell>
+                                </>
+                            ) : (
+                                <>
+                                    <TableCell align="right" style={{ cursor: 'pointer' }} onClick={() => { Gotodetailaccount(data?.c_uid) }}>{getFormatNumber(data?.balances)}₭</TableCell>
+                                </>)
+                        }
                     </>) : (<>
                         <TableCell align="right">{getFormatNumber(netTotal)}₭</TableCell>
                     </>)
@@ -1945,6 +2348,7 @@ function TableCellComponent8({ data, childrenSecond, TotaldrenFirstFloor, id, Go
                         TotaldrenFirstFloor={TotaldrenFirstFloor}
                         setCheckvalues={setCheckvalues}
                         Gotodetailaccount={Gotodetailaccount}
+                        tra_balance={tra_balance}
                     />
                     {
                         checkvalues === 0 ? (<></>) : (<>
@@ -1964,7 +2368,7 @@ function TableCellComponent8({ data, childrenSecond, TotaldrenFirstFloor, id, Go
         </>
     )
 }
-function TableCellComponent9({ id, childrenSecond, setCheckvalues, TotaldrenFirstFloor, Gotodetailaccount }) {
+function TableCellComponent9({ id, childrenSecond, tra_balance, setCheckvalues, TotaldrenFirstFloor, Gotodetailaccount }) {
     const filter = childrenSecond.filter((el) => el.parents == id);
     if (filter.length === 0) {
         setCheckvalues(0)
@@ -1985,6 +2389,7 @@ function TableCellComponent9({ id, childrenSecond, setCheckvalues, TotaldrenFirs
                                 childrenSecond={childrenSecond}
                                 TotaldrenFirstFloor={TotaldrenFirstFloor}
                                 Gotodetailaccount={Gotodetailaccount}
+                                tra_balance={tra_balance}
                             />
                         </>
                     )
@@ -1993,7 +2398,7 @@ function TableCellComponent9({ id, childrenSecond, setCheckvalues, TotaldrenFirs
         </>
     )
 }
-function TableCellComponent10({ data, childrenSecond, TotaldrenFirstFloor, id, Gotodetailaccount }) {
+function TableCellComponent10({ data, childrenSecond, tra_balance, TotaldrenFirstFloor, id, Gotodetailaccount }) {
     const [checkvalues, setCheckvalues] = useState(0)
     const [open, setOpen] = useState(true);
     const [netTotal, setNetTotal] = useState(0)
@@ -2025,7 +2430,16 @@ function TableCellComponent10({ data, childrenSecond, TotaldrenFirstFloor, id, G
                 </TableCell>
                 {
                     open ? (<>
-                        <TableCell align="right" style={{ cursor: 'pointer' }} onClick={() => { Gotodetailaccount(data?.c_uid) }}>{getFormatNumber(data?.balances)}₭</TableCell>
+                        {
+                            tra_balance == true ? (
+                                <>
+                                    <TableCell align="right" style={{ cursor: 'pointer' }} onClick={() => { Gotodetailaccount(data?.c_uid) }}>{getFormatNumber(data?.transact_balance)}₭</TableCell>
+                                </>
+                            ) : (
+                                <>
+                                    <TableCell align="right" style={{ cursor: 'pointer' }} onClick={() => { Gotodetailaccount(data?.c_uid) }}>{getFormatNumber(data?.balances)}₭</TableCell>
+                                </>)
+                        }
                     </>) : (<>
                         <TableCell align="right">{getFormatNumber(netTotal)}₭</TableCell>
                     </>)
@@ -2040,6 +2454,7 @@ function TableCellComponent10({ data, childrenSecond, TotaldrenFirstFloor, id, G
                         TotaldrenFirstFloor={TotaldrenFirstFloor}
                         setCheckvalues={setCheckvalues}
                         Gotodetailaccount={Gotodetailaccount}
+                        tra_balance={tra_balance}
                     />
                     {
                         checkvalues === 0 ? (<></>) : (<>
@@ -2056,11 +2471,10 @@ function TableCellComponent10({ data, childrenSecond, TotaldrenFirstFloor, id, G
                     }
                 </>) : null
             }
-
         </>
     )
 }
-function TableCellComponent11({ id, childrenSecond, TotaldrenFirstFloor, setCheckvalues, Gotodetailaccount }) {
+function TableCellComponent11({ id, childrenSecond, tra_balance, TotaldrenFirstFloor, setCheckvalues, Gotodetailaccount }) {
     const filter = childrenSecond.filter((el) => el.parents == id);
     if (filter.length === 0) {
         setCheckvalues(0)
@@ -2080,7 +2494,7 @@ function TableCellComponent11({ id, childrenSecond, TotaldrenFirstFloor, setChec
                             id={data?.c_id}
                             TotaldrenFirstFloor={TotaldrenFirstFloor}
                             Gotodetailaccount={Gotodetailaccount}
-
+                            tra_balance={tra_balance}
                         />
                     </>)
                 })
@@ -2104,14 +2518,14 @@ function TableCellComponent12({ data }) {
         </>
     )
 }
-function Component2({ item, size, id, childrenFirst, childrenSecond, Totalsubject, TotaldrenFirstFloor, Gotodetailaccount }) {
+function Component2({ item, size, id, childrenFirst, tra_balance, childrenSecond, Totalsubject, TotaldrenFirstFloor, Gotodetailaccount }) {
     const [open, setOpen] = useState(true);
     const handleClick = () => {
         setOpen(!open);
     };
 
-    const filter = Totalsubject.filter((el) => el.bs_id == id);
 
+    const filter = Totalsubject.filter((el) => el.bs_id == id);
     if (filter.length === 0) return <></>;
     return (
         <>
@@ -2123,7 +2537,14 @@ function Component2({ item, size, id, childrenFirst, childrenSecond, Totalsubjec
                     open ? (<>
                         <TableCell align="right"></TableCell>
                     </>) : (<>
-                        <TableCell align="right">{getFormatNumber(filter[0].amout)}</TableCell>
+                        {
+                            tra_balance == true ? (<>
+                                <TableCell align="right">{getFormatNumber(filter[0].transact_balance)}</TableCell>
+                            </>) : (<>
+                                <TableCell align="right">{getFormatNumber(filter[0].amout)}</TableCell>
+                            </>)
+                        }
+
                     </>)
                 }
             </TableRow>
@@ -2136,13 +2557,21 @@ function Component2({ item, size, id, childrenFirst, childrenSecond, Totalsubjec
                         childrenSecond={childrenSecond}
                         TotaldrenFirstFloor={TotaldrenFirstFloor}
                         Gotodetailaccount={Gotodetailaccount}
+                        tra_balance={tra_balance}
                     />
 
                     <TableRow>
                         <TableCell component="th" scope="row" style={{ paddingLeft: size, fontWeight: "bold" }} >
                             Total:{item?.bs_name}
                         </TableCell>
-                        <TableCell align="right"> {getFormatNumber(filter[0].amout)}₭</TableCell>
+                        {
+                            tra_balance == true ? (<>
+                                <TableCell align="right"> {getFormatNumber(filter[0].transact_balance)}₭</TableCell>
+                            </>) : (<>
+                                <TableCell align="right"> {getFormatNumber(filter[0].amout)}₭</TableCell>
+                            </>)
+                        }
+
                     </TableRow>
                 </>
 
@@ -2156,9 +2585,7 @@ function Component2({ item, size, id, childrenFirst, childrenSecond, Totalsubjec
 
 
 }
-function ComponetfirstLiability({ id, childrenFirst, childrenSecond, TotaldrenFirstFloor, Gotodetailaccount }) {
-
-
+function ComponetfirstLiability({ id, childrenFirst, tra_balance, childrenSecond, TotaldrenFirstFloor, Gotodetailaccount }) {
     if (childrenFirst === null) return <></>
     const filter = childrenFirst.filter((el) => el.bs_status == id);
     if (filter.length === 0) return <></>;
@@ -2173,16 +2600,16 @@ function ComponetfirstLiability({ id, childrenFirst, childrenSecond, TotaldrenFi
                         childrenSecond={childrenSecond}
                         TotaldrenFirstFloor={TotaldrenFirstFloor}
                         Gotodetailaccount={Gotodetailaccount}
+                        tra_balance={tra_balance}
 
                     />
-
 
                 </>)
             })
         }
     </>)
 }
-function TableCellComponentFirstLiability({ data, childrenSecond, TotaldrenFirstFloor, id, Gotodetailaccount }) {
+function TableCellComponentFirstLiability({ data, childrenSecond, tra_balance, TotaldrenFirstFloor, id, Gotodetailaccount }) {
     const [open, setOpen] = useState(true);
     const [checkvalues, setCheckvalues] = useState(0)
     const [netTotal, setNetTotal] = useState(0)
@@ -2216,11 +2643,22 @@ function TableCellComponentFirstLiability({ data, childrenSecond, TotaldrenFirst
                     {data?.name_eng}
                 </TableCell>
                 {
-                    open ? (<>
-                        <TableCell align="right" style={{ cursor: 'pointer' }} onClick={() => { Gotodetailaccount(data?.c_uid) }}>{getFormatNumber(data?.balances)}₭</TableCell>
-                    </>) : (<>
-                        <TableCell align="right">{getFormatNumber(netTotal)}₭</TableCell>
-                    </>)
+                    open ? (
+                        <>
+                            {
+                                tra_balance == true ? (<>
+                                    <TableCell align="right" style={{ cursor: 'pointer' }} onClick={() => { Gotodetailaccount(data?.c_uid) }}>{getFormatNumber(data?.transact_balance)}₭</TableCell>
+
+                                </>) : (<>
+                                    <TableCell align="right" style={{ cursor: 'pointer' }} onClick={() => { Gotodetailaccount(data?.c_uid) }}>{getFormatNumber(data?.balances)}₭</TableCell>
+
+
+                                </>)
+                            }
+
+                        </>) : (<>
+                            <TableCell align="right">{getFormatNumber(netTotal)}₭</TableCell>
+                        </>)
                 }
 
             </TableRow>
@@ -2232,6 +2670,7 @@ function TableCellComponentFirstLiability({ data, childrenSecond, TotaldrenFirst
                         setCheckvalues={setCheckvalues}
                         TotaldrenFirstFloor={TotaldrenFirstFloor}
                         Gotodetailaccount={Gotodetailaccount}
+                        tra_balance={tra_balance}
                     />
                     {
                         checkvalues === 0 ? (<>
@@ -2240,9 +2679,20 @@ function TableCellComponentFirstLiability({ data, childrenSecond, TotaldrenFirst
                                 <TableCell component="th" scope="row" style={{ paddingLeft: 45, fontWeight: "bold" }} >
                                     Total:{data?.name_eng}
                                 </TableCell>
-                                <TableCell align="right" >
-                                    {getFormatNumber(filter[0].balances)}₭
-                                </TableCell>
+                                {
+                                    tra_balance == true ? (<>
+                                        <TableCell align="right" >
+                                            {getFormatNumber(filter[0].transact_balance)}₭
+                                        </TableCell>
+
+                                    </>) : (<>
+                                        <TableCell align="right" >
+                                            {getFormatNumber(filter[0].balances)}₭
+                                        </TableCell>
+
+                                    </>)
+                                }
+
                             </TableRow>
                         </>)
                     }
@@ -2256,7 +2706,7 @@ function TableCellComponentFirstLiability({ data, childrenSecond, TotaldrenFirst
 
 
 }
-function ComponetSecondLiability({ id, childrenSecond, setCheckvalues, TotaldrenFirstFloor, Gotodetailaccount }) {
+function ComponetSecondLiability({ id, childrenSecond, tra_balance, setCheckvalues, TotaldrenFirstFloor, Gotodetailaccount }) {
     if (childrenSecond === null) return <></>
     const filter = childrenSecond.filter((el) => el.parents == id);
     if (filter.length === 0) return <></>;
@@ -2277,6 +2727,7 @@ function ComponetSecondLiability({ id, childrenSecond, setCheckvalues, Totaldren
                             childrenSecond={childrenSecond}
                             TotaldrenFirstFloor={TotaldrenFirstFloor}
                             Gotodetailaccount={Gotodetailaccount}
+                            tra_balance={tra_balance}
                         />
                     )
                 })
@@ -2284,7 +2735,7 @@ function ComponetSecondLiability({ id, childrenSecond, setCheckvalues, Totaldren
         </>
     )
 }
-function TableCellComponentLiability({ data, childrenSecond, id, TotaldrenFirstFloor, Gotodetailaccount }) {
+function TableCellComponentLiability({ data, childrenSecond, tra_balance, id, TotaldrenFirstFloor, Gotodetailaccount }) {
     const [open, setOpen] = useState(true);
     const [checkvalues, setCheckvalues] = useState(0)
     const [netTotal, setNetTotal] = useState(0)
@@ -2318,7 +2769,17 @@ function TableCellComponentLiability({ data, childrenSecond, id, TotaldrenFirstF
                 </TableCell>
                 {
                     open ? (<>
-                        <TableCell align="right" style={{ cursor: 'pointer' }} onClick={() => { Gotodetailaccount(data?.c_uid) }}>{getFormatNumber(data?.balances)}₭</TableCell>
+                        {
+                            tra_balance == true ? (<>
+                                <TableCell align="right" style={{ cursor: 'pointer' }} onClick={() => { Gotodetailaccount(data?.c_uid) }}>{getFormatNumber(data?.transact_balance)}₭</TableCell>
+
+
+                            </>) : (<>
+                                <TableCell align="right" style={{ cursor: 'pointer' }} onClick={() => { Gotodetailaccount(data?.c_uid) }}>{getFormatNumber(data?.balances)}₭</TableCell>
+
+
+                            </>)
+                        }
                     </>) : (<>
                         <TableCell align="right">{getFormatNumber(netTotal)}₭</TableCell>
                     </>)
@@ -2332,6 +2793,7 @@ function TableCellComponentLiability({ data, childrenSecond, id, TotaldrenFirstF
                         setCheckvalues={setCheckvalues}
                         id={id}
                         Gotodetailaccount={Gotodetailaccount}
+                        tra_balance={tra_balance}
 
                     />
                     {
@@ -2342,9 +2804,20 @@ function TableCellComponentLiability({ data, childrenSecond, id, TotaldrenFirstF
                                 <TableCell component="th" scope="row" style={{ paddingLeft: 60, fontWeight: "bold" }} >
                                     Total:{data?.name_eng}
                                 </TableCell>
-                                <TableCell align="right" >
-                                    {getFormatNumber(filter[0].balances)}₭
-                                </TableCell>
+                                {
+                                    tra_balance == true ? (<>
+                                        <TableCell align="right" >
+                                            {getFormatNumber(filter[0].transact_balance)}₭
+                                        </TableCell>
+
+                                    </>) : (<>
+                                        <TableCell align="right" >
+                                            {getFormatNumber(filter[0].balances)}₭
+                                        </TableCell>
+
+                                    </>)
+                                }
+
                             </TableRow>
                         </>)
                     }
@@ -2358,7 +2831,7 @@ function TableCellComponentLiability({ data, childrenSecond, id, TotaldrenFirstF
 
 
 }
-function TableCellComponentLiability1({ childrenSecond, id, TotaldrenFirstFloor, setCheckvalues, Gotodetailaccount }) {
+function TableCellComponentLiability1({ childrenSecond, id, tra_balance, TotaldrenFirstFloor, setCheckvalues, Gotodetailaccount }) {
     if (childrenSecond === null) return <></>
     const filter = childrenSecond.filter((el) => el.parents == id);
     if (filter.length === 0) return <></>;
@@ -2380,6 +2853,7 @@ function TableCellComponentLiability1({ childrenSecond, id, TotaldrenFirstFloor,
                             childrenSecond={childrenSecond}
                             TotaldrenFirstFloor={TotaldrenFirstFloor}
                             Gotodetailaccount={Gotodetailaccount}
+                            tra_balance={tra_balance}
                         />
                     </>)
                 })
@@ -2387,7 +2861,7 @@ function TableCellComponentLiability1({ childrenSecond, id, TotaldrenFirstFloor,
         </>
     )
 }
-function TableCellComponentLiability2({ data, childrenSecond, id, TotaldrenFirstFloor, Gotodetailaccount }) {
+function TableCellComponentLiability2({ data, childrenSecond, tra_balance, id, TotaldrenFirstFloor, Gotodetailaccount }) {
     const [open, setOpen] = useState(true);
     const [checkvalues, setCheckvalues] = useState(0)
     const [netTotal, setNetTotal] = useState(0)
@@ -2420,7 +2894,17 @@ function TableCellComponentLiability2({ data, childrenSecond, id, TotaldrenFirst
                 </TableCell>
                 {
                     open ? (<>
-                        <TableCell align="right" style={{ cursor: 'pointer' }} onClick={() => { Gotodetailaccount(data?.c_uid) }}>{getFormatNumber(data?.balances)}₭</TableCell>
+                        {
+                            tra_balance == true ? (<>
+                                <TableCell align="right" style={{ cursor: 'pointer' }} onClick={() => { Gotodetailaccount(data?.c_uid) }}>{getFormatNumber(data?.transact_balance)}₭</TableCell>
+
+
+                            </>) : (<>
+                                <TableCell align="right" style={{ cursor: 'pointer' }} onClick={() => { Gotodetailaccount(data?.c_uid) }}>{getFormatNumber(data?.balances)}₭</TableCell>
+
+                            </>)
+                        }
+
                     </>) : (<>
                         <TableCell align="right">{getFormatNumber(netTotal)}₭</TableCell>
                     </>)
@@ -2434,6 +2918,7 @@ function TableCellComponentLiability2({ data, childrenSecond, id, TotaldrenFirst
                         TotaldrenFirstFloor={TotaldrenFirstFloor}
                         setCheckvalues={setCheckvalues}
                         Gotodetailaccount={Gotodetailaccount}
+                        tra_balance={tra_balance}
                     />
 
                     {
@@ -2455,7 +2940,7 @@ function TableCellComponentLiability2({ data, childrenSecond, id, TotaldrenFirst
         </>
     )
 }
-function TableCellComponentLiability3({ childrenSecond, id, TotaldrenFirstFloor, setCheckvalues, Gotodetailaccount }) {
+function TableCellComponentLiability3({ childrenSecond, tra_balance, id, TotaldrenFirstFloor, setCheckvalues, Gotodetailaccount }) {
     if (childrenSecond === null) return <></>
     const filter = childrenSecond.filter((el) => el.parents == id);
     if (filter.length === 0) return <></>;
@@ -2476,6 +2961,7 @@ function TableCellComponentLiability3({ childrenSecond, id, TotaldrenFirstFloor,
                             childrenSecond={childrenSecond}
                             id={data?.c_id}
                             Gotodetailaccount={Gotodetailaccount}
+                            tra_balance={tra_balance}
 
                         />
                     </>)
@@ -2484,7 +2970,7 @@ function TableCellComponentLiability3({ childrenSecond, id, TotaldrenFirstFloor,
         </>
     )
 }
-function TableCellComponentLiability4({ data, childrenSecond, id, TotaldrenFirstFloor, Gotodetailaccount }) {
+function TableCellComponentLiability4({ data, childrenSecond, id, tra_balance, TotaldrenFirstFloor, Gotodetailaccount }) {
     const [open, setOpen] = useState(true);
     const [checkvalues, setCheckvalues] = useState(0)
     const [netTotal, setNetTotal] = useState(0)
@@ -2520,7 +3006,17 @@ function TableCellComponentLiability4({ data, childrenSecond, id, TotaldrenFirst
                 </TableCell>
                 {
                     open ? (<>
-                        <TableCell align="right" style={{ cursor: 'pointer' }} onClick={() => { Gotodetailaccount(data?.c_uid) }}>{getFormatNumber(data?.balances)}₭</TableCell>
+                        {
+                            tra_balance == true ? (<>
+                                <TableCell align="right" style={{ cursor: 'pointer' }} onClick={() => { Gotodetailaccount(data?.c_uid) }}>{getFormatNumber(data?.transact_balance)}₭</TableCell>
+
+
+                            </>) : (<>
+                                <TableCell align="right" style={{ cursor: 'pointer' }} onClick={() => { Gotodetailaccount(data?.c_uid) }}>{getFormatNumber(data?.balances)}₭</TableCell>
+
+
+                            </>)
+                        }
                     </>) : (<>
                         <TableCell align="right">{getFormatNumber(netTotal)}₭ </TableCell>
                     </>)
@@ -2535,6 +3031,7 @@ function TableCellComponentLiability4({ data, childrenSecond, id, TotaldrenFirst
                         TotaldrenFirstFloor={TotaldrenFirstFloor}
                         setCheckvalues={setCheckvalues}
                         Gotodetailaccount={Gotodetailaccount}
+                        tra_balance={tra_balance}
 
 
                     />
@@ -2557,7 +3054,7 @@ function TableCellComponentLiability4({ data, childrenSecond, id, TotaldrenFirst
         </>
     )
 }
-function TableCellComponentLiability5({ childrenSecond, id, TotaldrenFirstFloor, setCheckvalues, Gotodetailaccount }) {
+function TableCellComponentLiability5({ childrenSecond, tra_balance, id, TotaldrenFirstFloor, setCheckvalues, Gotodetailaccount }) {
     if (childrenSecond === null) return <></>
     const filter = childrenSecond.filter((el) => el.parents == id);
     if (filter.length === 0) return <></>;
@@ -2579,6 +3076,7 @@ function TableCellComponentLiability5({ childrenSecond, id, TotaldrenFirstFloor,
                                 TotaldrenFirstFloor={TotaldrenFirstFloor}
                                 id={data?.c_id}
                                 Gotodetailaccount={Gotodetailaccount}
+                                tra_balance={tra_balance}
 
                             />
                         </>
@@ -2590,7 +3088,7 @@ function TableCellComponentLiability5({ childrenSecond, id, TotaldrenFirstFloor,
         </>
     )
 }
-function TableCellComponentLiability6({ data, childrenSecond, id, TotaldrenFirstFloor, Gotodetailaccount }) {
+function TableCellComponentLiability6({ data, childrenSecond, tra_balance, id, TotaldrenFirstFloor, Gotodetailaccount }) {
     const [open, setOpen] = useState(true);
     const [checkvalues, setCheckvalues] = useState(0)
     const [netTotal, setNetTotal] = useState(0)
@@ -2623,7 +3121,17 @@ function TableCellComponentLiability6({ data, childrenSecond, id, TotaldrenFirst
                 </TableCell>
                 {
                     open ? (<>
-                        <TableCell align="right" style={{ cursor: 'pointer' }} onClick={() => { Gotodetailaccount(data?.c_uid) }}>{getFormatNumber(data?.balances)}₭</TableCell>
+                        {
+                            tra_balance == true ? (<>
+                                <TableCell align="right" style={{ cursor: 'pointer' }} onClick={() => { Gotodetailaccount(data?.c_uid) }}>{getFormatNumber(data?.transact_balance)}₭</TableCell>
+
+
+                            </>) : (<>
+                                <TableCell align="right" style={{ cursor: 'pointer' }} onClick={() => { Gotodetailaccount(data?.c_uid) }}>{getFormatNumber(data?.balances)}₭</TableCell>
+
+
+                            </>)
+                        }
                     </>) : (<>
                         <TableCell align="right">{getFormatNumber(netTotal)}₭ </TableCell>
                     </>)
@@ -2638,6 +3146,7 @@ function TableCellComponentLiability6({ data, childrenSecond, id, TotaldrenFirst
                         TotaldrenFirstFloor={TotaldrenFirstFloor}
                         setCheckvalues={setCheckvalues}
                         Gotodetailaccount={Gotodetailaccount}
+                        tra_balance={tra_balance}
                     />
                     {
                         checkvalues === 0 ? (<></>) : (<>
@@ -2658,7 +3167,7 @@ function TableCellComponentLiability6({ data, childrenSecond, id, TotaldrenFirst
         </>
     )
 }
-function TableCellComponentLiability7({ childrenSecond, id, TotaldrenFirstFloor, setCheckvalues, Gotodetailaccount }) {
+function TableCellComponentLiability7({ childrenSecond, tra_balance, id, TotaldrenFirstFloor, setCheckvalues, Gotodetailaccount }) {
     if (childrenSecond === null) return <></>
     const filter = childrenSecond.filter((el) => el.parents == id);
     if (filter.length === 0) return <></>;
@@ -2680,6 +3189,7 @@ function TableCellComponentLiability7({ childrenSecond, id, TotaldrenFirstFloor,
                                 TotaldrenFirstFloor={TotaldrenFirstFloor}
                                 id={data?.c_id}
                                 Gotodetailaccount={Gotodetailaccount}
+                                tra_balance={tra_balance}
 
                             />
                         </>
@@ -2691,7 +3201,7 @@ function TableCellComponentLiability7({ childrenSecond, id, TotaldrenFirstFloor,
         </>
     )
 }
-function TableCellComponentLiability8({ data, childrenSecond, id, TotaldrenFirstFloor, Gotodetailaccount }) {
+function TableCellComponentLiability8({ data, childrenSecond, tra_balance, id, TotaldrenFirstFloor, Gotodetailaccount }) {
     const [open, setOpen] = useState(true);
     const [checkvalues, setCheckvalues] = useState(0)
     const [netTotal, setNetTotal] = useState(0)
@@ -2725,7 +3235,17 @@ function TableCellComponentLiability8({ data, childrenSecond, id, TotaldrenFirst
                 </TableCell>
                 {
                     open ? (<>
-                        <TableCell align="right" style={{ cursor: 'pointer' }} onClick={() => { Gotodetailaccount(data?.c_uid) }}>{getFormatNumber(data?.balances)}₭</TableCell>
+                        {
+                            tra_balance == true ? (<>
+                                <TableCell align="right" style={{ cursor: 'pointer' }} onClick={() => { Gotodetailaccount(data?.c_uid) }}>{getFormatNumber(data?.transact_balance)}₭</TableCell>
+
+
+                            </>) : (<>
+                                <TableCell align="right" style={{ cursor: 'pointer' }} onClick={() => { Gotodetailaccount(data?.c_uid) }}>{getFormatNumber(data?.balances)}₭</TableCell>
+
+
+                            </>)
+                        }
                     </>) : (<>
                         <TableCell align="right">{getFormatNumber(netTotal)}₭ </TableCell>
                     </>)
@@ -2741,6 +3261,7 @@ function TableCellComponentLiability8({ data, childrenSecond, id, TotaldrenFirst
                         TotaldrenFirstFloor={TotaldrenFirstFloor}
                         setCheckvalues={setCheckvalues}
                         Gotodetailaccount={Gotodetailaccount}
+                        tra_balance={tra_balance}
 
                     />
                     {
@@ -2763,7 +3284,7 @@ function TableCellComponentLiability8({ data, childrenSecond, id, TotaldrenFirst
         </>
     )
 }
-function TableCellComponentLiability9({ childrenSecond, id, TotaldrenFirstFloor, setCheckvalues, Gotodetailaccount }) {
+function TableCellComponentLiability9({ childrenSecond, tra_balance, id, TotaldrenFirstFloor, setCheckvalues, Gotodetailaccount }) {
     if (childrenSecond === null) return <></>
     const filter = childrenSecond.filter((el) => el.parents == id);
     if (filter.length === 0) return <></>;
@@ -2785,6 +3306,7 @@ function TableCellComponentLiability9({ childrenSecond, id, TotaldrenFirstFloor,
                                 TotaldrenFirstFloor={TotaldrenFirstFloor}
                                 id={data?.c_id}
                                 Gotodetailaccount={Gotodetailaccount}
+                                tra_balance={tra_balance}
 
                             />
                         </>
@@ -2796,7 +3318,7 @@ function TableCellComponentLiability9({ childrenSecond, id, TotaldrenFirstFloor,
         </>
     )
 }
-function TableCellComponentLiability10({ data, childrenSecond, id, TotaldrenFirstFloor, Gotodetailaccount }) {
+function TableCellComponentLiability10({ data, childrenSecond, tra_balance, id, TotaldrenFirstFloor, Gotodetailaccount }) {
     const [open, setOpen] = useState(true);
     const [checkvalues, setCheckvalues] = useState(0)
     const [netTotal, setNetTotal] = useState(0)
@@ -2830,7 +3352,18 @@ function TableCellComponentLiability10({ data, childrenSecond, id, TotaldrenFirs
                 </TableCell>
                 {
                     open ? (<>
-                        <TableCell align="right" style={{ cursor: 'pointer' }} onClick={() => { Gotodetailaccount(data?.c_uid) }}>{getFormatNumber(data?.balances)}₭</TableCell>
+
+                        {
+                            tra_balance == true ? (<>
+                                <TableCell align="right" style={{ cursor: 'pointer' }} onClick={() => { Gotodetailaccount(data?.c_uid) }}>{getFormatNumber(data?.transact_balance)}₭</TableCell>
+
+
+                            </>) : (<>
+                                <TableCell align="right" style={{ cursor: 'pointer' }} onClick={() => { Gotodetailaccount(data?.c_uid) }}>{getFormatNumber(data?.balances)}₭</TableCell>
+
+
+                            </>)
+                        }
                     </>) : (<>
                         <TableCell align="right">{getFormatNumber(netTotal)}₭ </TableCell>
                     </>)
@@ -2845,6 +3378,7 @@ function TableCellComponentLiability10({ data, childrenSecond, id, TotaldrenFirs
                         TotaldrenFirstFloor={TotaldrenFirstFloor}
                         setCheckvalues={setCheckvalues}
                         Gotodetailaccount={Gotodetailaccount}
+                        tra_balance={tra_balance}
 
                     />
                     {
@@ -2867,7 +3401,7 @@ function TableCellComponentLiability10({ data, childrenSecond, id, TotaldrenFirs
         </>
     )
 }
-function TableCellComponentLiability11({ childrenSecond, id, TotaldrenFirstFloor, setCheckvalues, Gotodetailaccount }) {
+function TableCellComponentLiability11({ childrenSecond, tra_balance, id, TotaldrenFirstFloor, setCheckvalues, Gotodetailaccount }) {
     if (childrenSecond === null) return <></>
     const filter = childrenSecond.filter((el) => el.parents == id);
     if (filter.length === 0) return <></>;
@@ -2889,6 +3423,7 @@ function TableCellComponentLiability11({ childrenSecond, id, TotaldrenFirstFloor
                                 TotaldrenFirstFloor={TotaldrenFirstFloor}
                                 id={data?.c_id}
                                 Gotodetailaccount={Gotodetailaccount}
+                                tra_balance={tra_balance}
 
                             />
                         </>
@@ -2900,7 +3435,7 @@ function TableCellComponentLiability11({ childrenSecond, id, TotaldrenFirstFloor
         </>
     )
 }
-function TableCellComponentLiability12({ data, childrenSecond, id, TotaldrenFirstFloor, Gotodetailaccount }) {
+function TableCellComponentLiability12({ data, childrenSecond, tra_balance, id, TotaldrenFirstFloor, Gotodetailaccount }) {
     const [open, setOpen] = useState(true);
     const [checkvalues, setCheckvalues] = useState(0)
     const [netTotal, setNetTotal] = useState(0)
@@ -2934,7 +3469,17 @@ function TableCellComponentLiability12({ data, childrenSecond, id, TotaldrenFirs
                 </TableCell>
                 {
                     open ? (<>
-                        <TableCell align="right" style={{ cursor: 'pointer' }} onClick={() => { Gotodetailaccount(data?.c_uid) }}>{getFormatNumber(data?.balances)}₭</TableCell>
+                        {
+                            tra_balance == true ? (<>
+                                <TableCell align="right" style={{ cursor: 'pointer' }} onClick={() => { Gotodetailaccount(data?.c_uid) }}>{getFormatNumber(data?.transact_balance)}₭</TableCell>
+
+
+                            </>) : (<>
+                                <TableCell align="right" style={{ cursor: 'pointer' }} onClick={() => { Gotodetailaccount(data?.c_uid) }}>{getFormatNumber(data?.balances)}₭</TableCell>
+
+
+                            </>)
+                        }
                     </>) : (<>
                         <TableCell align="right">{getFormatNumber(netTotal)}₭ </TableCell>
                     </>)
@@ -2945,6 +3490,7 @@ function TableCellComponentLiability12({ data, childrenSecond, id, TotaldrenFirs
                 id={id}
                 TotaldrenFirstFloor={TotaldrenFirstFloor}
                 setCheckvalues={setCheckvalues}
+                tra_balance={tra_balance}
             />
             {
                 checkvalues === 0 ? (<></>) : (<>

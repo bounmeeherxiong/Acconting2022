@@ -210,8 +210,6 @@ export default function Journal() {
     const changeText = (value, key, index) => {
         const object = { ...data[index] };
         if (key == 'debit' || key == 'credit') {
-            // object[key] = value != '' ? Intl.NumberFormat().format(parseInt(value.replaceAll(',', ''))) : '';
-
             object[key] = value.toString().replaceAll(',', '').replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1,");
         } else {
             object[key] = value;
@@ -251,6 +249,7 @@ export default function Journal() {
         }
     }
     const onChangeTextCurrency = (value, key) => {
+       
         if (key == "USD") {
             setUsd(value)
         } else {
@@ -403,7 +402,7 @@ export default function Journal() {
                 }}>
                     <ToastShow1 show={showToast} setShow={setShowToast} iconNmame={<CheckCircle size={24} style={{ marginTop: 20, color: "#EC7380" }} />} />
                 </div>
-                {JSON.stringify(data)}
+                {/* {JSON.stringify(data)} */}
                 {/* {JSON.stringify(netTotalCrebit)} */}
                 {
                     something == true ? (
@@ -414,10 +413,7 @@ export default function Journal() {
                                 <small style={{ fontSize: 20, marginLeft: 10, color: "red" }}>Something's not quite right</small> < br />
                                 <small style={{ marginLeft: 10 }}>Please check balance debits and credits.</small></div>
                         </>
-                    ) : (
-                        <>
-                        </>
-                    )
+                    ) :null
                 }
                 <div style={{
                     display: 'flex',
@@ -459,7 +455,7 @@ export default function Journal() {
                                         display: 'flex',
                                         flexDirection: 'row'
                                     }}>
-                                        <div style={{ marginTop: 5, paddingLeft: 10 }}>1 USD</div>
+                                        <div style={{ marginTop: 5, paddingLeft: 10 }}> USD</div>
                                         <div style={{ marginLeft: 5 }}>
                                             <img alt="Logo" src="/assets/images/USA.png" style={{ width: 40, height: 20, marginTop: 5 }} />
                                         </div>
@@ -523,10 +519,7 @@ export default function Journal() {
                                         <div style={{ marginTop: 5, paddingLeft: 10 }}>LAK</div>
                                     </div>
                                 </>
-                            ) : (
-                                <>
-                                </>
-                            )
+                            ) : null
                         }
                     </div>
                 </div>

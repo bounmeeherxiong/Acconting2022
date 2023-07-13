@@ -25,7 +25,7 @@ import CardContent from '@mui/material/CardContent';
 import Typography from '@mui/material/Typography';
 import { CardActionArea } from '@mui/material';
 import ErrorIcon from "@material-ui/icons/Error";
-import moment from 'moment';
+import moment, { months, now } from 'moment';
 import IconButton from '@material-ui/core/IconButton';
 import LastPageIcon from '@material-ui/icons/LastPage';
 import FirstPageIcon from '@material-ui/icons/FirstPage';
@@ -86,12 +86,15 @@ export default function ChartAccounts() {
     setAlready('')
     setErrexchangeRate('')
     setCheckdebitcredit('')
+    setValuedate('')
+    setExchangeRate('')
+    setCheckDisabled(false)
   };
   const handleShow = () => setShow(true);
   const [ac_type, setAc_type] = useState("");
   const [errac_type, setErrac_type] = useState(false);
   const [errname, setErrname] = useState(false);
-  const [errbank,setErrbank]=useState(false)
+  const [errbank, setErrbank] = useState(false)
   const [errselectcurrency, setErrselectcurrency] = useState(false)
   const [typedetail, setTypedetail] = useState("");
   const [name, setName] = useState("");
@@ -128,8 +131,6 @@ export default function ChartAccounts() {
   const [credit, setCredit] = useState("");
   const [idaccountType, setIdaccountType] = useState([])
   const [nameaccountType, setNameaccountType] = useState([])
-  const [currencyid, setCurrencyid] = useState([])
-  const [currencyname, setCurrencyname] = useState([])
   const [getid, setGetid] = useState("")
   const [ledgerid, setLedgerid] = useState("")
   const [parent, setParent] = useState("")
@@ -155,11 +156,42 @@ export default function ChartAccounts() {
   const [checkDisabled, setCheckDisabled] = useState(false)
   const [searchTerm, setSearchTerm] = useState("");
   const [pageNumber, setPageNumber] = useState(0);
-  const [bank,setBank]=useState([]);
-  const [listbank,setListbank]=useState("");
+  const [bank, setBank] = useState([]);
+  const [listbank, setListbank] = useState("");
+  const [valuedate, setValuedate] = useState("")
+  const [errvaluedate, setErrvaluedate] = useState(false)
+  const [conditionsdata, setConditionsdata] = useState(false)
+  const [levels_one, setLevels_one] = useState([])
+  const [levels_two, setLevels_two] = useState([])
+  const [levels_three, setLevels_three] = useState([])
+  const [levels_four, setLevels_four] = useState([])
+  const [levels_five, setLevels_five] = useState([])
+  const [levels_six, setLevels_six] = useState([])
+  const [levels_seven, setLevels_seven] = useState([])
+  const [levels_eight, setLevels_eight] = useState([])
+  const [levels_nine, setLevels_nine] = useState([])
+  const [levels_ten, setLevels_ten] = useState([])
+
   const {
-    onloadallaccount, listallaccount, setListallaccount, listallaccountchildren, onloadreportGl
+    onloadallaccount,
+    listallaccount,
+    setListallaccount,
+    listallaccountchildren,
+    onloadreportGl,
+    chartofaccountslevels_one,
+    chartofaccountslevels_two,
+    chartofaccountslevels_three,
+    chartofaccountslevels_four,
+    chartofaccountslevels_five,
+    chartofaccountslevels_six,
+    chartofaccountslevels_seven,
+    chartofaccountslevels_eight,
+    chartofaccountslevels_nine,
+    chartofaccountslevels_ten
   } = useContext(LoginContext);
+
+
+
 
   const bulletinsPerPage = 25;
   const pagesVisited = pageNumber * bulletinsPerPage;
@@ -211,19 +243,33 @@ export default function ChartAccounts() {
     }
     // setCheckDisabled(true)
   }
+  const checkedtrue = () => {
+    if (nameShow.length > 0) {
+      
+    } else {
+      setIsDisabled(true)
+      setDisblebtn(false);
+    }
+  }
   const handleChange = event => {
     if (event.target.checked) {
       setDisblebtn(false);
+      console.log("true")
+      setPrentid(prentid)
+
     } else {
       setDisblebtn(true);
+      console.log("false")
+      setPrentid('')
+    
 
     }
     setIsSubscribed(current => !current);
   };
-  const Onloadbank=()=>{
-    axios.get('/accounting/api/bank/all').then((data)=>{
+  const Onloadbank = () => {
+    axios.get('/accounting/api/bank/all').then((data) => {
       setBank([...data?.data?.result])
-    }).catch((err)=>{
+    }).catch((err) => {
       console.log(err)
     })
   }
@@ -234,7 +280,7 @@ export default function ChartAccounts() {
   } = useContext(LoginContext);
   useEffect(() => {
     SearchAccount();
-    _searchstartdate();
+
     if (ac_type != null) {
       listsubaccountname(ac_type);
       _onshowcreatestatus(ac_type);
@@ -245,7 +291,6 @@ export default function ChartAccounts() {
   }, [ac_type]);
 
   const _ongetCurrencyvalues = (e) => {
-    
     setErrselectcurrency('')
     setErrorcurrency('')
     setCurrency(e)
@@ -298,8 +343,9 @@ export default function ChartAccounts() {
   };
   const OnblurChangeText = (e) => {
     let number = e.replaceAll(',', '')
-    let format_number = new Intl.NumberFormat("en-US", { style: 'currency', currency: 'USD' }).format(number)
-    let rate = format_number.replaceAll('$', '')
+    let rate=e.toString().replaceAll(',', '').replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1,");
+    // let format_number = new Intl.NumberFormat("en-US", { style: 'currency', currency: 'USD' }).format(number)
+    // let rate = format_number.replaceAll('$', '')
     setExchangeRate(rate)
     let sum = parseFloat(rate.replaceAll(',', '') * parseFloat(balance.replaceAll(',', '')))
     let sumbalancelak = new Intl.NumberFormat("en-US", { style: 'currency', currency: 'USD' }).format(sum)
@@ -314,9 +360,10 @@ export default function ChartAccounts() {
   };
   const OnblurTextbalance = (e) => {
     let number = e.replaceAll(',', '')
-    let format_number = new Intl.NumberFormat("en-US", { style: 'currency', currency: 'USD' }).format(number)
-    let rate = format_number.replaceAll('$', '')
-    console.log("rate=", rate)
+    let rate=e.toString().replaceAll(',', '').replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1,");
+    // let format_number = new Intl.NumberFormat("en-US", { style: 'currency', currency: 'USD' }).format(number)
+    // let rate = format_number.replaceAll('$', '')
+    // console.log("rate=", rate)
     setBalance(rate)
     let sum = parseFloat(rate.replaceAll(',', '') * parseFloat(exchangeRate.replaceAll(',', '')))
     let sumbalancelak = new Intl.NumberFormat("en-US", { style: 'currency', currency: 'USD' }).format(sum)
@@ -346,6 +393,7 @@ export default function ChartAccounts() {
   };
   const BeginningBalance = e => {
     if (e.target.checked) {
+      setConditionsdata(true)
     } else {
       setBalancelak('')
       setBalance('')
@@ -354,6 +402,7 @@ export default function ChartAccounts() {
       setExchangeRate('')
       setDebit('')
       setCredit('')
+      setConditionsdata(false)
     }
   }
   const editaccountype = (ac_type) => {
@@ -366,14 +415,16 @@ export default function ChartAccounts() {
     })
   }
   const _searchstartdate = (e) => {
-    if (defaultValue == "") {
-      setDefaultValue(Today)
-    } else {
-      setDefaultValue(moment(e).format("DD-MM-YYYY"))
-    }
+    setValuedate(e)
+    setErrvaluedate(false)
+  }
+  const OnData = (e) => {
+    setDefaultValue(moment(e).format("DD-MM-YYYY"))
+  }
+  const Ondataupdate = (e) => {
+    setValuedate(e)
   }
   const editbeginningbalanceSecond = (e) => {
-    console.log("secondedit=",e)
     setGetid(e)
     axios.get(`/accounting/api/chartofaccounts/openingData/${e}`).then((data) => {
       functionCheck([...data?.data?.editCondition][0])
@@ -387,7 +438,12 @@ export default function ChartAccounts() {
       } else {
         setOpening_status("1")
       }
-      setExchangeRate(getFormatNumber([...data?.data?.result][0].ExchangeRate))
+
+      let money_rate=[...data?.data?.result][0].ExchangeRate.toString().replaceAll(',', '').replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1,");
+      
+      // setExchangeRate(getFormatNumber([...data?.data?.result][0].ExchangeRate))
+       setExchangeRate(money_rate)
+     
       if ([...data?.data?.result][0].currencystatus == "USD" || [...data?.data?.result][0].currencystatus == "THB") {
         setBalance(getFormatNumber([...data?.data?.result][0].balancescurrency.replaceAll("-", '')))
         let BalanceaLL = parseFloat([...data?.data?.result][0].ExchangeRate) * parseFloat([...data?.data?.result][0].balancescurrency)
@@ -405,33 +461,39 @@ export default function ChartAccounts() {
       console.log(err)
     })
   }
-
   const editbeginningbalancefirst = (e) => {
     setGetid(e)
     axios.get(`/accounting/api/chartofaccounts/openingData/${e}`).then((data) => {
       functionCheck([...data?.data?.editCondition][0])
-      let daIn = [...data?.data?.result][0].createdate
-      setDefaultValue(moment(daIn).format("DD-MM-YYYY"))
-      setLedgerid([...data?.data?.result][0].lg_id)
-      setOpening_status([...data?.data?.result][0].BeginningBalance)
-      if ([...data?.data?.result][0].BeginningBalance == "0") {
-        setBeginningbalance(true);
-        setOpen(true)
+      if ([...data?.data?.result].length == 0) {
+
       } else {
-        setOpening_status("1")
-      }
-      setExchangeRate(getFormatNumber([...data?.data?.result][0].ExchangeRate))
-      if ([...data?.data?.result][0].currencystatus == "USD" || [...data?.data?.result][0].currencystatus == "THB") {
-        setBalance(getFormatNumber([...data?.data?.result][0].balancescurrency.replaceAll("-", '')))
-        setBalancelak(getFormatNumber(parseFloat([...data?.data?.result][0].ExchangeRate) * parseFloat([...data?.data?.result][0].balancescurrency)))
-      } else {
-      setBalance(getFormatNumber([...data?.data?.result][0].balances.replaceAll("-", '')))
-      }
-      if ([...data?.data?.result][0].debit_and_credit == "1") {
-        setRadiodebit(true)
-      } else if ([...data?.data?.result][0].debit_and_credit == "2") {
-        setRadiocredit(true)
-      } else {
+        let daIn = [...data?.data?.result][0].createdate
+        setDefaultValue(moment(daIn).format("DD-MM-YYYY"))
+        setLedgerid([...data?.data?.result][0].lg_id)
+        setOpening_status([...data?.data?.result][0].BeginningBalance)
+        if ([...data?.data?.result][0].BeginningBalance == "0") {
+          setBeginningbalance(true);
+          setOpen(true)
+        } else {
+          setOpening_status("1")
+        }
+        let money_rate=[...data?.data?.result][0].ExchangeRate.toString().replaceAll(',', '').replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1,");
+      
+        // setExchangeRate(getFormatNumber([...data?.data?.result][0].ExchangeRate))
+          setExchangeRate(money_rate)
+        if ([...data?.data?.result][0].currencystatus == "USD" || [...data?.data?.result][0].currencystatus == "THB") {
+          setBalance(getFormatNumber([...data?.data?.result][0].balancescurrency.replaceAll("-", '')))
+          setBalancelak(getFormatNumber(parseFloat([...data?.data?.result][0].ExchangeRate) * parseFloat([...data?.data?.result][0].balancescurrency)))
+        } else {
+          setBalance(getFormatNumber([...data?.data?.result][0].balances.replaceAll("-", '')))
+        }
+        if ([...data?.data?.result][0].debit_and_credit == "1") {
+          setRadiodebit(true)
+        } else if ([...data?.data?.result][0].debit_and_credit == "2") {
+          setRadiocredit(true)
+        } else {
+        }
       }
     }).catch((err) => {
       console.log(err)
@@ -445,6 +507,8 @@ export default function ChartAccounts() {
   // function CreateChartAccount
   const CreateChartAccount = () => {
 
+    let createdate;
+
     if (!ac_type) {
       setErrac_type(true)
       return;
@@ -456,7 +520,6 @@ export default function ChartAccounts() {
 
     let data;
     let stutas;
-
     if (radiodebit == true) {
       stutas = '1'
     } else if (radiocredit == true) {
@@ -476,6 +539,12 @@ export default function ChartAccounts() {
         return;
       }
     }
+    if (conditionsdata == false) {
+      const currentdate = new Date();
+      createdate = moment(currentdate).format('DD-MM-YYYY')
+    } else {
+      createdate = moment(valuedate).format("DD-MM-YYYY")
+    }
     if (open == true) {
       if (currencystatus == 'USD' || currencystatus == 'THB') {
         if (!exchangeRate) {
@@ -483,6 +552,10 @@ export default function ChartAccounts() {
           return;
         } else if (exchangeRate == '0.00') {
           setErrexchangeRate(true)
+          return;
+        }
+        if (!valuedate) {
+          setErrvaluedate(true)
           return;
         }
         if (checkdebitcredit == false || checkdebitcredit == false) {
@@ -493,7 +566,7 @@ export default function ChartAccounts() {
           setErrbalance(true)
           return;
         }
-        if(!listbank){
+        if (!listbank) {
           setErrbank(true)
           return;
         }
@@ -511,19 +584,20 @@ export default function ChartAccounts() {
     setIsLoading(true);
     data = {
       ac_type: ac_type,
-      name_eng: name,
+      name_eng: name.trim(),
       company: "",
       c_desc: description,
       parents: prentid,
       c_balance: balance,
-      c_date: defaultValue,
+      c_date: createdate,
       balance_status: stutas,
       opening_status: openingbalance,
       accountid: uid,
       currency_uid: currency,
       c_rate: exchangeRate,
-      bank_id:listbank
+      bank_id: listbank
     }
+    console.log("Insert data=",data)
     axios
       .post("/accounting/api/chartofaccounts/create", data)
       .then((data) => {
@@ -578,7 +652,11 @@ export default function ChartAccounts() {
         setIsLoading(false);
       })
   };
+
+  // this functions is add close and new
   const CreateAddnewChartAccount = () => {
+    let createdate;
+
     if (!ac_type) {
       setErrac_type(true)
       return;
@@ -587,9 +665,9 @@ export default function ChartAccounts() {
       setErrname(true)
       return;
     }
+
     let data;
     let stutas;
-
     if (radiodebit == true) {
       stutas = '1'
     } else if (radiocredit == true) {
@@ -609,6 +687,12 @@ export default function ChartAccounts() {
         return;
       }
     }
+    if (conditionsdata == false) {
+      const currentdate = new Date();
+      createdate = moment(currentdate).format('DD-MM-YYYY')
+    } else {
+      createdate = moment(valuedate).format("DD-MM-YYYY")
+    }
     if (open == true) {
       if (currencystatus == 'USD' || currencystatus == 'THB') {
         if (!exchangeRate) {
@@ -618,12 +702,20 @@ export default function ChartAccounts() {
           setErrexchangeRate(true)
           return;
         }
+        if (!valuedate) {
+          setErrvaluedate(true)
+          return;
+        }
         if (checkdebitcredit == false || checkdebitcredit == false) {
           seterrcheckdebitcredit(true)
           return;
         }
         if (balance == '0.00') {
           setErrbalance(true)
+          return;
+        }
+        if (!listbank) {
+          setErrbank(true)
           return;
         }
       } else {
@@ -637,25 +729,26 @@ export default function ChartAccounts() {
         }
       }
     }
-    setIsLoadingnew(false)
+    setIsLoadingnew(true);
     data = {
       ac_type: ac_type,
-      name_eng: name,
+      name_eng: name.trim(),
       company: "",
       c_desc: description,
       parents: prentid,
       c_balance: balance,
-      c_date: defaultValue,
+      c_date: createdate,
       balance_status: stutas,
       opening_status: openingbalance,
       accountid: uid,
       currency_uid: currency,
       c_rate: exchangeRate,
-      bank_id:listbank
+      bank_id: listbank
     }
     axios
       .post("/accounting/api/chartofaccounts/create", data)
       .then((data) => {
+        handleClose(false)
         onloadallaccount();
         onloadreportGl();
         setAc_type('');
@@ -687,6 +780,7 @@ export default function ChartAccounts() {
       ).catch((err) => {
         console.log(err)
         const statusCode = err.response.data.statusCode
+        console.log("statusCode=", statusCode)
         if (statusCode == '400') {
           setAlready("")
           setErrorcurrency(statusCode)
@@ -704,12 +798,26 @@ export default function ChartAccounts() {
           return;
         }
       }).finally(() => {
-        setIsLoadingnew(false)
+        setIsLoadingnew(false);
       })
+
+
+
   };
   const Updatechartofaccount = () => {
     let data;
     let stutas;
+    let createdate;
+    if (defaultValue.length == 0) {
+      if (conditionsdata == false) {
+        const currentdate = new Date();
+        createdate = moment(currentdate).format('DD-MM-YYYY')
+      } else {
+        createdate = moment(valuedate).format('DD-MM-YYYY')
+      }
+    } else {
+      createdate = defaultValue
+    }
     if (radiodebit == true) {
       stutas = '1'
     } else if (radiocredit == true) {
@@ -726,15 +834,19 @@ export default function ChartAccounts() {
       parents: prentid,
       c_balance: balance,
       c_rate: exchangeRate,
-      c_date: defaultValue,
+      c_date: createdate,
       balance_status: stutas,
       opening_status: opening_status,
       lg_id: ledgerid,
     }
+
+
     axios.post("/accounting/api/chartofaccounts/update", data).then((data) => {
       handleClose(false)
       onloadallaccount();
       onloadaccountlistname();
+      setDefaultValue('')
+      setCheckDisabled(false)
     }).catch((err) => {
       const statusCode = err.response.data.statusCode
       if (statusCode == "408") {
@@ -756,13 +868,7 @@ export default function ChartAccounts() {
       setIsLoadingupdating(false)
     })
   }
-  const checkedtrue = () => {
-    if (nameShow.length > 0) {
-    } else {
-      setIsDisabled(true)
-      setDisblebtn(false);
-    }
-  }
+
   const getNameList = (c_id) => {
     axios.get(`/accounting/api/chartofaccounts/all/parents/${c_id}`).then((data) => {
       if (data?.data?.message.length > 0) {
@@ -779,10 +885,8 @@ export default function ChartAccounts() {
   const getNameList1 = (c_id) => {
     axios.get(`/accounting/api/chartofaccounts/all/parents/${c_id}`).then((data) => {
       if (data?.data?.message.length > 0) {
-
         setPrentid(data?.data.message[0].c_id);
         setParent(data?.data.message[0].parents)
-
         const names = data?.data?.message.map((item) => {
           return item.name_eng;
         });
@@ -804,9 +908,9 @@ export default function ChartAccounts() {
     let id = listaccountid.filter((el) => el.uid.includes(ac_type));
     setUid([...id][0].main_type)
   }
-  const _onBank=(e)=>{
+  const _onBank = (e) => {
     setListbank(e)
-    setErrbank(false)    
+    setErrbank(false)
   }
   const _onSearchList = (e) => {
     setNameShow(e);
@@ -824,12 +928,33 @@ export default function ChartAccounts() {
   const _Onsearch = (e) => {
     setSearch(e)
     let searchName = listallaccount.filter((el) => el.account_name.toLowerCase().includes(e.toLowerCase()));
-    let children = listallaccountchildren.filter((el) => el.account_name.toLowerCase().includes(e.toLowerCase()));
+    // let children = listallaccountchildren.filter((el) => el.account_name.toLowerCase().includes(e.toLowerCase()));
+    let lev_one = chartofaccountslevels_one.filter((el) => el.account_name.toLowerCase().includes(e.toLowerCase()));
+    let lev_two = chartofaccountslevels_two.filter((el) => el.account_name.toLowerCase().includes(e.toLowerCase()));
+    let lev_three = chartofaccountslevels_three.filter((el) => el.account_name.toLowerCase().includes(e.toLowerCase()));
+    let lev_four = chartofaccountslevels_four.filter((el) => el.account_name.toLowerCase().includes(e.toLowerCase()));
+    let lev_five = chartofaccountslevels_five.filter((el) => el.account_name.toLowerCase().includes(e.toLowerCase()));
+    let lev_six = chartofaccountslevels_six.filter((el) => el.account_name.toLowerCase().includes(e.toLowerCase()));
+    let lev_seven = chartofaccountslevels_seven.filter((el) => el.account_name.toLowerCase().includes(e.toLowerCase()));
+    let lev_eight = chartofaccountslevels_eight.filter((el) => el.account_name.toLowerCase().includes(e.toLowerCase()));
+    let lev_nine = chartofaccountslevels_nine.filter((el) => el.account_name.toLowerCase().includes(e.toLowerCase()));
+    let lev_ten = chartofaccountslevels_ten.filter((el) => el.account_name.toLowerCase().includes(e.toLowerCase()));
+
     if (!e) {
       onloadallaccount()
     } else {
       setListallaccount(searchName)
-      setSecondSearch(children)
+      // setSecondSearch(children)
+      setLevels_one(lev_one)
+      setLevels_two(lev_two)
+      setLevels_three(lev_three)
+      setLevels_four(lev_four)
+      setLevels_five(lev_five)
+      setLevels_six(lev_six)
+      setLevels_seven(lev_seven)
+      setLevels_eight(lev_eight)
+      setLevels_nine(lev_nine)
+      setLevels_ten(lev_ten)
     }
   }
   return (
@@ -860,10 +985,7 @@ export default function ChartAccounts() {
                 <small style={{ fontSize: 20, marginLeft: 10, color: "red" }}>Something’s not quite right</small> < br />
                 <small style={{ marginLeft: 10 }}>For sub-accounts,you must select the same currency as their parent.</small></div>
             </>
-          ) : (
-            <>
-            </>
-          )
+          ) : null
         }
         {
           errorparrens == '402' ? (
@@ -874,10 +996,7 @@ export default function ChartAccounts() {
                 <small style={{ fontSize: 20, marginLeft: 10, color: "red" }}>Something’s not quite right</small> < br />
                 <small style={{ marginLeft: 10 }}>For subaccounts, you must select the same account type as their parent.</small></div>
             </>
-          ) : (
-            <>
-            </>
-          )
+          ) : null
         }
         {
           already == '409' ? (
@@ -888,10 +1007,7 @@ export default function ChartAccounts() {
                 <small style={{ fontSize: 20, marginLeft: 10, color: "red" }}>Something’s not quite right</small> < br />
                 <small style={{ marginLeft: 10 }}>Another account is already using this name. Please use a different name.</small></div>
             </>
-          ) : (
-            <>
-            </>
-          )
+          ) : null
         }
         {
           errchildren == '408' ? (
@@ -902,10 +1018,7 @@ export default function ChartAccounts() {
                 <small style={{ fontSize: 20, marginLeft: 10, color: "red" }}>Something’s not quite right</small> < br />
                 <small style={{ marginLeft: 10 }}>Something’s not quite right</small></div>
             </>
-          ) : (
-            <>
-            </>
-          )
+          ) : null
         }
         {
           errvalidate == '410' ? (
@@ -917,10 +1030,7 @@ export default function ChartAccounts() {
                 <small style={{ marginLeft: 10 }}>Something’s not quite right</small></div>
             </>
 
-          ) : (
-            <></>
-
-          )
+          ) : null
         }
         <Modal.Body>
           <div
@@ -948,7 +1058,7 @@ export default function ChartAccounts() {
                       {listaccountType &&
                         listaccountType.map((data, index) => {
                           return (
-                            <option key={index} value={data?.type_uid}   disabled={true}>
+                            <option key={index} value={data?.type_uid} disabled={true}>
                               {data?.type_name_eng}
                             </option>
                           );
@@ -973,7 +1083,7 @@ export default function ChartAccounts() {
                     <>
                       < small style={{ position: "absolute", fontSize: 14, color: "red" }}>Please select Account Type</small>
                     </>
-                  ) :null
+                  ) : null
                 }
               </Form.Group>
               {
@@ -999,12 +1109,12 @@ export default function ChartAccounts() {
                         })}
                     </Form.Select>
                     {
-                  errbank == true ? (
-                    <>
-                      < small style={{ position: "absolute", fontSize: 14, color: "red" }}>Please select bank</small>
-                    </>
-                  ) :null
-                }
+                      errbank == true ? (
+                        <>
+                          < small style={{ position: "absolute", fontSize: 14, color: "red" }}>Please select bank</small>
+                        </>
+                      ) : null
+                    }
                   </Form.Group>
 
                 </>) : null
@@ -1037,10 +1147,7 @@ export default function ChartAccounts() {
                     <>
                       <small style={{ position: "absolute", fontSize: 14, color: "red" }}>Please Enter Account name</small>
                     </>
-                  ) : (
-                    <>
-                    </>
-                  )
+                  ) : null
                 }
               </Form.Group>
 
@@ -1095,10 +1202,7 @@ export default function ChartAccounts() {
                               <>
                                 <small style={{ position: "absolute", color: "red", fontSize: 15 }}>Please select currency</small>
                               </>
-                            ) : (
-                              <>
-                              </>
-                            )
+                            ) : null
                           }
                         </Form.Group>
                       </div>
@@ -1140,10 +1244,7 @@ export default function ChartAccounts() {
                                       <small style={{ marginTop: 10 }}>LAK</small>
                                       <img alt="Logo" src="/assets/images/laos.png" style={{ width: 25, height: 20, marginTop: 8 }} />
                                     </>
-                                  ) : (
-                                    <>
-                                    </>
-                                  )
+                                  ) : null
                                 }
                                 {
                                   currencystatus == "THB" ? (
@@ -1171,10 +1272,7 @@ export default function ChartAccounts() {
                                       <small style={{ marginTop: 10 }}>LAK</small>
                                       <img alt="Logo" src="/assets/images/laos.png" style={{ width: 25, height: 20, marginTop: 8 }} />
                                     </>
-                                  ) : (
-                                    <>
-                                    </>
-                                  )
+                                  ) : null
                                 }
                               </div>
                             </div>
@@ -1193,10 +1291,7 @@ export default function ChartAccounts() {
                       }
                     </div>
                   </>
-                ) : (
-                  <>
-                  </>
-                )
+                ) : null
               }
               <Form.Group className="mb-3" controlId="formBasicCheckbox" >
                 <Form.Check
@@ -1267,10 +1362,9 @@ export default function ChartAccounts() {
                           <>
                             {searchResult.map((data, index) => {
                               return (
-                                <div key={index} style={{width:'100%'}}>
+                                <div key={index} style={{ width: '100%' }}>
                                   <Typography
                                     variant="body2"
-                                 
                                     style={{
                                       cursor: "pointer",
                                       fontWeight:
@@ -1291,9 +1385,9 @@ export default function ChartAccounts() {
                           <>
                             {listaccountname && listaccountname.map((data, index) => {
                               return (
-                                <div style={{width:'100%'}} key={index} >
+                                <div style={{ width: '100%' }} key={index} >
                                   <Typography
-                             
+
                                     variant="body2"
                                     style={{
                                       cursor: "pointer",
@@ -1320,30 +1414,7 @@ export default function ChartAccounts() {
               {
                 checked == "In" || checked == "Ex" ? (
                   <>
-                    {/* <Form.Group>
-                      <Form.Label style={{ fontSize: 20 }}></Form.Label>
-                      <div
-                        style={{
-                          display: "flex",
-                          width: "100%",
-                          flexDirection: "row",
-                        }}
-                      >
-                        <Form.Check
-                          style={{ cursor: "pointer" }}
-                          inline
-                          label="Beginning Balance"
-                          checked={beginningBalance}
-                          disabled={true}
-                          onChange={BeginningBalance}
-                          type="checkbox"
-                          onClick={() => {
-                            setBeginningbalance(!beginningBalance);
-                            handleClick()
-                          }}
-                        />
-                      </div>
-                    </Form.Group> */}
+
                   </>) : (
                   <>
                     <Form.Group>
@@ -1457,49 +1528,116 @@ export default function ChartAccounts() {
                                 <>
                                   <small style={{ position: "absolute", color: "red", fontSize: 14, marginTop: 80 }}>Please enter balance</small>
                                 </>
-                              ) : (
-                                <>
-                                </>
-                              )
+                              ) : null
                             }
                           </>
                         )
                       }
-                      <div>
-                        <div style={{
-                          display: "flex",
-                          width: "100%",
-                          flexDirection: "row",
-                          justifyContent: "space-between"
-                        }}>
-                          <Form.Group
-                            className="mb-3"
-                            controlId="exampleForm.ControlInput1"
-                          >
-                            <Form.Label style={{ fontSize: 20 }}>as of</Form.Label>
-                            <Form.Control
-                              type="text"
-                              autoFocus
-                              onChange={(e) => setDefaultValue(e.target.value)}
-                              value={defaultValue}
-                              style={{ width: 140, borderRight: "none" }}
-                              disabled={checkDisabled}
-                            />
-                          </Form.Group>
-                          <Form.Group
-                            className="mb-3"
-                            controlId="exampleForm.ControlInput1"
-                          >
-                            <Form.Control
-                              type="date"
-                              placeholder="Description"
-                              autoFocus
-                              onChange={(e) => _searchstartdate(e.target.value)}
-                              style={{ width: 45, marginTop: 37 }}
-                            />
-                          </Form.Group>
-                        </div>
-                      </div>
+                      {showUpdate ? (
+                        <>
+                          {
+                            defaultValue.length == 0 ? (
+                              <>
+                                <div>
+                                  <div style={{
+                                    display: "flex",
+                                    width: "100%",
+                                    flexDirection: "row",
+                                    justifyContent: "space-between"
+                                  }}>
+                                    <Form.Group
+                                      className="mb-3"
+                                      controlId="exampleForm.ControlInput1"
+                                    >
+                                      <Form.Control
+                                        type="date"
+                                        autoFocus
+                                        onChange={(e) => Ondataupdate(e.target.value)}
+                                        value={valuedate}
+                                        style={{ width: 140, marginTop: 37 }}
+                                      />
+                                    </Form.Group>
+                                  </div>
+                                </div>
+
+                              </>) : (
+                              <>
+                                <div>
+                                  <div style={{
+                                    display: "flex",
+                                    width: "100%",
+                                    flexDirection: "row",
+                                    justifyContent: "space-between"
+                                  }}>
+                                    <Form.Group
+                                      className="mb-3"
+                                      controlId="exampleForm.ControlInput1"
+
+                                    >
+                                      <Form.Label style={{ fontSize: 20 }}>as of</Form.Label>
+                                      <Form.Control
+                                        type="text"
+                                        autoFocus
+                                        onChange={(e) => setDefaultValue(e.target.value)}
+                                        value={defaultValue}
+                                        style={{ width: 140, borderRight: 'none' }}
+                                        disabled={checkDisabled}
+
+                                      />
+                                    </Form.Group>
+                                    <Form.Group
+                                      className="mb-3"
+                                      controlId="exampleForm.ControlInput1"
+                                    >
+                                      <Form.Control
+                                        type="date"
+                                        placeholder="Description"
+                                        autoFocus
+                                        onChange={(e) => OnData(e.target.value)}
+                                        value={valuedate}
+                                        style={{ width: 45, marginTop: 37 }}
+                                      />
+                                    </Form.Group>
+                                  </div>
+                                </div>
+
+
+                              </>
+                            )
+                          }
+
+                        </>) : (
+                        <>
+                          <div style={{
+                            display: "flex",
+                            width: "100%",
+                            flexDirection: "row",
+                            justifyContent: "space-between"
+                          }}>
+                            <Form.Group
+                              className="mb-3"
+                              controlId="exampleForm.ControlInput1"
+                            >
+                              <Form.Control
+                                type="date"
+                                placeholder="Description"
+                                autoFocus
+                                onChange={(e) => _searchstartdate(e.target.value)}
+                                value={valuedate}
+                                style={{ width: 140, marginTop: 37 }}
+                              />
+                              {
+                                errvaluedate == true ? (
+                                  <>
+                                    <small style={{ position: "absolute", fontSize: 14, color: "red" }}>Please Select date</small>
+                                  </>
+                                ) : null
+                              }
+                            </Form.Group>
+                          </div>
+                        </>)
+
+                      }
                     </div>
                     <Form.Group>
                       <Form.Label style={{ fontSize: 20 }}>Please choose debit or credit ?</Form.Label>
@@ -1548,10 +1686,7 @@ export default function ChartAccounts() {
                           <>
                             <small style={{ position: "absolute", color: "red", fontSize: 14 }}>Please choose debit or credit</small>
                           </>
-                        ) : (
-                          <>
-                          </>
-                        )
+                        ) : null
                       }
                     </Form.Group>
                     <div style={{ height: 15 }}></div>
@@ -1578,10 +1713,7 @@ export default function ChartAccounts() {
                       </div>
                     </div>
                   </>
-                ) : (
-                  <>
-                  </>
-                )
+                ) : null
               }
             </div>
           </div>
@@ -1848,7 +1980,6 @@ export default function ChartAccounts() {
                 <TableCell align="left">CURRENCY</TableCell>
                 <TableCell align="left">DESCRIPTION</TableCell>
                 <TableCell align="right">BANLANCE</TableCell>
-
               </TableRow>
             </TableHead>
             <TableBody>
@@ -1859,7 +1990,7 @@ export default function ChartAccounts() {
                       secondSearch.map((item, index) => {
                         return (
                           <>
-                          
+
                             <TableRow key={index}>
                               <TableCell>{item.account_name}</TableCell>
                               <TableCell align="left">{item.accounttype_name}</TableCell>
@@ -1868,32 +1999,32 @@ export default function ChartAccounts() {
                               <TableCell align="right">{getFormatNumber(item.c_balance)}</TableCell>
                             </TableRow>
                             <RowEditComponentfirst
-                                Gotodetailaccount={Gotodetailaccount}
-                                c_uid={item?.c_uid}
-                                id={item?.c_id}
-                                c_id={item?.c_id}
-                                handleShow={handleShow}
-                                setShowUpdate={setShowUpdate}
-                                account_name={item?.account_name}
-                                type_id={item?.type_id}
-                                detail_type_id={item?.detail_type_id}
-                                balance={item?.c_balance}
-                                desc={item?.c_desc}
-                                setName={setName}
-                                editaccountype={editaccountype}
-                                ac_ty_id={item?.ac_ty_id}
-                                _onshowcreatestatus={_onshowcreatestatus}
-                                _oneditshowcurrency={_oneditshowcurrency}
-                                currencies_id={item?.currency_uid}
-                                setDescription={setDescription}
-                                editbeginningbalancefirst={editbeginningbalancefirst}
-                                _ongetCurrencyvalues={_ongetCurrencyvalues}
-                                getstutas={getstutas}
-                                _onsearchaccountid={_onsearchaccountid}
-                              />
+                              Gotodetailaccount={Gotodetailaccount}
+                              c_uid={item?.c_uid}
+                              id={item?.c_id}
+                              c_id={item?.c_id}
+                              handleShow={handleShow}
+                              setShowUpdate={setShowUpdate}
+                              account_name={item?.account_name}
+                              type_id={item?.type_id}
+                              detail_type_id={item?.detail_type_id}
+                              balance={item?.c_balance}
+                              desc={item?.c_desc}
+                              setName={setName}
+                              editaccountype={editaccountype}
+                              ac_ty_id={item?.ac_ty_id}
+                              _onshowcreatestatus={_onshowcreatestatus}
+                              _oneditshowcurrency={_oneditshowcurrency}
+                              currencies_id={item?.currency_uid}
+                              setDescription={setDescription}
+                              editbeginningbalancefirst={editbeginningbalancefirst}
+                              _ongetCurrencyvalues={_ongetCurrencyvalues}
+                              getstutas={getstutas}
+                              _onsearchaccountid={_onsearchaccountid}
+                            />
 
-                            </>
-                          
+                          </>
+
                         )
                       })}
                   </>
@@ -1905,7 +2036,6 @@ export default function ChartAccounts() {
                           <TableRow key={index}>
                             <TableCell>{item.account_name}</TableCell>
                             <TableCell align="left">{item.accounttype_name}</TableCell>
-
                             <TableCell align="left">{item.currencesname}</TableCell>
                             <TableCell align="left">{item.c_desc}</TableCell>
                             <TableCell align="right">{getFormatNumber(item.c_balance)}</TableCell>
@@ -1953,7 +2083,6 @@ export default function ChartAccounts() {
               <TableRow>
                 <TableCell>NAME</TableCell>
                 <TableCell align="left">TYPE</TableCell>
-                <TableCell align="left">DETAIL TYPE</TableCell>
                 <TableCell align="left">CURRENCY</TableCell>
                 <TableCell align="left">DESCRIPTION</TableCell>
                 <TableCell align="right">BANLANCE</TableCell>
@@ -1964,91 +2093,675 @@ export default function ChartAccounts() {
               {
                 listallaccount && listallaccount == 0 ? (
                   <>
-                    {secondSearch && secondSearch.map((item, index) => {
-                        return (
-                          <>
-                            <TableRow key={index}>
-                              <TableCell>{item.account_name}</TableCell>
-                              <TableCell align="left">{item.accounttype_name}sssssss</TableCell>
-                              <TableCell align="left">{item.detailtypename}</TableCell>
-                              <TableCell align="left">{item.currencesname}</TableCell>
-                              <TableCell align="left">{item.c_desc}</TableCell>
-                              <TableCell align="right">{getFormatNumber(item.c_balance)}</TableCell>
-                              <TableCell align="right">
+                    {
+                      levels_one.length == 0 ? (
+                        <>
+                          {
+                            levels_two.length == 0 ? (
+                              <>
                                 {
-                                  item?.createstatus == "In" || item?.createstatus == "Ex" ? (
+                                  levels_three.length == 0 ? (
                                     <>
-                                      <span
-                                        style={{ cursor: "pointer", color: "green" }}
-                                        onClick={() => { Gotodetailaccount(item.c_uid) }}
-                                      >
-                                        (Run report)
-                                      </span>
-                                    </>
-                                  ) : (
-                                    <>
-                                      <span
-                                        style={{ cursor: "pointer", color: "green" }}
-                                        onClick={() => { Gotohistory(item.c_uid) }}
-                                      >
-                                        (Account history)
-                                      </span>
+                                      {
+                                        levels_four.length == 0 ? (
+                                          <>
+                                            {
+                                              levels_five.length == 0 ? (
+                                                <>
+                                                  {
+                                                    levels_six.length == 0 ? (
+                                                      <>
+                                                        {
+                                                          levels_seven && levels_seven.map((item, index) => {
+                                                            return (
+                                                              <>
+                                                                <TableRow key={index}>
+                                                                  <TableCell>{item.account_name}</TableCell>
+                                                                  <TableCell align="left">{item.accounttype_name}</TableCell>
+                                                                  <TableCell align="left">{item.currencesname}</TableCell>
+                                                                  <TableCell align="left">{item.c_desc}</TableCell>
+                                                                  <TableCell align="right">{getFormatNumber(item.c_balance)}</TableCell>
+                                                                  <TableCell align="right">
+                                                                    {
+                                                                      item?.createstatus == "In" || item?.createstatus == "Ex" ? (
+                                                                        <>
+                                                                          <span
+                                                                            style={{ cursor: "pointer", color: "green" }}
+                                                                            onClick={() => { Gotodetailaccount(item.c_uid) }}
+                                                                          >
+                                                                            (Run report)
+                                                                          </span>
+                                                                        </>
+                                                                      ) : (
+                                                                        <>
+                                                                          <span
+                                                                            style={{ cursor: "pointer", color: "green" }}
+                                                                            onClick={() => { Gotohistory(item.c_uid) }}
+                                                                          >
+                                                                            (Account history)
+                                                                          </span>
 
+                                                                        </>
+                                                                      )
+                                                                    }
+
+                                                                    <RowEditComponentfirst
+                                                                      Gotodetailaccount={Gotodetailaccount}
+                                                                      c_uid={item?.c_uid}
+                                                                      id={item?.c_id}
+                                                                      c_id={item?.c_id}
+                                                                      handleShow={handleShow}
+                                                                      setShowUpdate={setShowUpdate}
+                                                                      account_name={item?.account_name}
+                                                                      type_id={item?.type_id}
+                                                                      detail_type_id={item?.detail_type_id}
+                                                                      balance={item?.c_balance}
+                                                                      desc={item?.c_desc}
+                                                                      setName={setName}
+                                                                      editaccountype={editaccountype}
+                                                                      ac_ty_id={item?.ac_ty_id}
+                                                                      _onshowcreatestatus={_onshowcreatestatus}
+                                                                      _oneditshowcurrency={_oneditshowcurrency}
+                                                                      currencies_id={item?.cy_id}
+                                                                      setDescription={setDescription}
+                                                                      editbeginningbalancefirst={editbeginningbalancefirst}
+                                                                      _ongetCurrencyvalues={_ongetCurrencyvalues}
+                                                                      getstutas={getstutas}
+                                                                      _onsearchaccountid={_onsearchaccountid}
+                                                                    />
+
+                                                                  </TableCell>
+                                                                </TableRow>
+                                                                < RowComponentSearch
+                                                                  children={listallaccountchildren}
+                                                                  id={item.c_id}
+                                                                  level={40}
+                                                                  Gotodetailaccount={Gotodetailaccount}
+                                                                  Gotohistory={Gotohistory}
+                                                                  handleShow={handleShow}
+                                                                  setShowUpdate={setShowUpdate}
+                                                                  setName={setName}
+                                                                  editaccountype={editaccountype}
+                                                                  _onshowcreatestatus={_onshowcreatestatus}
+                                                                  _oneditshowcurrency={_oneditshowcurrency}
+                                                                  currencies_id={item.currency_uid}
+                                                                  setDescription={setDescription}
+                                                                  getNameList={getNameList}
+                                                                  checkedtrue={checkedtrue}
+                                                                  listsubaccountname={listsubaccountname}
+                                                                  editbeginningbalanceSecond={editbeginningbalanceSecond}
+                                                                  _ongetCurrencyvalues={_ongetCurrencyvalues}
+                                                                  getstutas={getstutas}
+                                                                  _onsearchaccountid={_onsearchaccountid}
+                                                                />
+                                                              </>
+                                                            )
+                                                          })
+                                                        }
+
+                                                      </>) : (
+                                                      <>
+                                                        {
+                                                          levels_six && levels_six.map((item, index) => {
+                                                            return (
+                                                              <>
+                                                                <TableRow key={index}>
+                                                                  <TableCell>{item.account_name}</TableCell>
+                                                                  <TableCell align="left">{item.accounttype_name}</TableCell>
+                                                                  <TableCell align="left">{item.currencesname}</TableCell>
+                                                                  <TableCell align="left">{item.c_desc}</TableCell>
+                                                                  <TableCell align="right">{getFormatNumber(item.c_balance)}</TableCell>
+                                                                  <TableCell align="right">
+                                                                    {
+                                                                      item?.createstatus == "In" || item?.createstatus == "Ex" ? (
+                                                                        <>
+                                                                          <span
+                                                                            style={{ cursor: "pointer", color: "green" }}
+                                                                            onClick={() => { Gotodetailaccount(item.c_uid) }}
+                                                                          >
+                                                                            (Run report)
+                                                                          </span>
+                                                                        </>
+                                                                      ) : (
+                                                                        <>
+                                                                          <span
+                                                                            style={{ cursor: "pointer", color: "green" }}
+                                                                            onClick={() => { Gotohistory(item.c_uid) }}
+                                                                          >
+                                                                            (Account history)
+                                                                          </span>
+
+                                                                        </>
+                                                                      )
+                                                                    }
+
+                                                                    <RowEditComponentfirst
+                                                                      Gotodetailaccount={Gotodetailaccount}
+                                                                      c_uid={item?.c_uid}
+                                                                      id={item?.c_id}
+                                                                      c_id={item?.c_id}
+                                                                      handleShow={handleShow}
+                                                                      setShowUpdate={setShowUpdate}
+                                                                      account_name={item?.account_name}
+                                                                      type_id={item?.type_id}
+                                                                      detail_type_id={item?.detail_type_id}
+                                                                      balance={item?.c_balance}
+                                                                      desc={item?.c_desc}
+                                                                      setName={setName}
+                                                                      editaccountype={editaccountype}
+                                                                      ac_ty_id={item?.ac_ty_id}
+                                                                      _onshowcreatestatus={_onshowcreatestatus}
+                                                                      _oneditshowcurrency={_oneditshowcurrency}
+                                                                      currencies_id={item?.cy_id}
+                                                                      setDescription={setDescription}
+                                                                      editbeginningbalancefirst={editbeginningbalancefirst}
+                                                                      _ongetCurrencyvalues={_ongetCurrencyvalues}
+                                                                      getstutas={getstutas}
+                                                                      _onsearchaccountid={_onsearchaccountid}
+                                                                    />
+
+                                                                  </TableCell>
+                                                                </TableRow>
+                                                                < RowComponentSearch
+                                                                  children={listallaccountchildren}
+                                                                  id={item.c_id}
+                                                                  level={40}
+                                                                  Gotodetailaccount={Gotodetailaccount}
+                                                                  Gotohistory={Gotohistory}
+                                                                  handleShow={handleShow}
+                                                                  setShowUpdate={setShowUpdate}
+                                                                  setName={setName}
+                                                                  editaccountype={editaccountype}
+                                                                  _onshowcreatestatus={_onshowcreatestatus}
+                                                                  _oneditshowcurrency={_oneditshowcurrency}
+                                                                  currencies_id={item.currency_uid}
+                                                                  setDescription={setDescription}
+                                                                  getNameList={getNameList}
+                                                                  checkedtrue={checkedtrue}
+                                                                  listsubaccountname={listsubaccountname}
+                                                                  editbeginningbalanceSecond={editbeginningbalanceSecond}
+                                                                  _ongetCurrencyvalues={_ongetCurrencyvalues}
+                                                                  getstutas={getstutas}
+                                                                  _onsearchaccountid={_onsearchaccountid}
+                                                                />
+                                                              </>
+                                                            )
+                                                          })
+
+                                                        }
+
+                                                      </>)
+
+                                                  }
+                                                </>) : (
+                                                <>
+                                                  {
+                                                    levels_five && levels_five.map((item, index) => {
+                                                      return (
+                                                        <>
+                                                          <TableRow key={index}>
+                                                            <TableCell>{item.account_name}</TableCell>
+                                                            <TableCell align="left">{item.accounttype_name}</TableCell>
+                                                            <TableCell align="left">{item.currencesname}</TableCell>
+                                                            <TableCell align="left">{item.c_desc}</TableCell>
+                                                            <TableCell align="right">{getFormatNumber(item.c_balance)}</TableCell>
+                                                            <TableCell align="right">
+                                                              {
+                                                                item?.createstatus == "In" || item?.createstatus == "Ex" ? (
+                                                                  <>
+                                                                    <span
+                                                                      style={{ cursor: "pointer", color: "green" }}
+                                                                      onClick={() => { Gotodetailaccount(item.c_uid) }}
+                                                                    >
+                                                                      (Run report)
+                                                                    </span>
+                                                                  </>
+                                                                ) : (
+                                                                  <>
+                                                                    <span
+                                                                      style={{ cursor: "pointer", color: "green" }}
+                                                                      onClick={() => { Gotohistory(item.c_uid) }}
+                                                                    >
+                                                                      (Account history)
+                                                                    </span>
+
+                                                                  </>
+                                                                )
+                                                              }
+
+                                                              <RowEditComponentfirst
+                                                                Gotodetailaccount={Gotodetailaccount}
+                                                                c_uid={item?.c_uid}
+                                                                id={item?.c_id}
+                                                                c_id={item?.c_id}
+                                                                handleShow={handleShow}
+                                                                setShowUpdate={setShowUpdate}
+                                                                account_name={item?.account_name}
+                                                                type_id={item?.type_id}
+                                                                detail_type_id={item?.detail_type_id}
+                                                                balance={item?.c_balance}
+                                                                desc={item?.c_desc}
+                                                                setName={setName}
+                                                                editaccountype={editaccountype}
+                                                                ac_ty_id={item?.ac_ty_id}
+                                                                _onshowcreatestatus={_onshowcreatestatus}
+                                                                _oneditshowcurrency={_oneditshowcurrency}
+                                                                currencies_id={item?.cy_id}
+                                                                setDescription={setDescription}
+                                                                editbeginningbalancefirst={editbeginningbalancefirst}
+                                                                _ongetCurrencyvalues={_ongetCurrencyvalues}
+                                                                getstutas={getstutas}
+                                                                _onsearchaccountid={_onsearchaccountid}
+                                                              />
+
+                                                            </TableCell>
+                                                          </TableRow>
+                                                          < RowComponentSearch
+                                                            children={listallaccountchildren}
+                                                            id={item.c_id}
+                                                            level={40}
+                                                            Gotodetailaccount={Gotodetailaccount}
+                                                            Gotohistory={Gotohistory}
+                                                            handleShow={handleShow}
+                                                            setShowUpdate={setShowUpdate}
+                                                            setName={setName}
+                                                            editaccountype={editaccountype}
+                                                            _onshowcreatestatus={_onshowcreatestatus}
+                                                            _oneditshowcurrency={_oneditshowcurrency}
+                                                            currencies_id={item.currency_uid}
+                                                            setDescription={setDescription}
+                                                            getNameList={getNameList}
+                                                            checkedtrue={checkedtrue}
+                                                            listsubaccountname={listsubaccountname}
+                                                            editbeginningbalanceSecond={editbeginningbalanceSecond}
+                                                            _ongetCurrencyvalues={_ongetCurrencyvalues}
+                                                            getstutas={getstutas}
+                                                            _onsearchaccountid={_onsearchaccountid}
+                                                          />
+                                                        </>
+                                                      )
+                                                    })
+                                                  }
+
+                                                </>)
+                                            }
+
+                                          </>) : (
+                                          <>
+                                            {
+                                              levels_four && levels_four.map((item, index) => {
+                                                return (
+                                                  <>
+                                                    <TableRow key={index}>
+                                                      <TableCell>{item.account_name}</TableCell>
+                                                      <TableCell align="left">{item.accounttype_name}</TableCell>
+                                                      <TableCell align="left">{item.currencesname}</TableCell>
+                                                      <TableCell align="left">{item.c_desc}</TableCell>
+                                                      <TableCell align="right">{getFormatNumber(item.c_balance)}</TableCell>
+                                                      <TableCell align="right">
+                                                        {
+                                                          item?.createstatus == "In" || item?.createstatus == "Ex" ? (
+                                                            <>
+                                                              <span
+                                                                style={{ cursor: "pointer", color: "green" }}
+                                                                onClick={() => { Gotodetailaccount(item.c_uid) }}
+                                                              >
+                                                                (Run report)
+                                                              </span>
+                                                            </>
+                                                          ) : (
+                                                            <>
+                                                              <span
+                                                                style={{ cursor: "pointer", color: "green" }}
+                                                                onClick={() => { Gotohistory(item.c_uid) }}
+                                                              >
+                                                                (Account history)
+                                                              </span>
+
+                                                            </>
+                                                          )
+                                                        }
+
+                                                        <RowEditComponentfirst
+                                                          Gotodetailaccount={Gotodetailaccount}
+                                                          c_uid={item?.c_uid}
+                                                          id={item?.c_id}
+                                                          c_id={item?.c_id}
+                                                          handleShow={handleShow}
+                                                          setShowUpdate={setShowUpdate}
+                                                          account_name={item?.account_name}
+                                                          type_id={item?.type_id}
+                                                          detail_type_id={item?.detail_type_id}
+                                                          balance={item?.c_balance}
+                                                          desc={item?.c_desc}
+                                                          setName={setName}
+                                                          editaccountype={editaccountype}
+                                                          ac_ty_id={item?.ac_ty_id}
+                                                          _onshowcreatestatus={_onshowcreatestatus}
+                                                          _oneditshowcurrency={_oneditshowcurrency}
+                                                          currencies_id={item?.cy_id}
+                                                          setDescription={setDescription}
+                                                          editbeginningbalancefirst={editbeginningbalancefirst}
+                                                          _ongetCurrencyvalues={_ongetCurrencyvalues}
+                                                          getstutas={getstutas}
+                                                          _onsearchaccountid={_onsearchaccountid}
+                                                        />
+
+                                                      </TableCell>
+                                                    </TableRow>
+                                                    < RowComponentSearch
+                                                      children={listallaccountchildren}
+                                                      id={item.c_id}
+                                                      level={40}
+                                                      Gotodetailaccount={Gotodetailaccount}
+                                                      Gotohistory={Gotohistory}
+                                                      handleShow={handleShow}
+                                                      setShowUpdate={setShowUpdate}
+                                                      setName={setName}
+                                                      editaccountype={editaccountype}
+                                                      _onshowcreatestatus={_onshowcreatestatus}
+                                                      _oneditshowcurrency={_oneditshowcurrency}
+                                                      currencies_id={item.currency_uid}
+                                                      setDescription={setDescription}
+                                                      getNameList={getNameList}
+                                                      checkedtrue={checkedtrue}
+                                                      listsubaccountname={listsubaccountname}
+                                                      editbeginningbalanceSecond={editbeginningbalanceSecond}
+                                                      _ongetCurrencyvalues={_ongetCurrencyvalues}
+                                                      getstutas={getstutas}
+                                                      _onsearchaccountid={_onsearchaccountid}
+                                                    />
+                                                  </>
+                                                )
+                                              })
+                                            }
+
+                                          </>)
+
+                                      }
+
+
+                                    </>) : (
+                                    <>
+                                      {
+                                        levels_three && levels_three.map((item, index) => {
+                                          return (
+                                            <>
+                                              <TableRow key={index}>
+                                                <TableCell>{item.account_name}</TableCell>
+                                                <TableCell align="left">{item.accounttype_name}</TableCell>
+                                                <TableCell align="left">{item.currencesname}</TableCell>
+                                                <TableCell align="left">{item.c_desc}</TableCell>
+                                                <TableCell align="right">{getFormatNumber(item.c_balance)}</TableCell>
+                                                <TableCell align="right">
+                                                  {
+                                                    item?.createstatus == "In" || item?.createstatus == "Ex" ? (
+                                                      <>
+                                                        <span
+                                                          style={{ cursor: "pointer", color: "green" }}
+                                                          onClick={() => { Gotodetailaccount(item.c_uid) }}
+                                                        >
+                                                          (Run report)
+                                                        </span>
+                                                      </>
+                                                    ) : (
+                                                      <>
+                                                        <span
+                                                          style={{ cursor: "pointer", color: "green" }}
+                                                          onClick={() => { Gotohistory(item.c_uid) }}
+                                                        >
+                                                          (Account history)
+                                                        </span>
+
+                                                      </>
+                                                    )
+                                                  }
+
+                                                  <RowEditComponentfirst
+                                                    Gotodetailaccount={Gotodetailaccount}
+                                                    c_uid={item?.c_uid}
+                                                    id={item?.c_id}
+                                                    c_id={item?.c_id}
+                                                    handleShow={handleShow}
+                                                    setShowUpdate={setShowUpdate}
+                                                    account_name={item?.account_name}
+                                                    type_id={item?.type_id}
+                                                    detail_type_id={item?.detail_type_id}
+                                                    balance={item?.c_balance}
+                                                    desc={item?.c_desc}
+                                                    setName={setName}
+                                                    editaccountype={editaccountype}
+                                                    ac_ty_id={item?.ac_ty_id}
+                                                    _onshowcreatestatus={_onshowcreatestatus}
+                                                    _oneditshowcurrency={_oneditshowcurrency}
+                                                    currencies_id={item?.cy_id}
+                                                    setDescription={setDescription}
+                                                    editbeginningbalancefirst={editbeginningbalancefirst}
+                                                    _ongetCurrencyvalues={_ongetCurrencyvalues}
+                                                    getstutas={getstutas}
+                                                    _onsearchaccountid={_onsearchaccountid}
+                                                  />
+
+                                                </TableCell>
+                                              </TableRow>
+                                              < RowComponentSearch
+                                                children={listallaccountchildren}
+                                                id={item.c_id}
+                                                level={40}
+                                                Gotodetailaccount={Gotodetailaccount}
+                                                Gotohistory={Gotohistory}
+                                                handleShow={handleShow}
+                                                setShowUpdate={setShowUpdate}
+                                                setName={setName}
+                                                editaccountype={editaccountype}
+                                                _onshowcreatestatus={_onshowcreatestatus}
+                                                _oneditshowcurrency={_oneditshowcurrency}
+                                                currencies_id={item.currency_uid}
+                                                setDescription={setDescription}
+                                                getNameList={getNameList}
+                                                checkedtrue={checkedtrue}
+                                                listsubaccountname={listsubaccountname}
+                                                editbeginningbalanceSecond={editbeginningbalanceSecond}
+                                                _ongetCurrencyvalues={_ongetCurrencyvalues}
+                                                getstutas={getstutas}
+                                                _onsearchaccountid={_onsearchaccountid}
+                                              />
+                                            </>
+                                          )
+                                        })
+                                      }
                                     </>
                                   )
+
                                 }
-                                
-                                <RowEditComponentfirst
-                                  Gotodetailaccount={Gotodetailaccount}
-                                  c_uid={item?.c_uid}
-                                  id={item?.c_id}
-                                  c_id={item?.c_id}
-                                  handleShow={handleShow}
-                                  setShowUpdate={setShowUpdate}
-                                  account_name={item?.account_name}
-                                  type_id={item?.type_id}
-                                  detail_type_id={item?.detail_type_id}
-                                  balance={item?.c_balance}
-                                  desc={item?.c_desc}
-                                  setName={setName}
-                                  editaccountype={editaccountype}
-                                  ac_ty_id={item?.ac_ty_id}
-                                  _onshowcreatestatus={_onshowcreatestatus}
-                                  _oneditshowcurrency={_oneditshowcurrency}
-                                  currencies_id={item?.cy_id}
-                                  setDescription={setDescription}
-                                  editbeginningbalancefirst={editbeginningbalancefirst}
-                                  _ongetCurrencyvalues={_ongetCurrencyvalues}
-                                  getstutas={getstutas}
-                                  _onsearchaccountid={_onsearchaccountid}
-                                />
-                                < RowComponent
-                                children={listallaccountchildren}
-                                id={item.c_id}
-                                level={20}
-                                Gotodetailaccount={Gotodetailaccount}
-                                Gotohistory={Gotohistory}
-                                handleShow={handleShow}
-                                setShowUpdate={setShowUpdate}
-                                setName={setName}
-                                editaccountype={editaccountype}
-                                _onshowcreatestatus={_onshowcreatestatus}
-                                _oneditshowcurrency={_oneditshowcurrency}
-                                currencies_id={item.currency_uid}
-                                setDescription={setDescription}
-                                getNameList={getNameList}
-                                checkedtrue={checkedtrue}
-                                listsubaccountname={listsubaccountname}
-                                editbeginningbalanceSecond={editbeginningbalanceSecond}
-                                _ongetCurrencyvalues={_ongetCurrencyvalues}
-                                getstutas={getstutas}
-                                _onsearchaccountid={_onsearchaccountid}
-                              />
-                              </TableCell>
-                            </TableRow>
-                          </>
-                        )
-                      })}
+
+                              </>) : (<>
+                                {
+                                  levels_two && levels_two.map((item, index) => {
+                                    return (
+                                      <>
+                                        <TableRow key={index}>
+                                          <TableCell>{item.account_name}</TableCell>
+                                          <TableCell align="left">{item.accounttype_name}</TableCell>
+                                          <TableCell align="left">{item.currencesname}</TableCell>
+                                          <TableCell align="left">{item.c_desc}</TableCell>
+                                          <TableCell align="right">{getFormatNumber(item.c_balance)}</TableCell>
+                                          <TableCell align="right">
+                                            {
+                                              item?.createstatus == "In" || item?.createstatus == "Ex" ? (
+                                                <>
+                                                  <span
+                                                    style={{ cursor: "pointer", color: "green" }}
+                                                    onClick={() => { Gotodetailaccount(item.c_uid) }}
+                                                  >
+                                                    (Run report)
+                                                  </span>
+                                                </>
+                                              ) : (
+                                                <>
+                                                  <span
+                                                    style={{ cursor: "pointer", color: "green" }}
+                                                    onClick={() => { Gotohistory(item.c_uid) }}
+                                                  >
+                                                    (Account history)
+                                                  </span>
+
+                                                </>
+                                              )
+                                            }
+
+                                            <RowEditComponentfirst
+                                              Gotodetailaccount={Gotodetailaccount}
+                                              c_uid={item?.c_uid}
+                                              id={item?.c_id}
+                                              c_id={item?.c_id}
+                                              handleShow={handleShow}
+                                              setShowUpdate={setShowUpdate}
+                                              account_name={item?.account_name}
+                                              type_id={item?.type_id}
+                                              detail_type_id={item?.detail_type_id}
+                                              balance={item?.c_balance}
+                                              desc={item?.c_desc}
+                                              setName={setName}
+                                              editaccountype={editaccountype}
+                                              ac_ty_id={item?.ac_ty_id}
+                                              _onshowcreatestatus={_onshowcreatestatus}
+                                              _oneditshowcurrency={_oneditshowcurrency}
+                                              currencies_id={item?.cy_id}
+                                              setDescription={setDescription}
+                                              editbeginningbalancefirst={editbeginningbalancefirst}
+                                              _ongetCurrencyvalues={_ongetCurrencyvalues}
+                                              getstutas={getstutas}
+                                              _onsearchaccountid={_onsearchaccountid}
+                                            />
+
+                                          </TableCell>
+                                        </TableRow>
+                                        < RowComponentSearch
+                                          children={listallaccountchildren}
+                                          id={item.c_id}
+                                          level={40}
+                                          Gotodetailaccount={Gotodetailaccount}
+                                          Gotohistory={Gotohistory}
+                                          handleShow={handleShow}
+                                          setShowUpdate={setShowUpdate}
+                                          setName={setName}
+                                          editaccountype={editaccountype}
+                                          _onshowcreatestatus={_onshowcreatestatus}
+                                          _oneditshowcurrency={_oneditshowcurrency}
+                                          currencies_id={item.currency_uid}
+                                          setDescription={setDescription}
+                                          getNameList={getNameList}
+                                          checkedtrue={checkedtrue}
+                                          listsubaccountname={listsubaccountname}
+                                          editbeginningbalanceSecond={editbeginningbalanceSecond}
+                                          _ongetCurrencyvalues={_ongetCurrencyvalues}
+                                          getstutas={getstutas}
+                                          _onsearchaccountid={_onsearchaccountid}
+                                        />
+                                      </>
+                                    )
+                                  })
+                                }
+
+                              </>)
+
+                          }
+
+                        </>) : (
+                        <>
+                          {
+                            levels_one && levels_one.map((item, index) => {
+                              return (
+                                <>
+                                  <TableRow key={index}>
+                                    <TableCell>{item.account_name}</TableCell>
+                                    <TableCell align="left">{item.accounttype_name}</TableCell>
+                                    <TableCell align="left">{item.currencesname}</TableCell>
+                                    <TableCell align="left">{item.c_desc}</TableCell>
+                                    <TableCell align="right">{getFormatNumber(item.c_balance)}</TableCell>
+                                    <TableCell align="right">
+                                      {
+                                        item?.createstatus == "In" || item?.createstatus == "Ex" ? (
+                                          <>
+                                            <span
+                                              style={{ cursor: "pointer", color: "green" }}
+                                              onClick={() => { Gotodetailaccount(item.c_uid) }}
+                                            >
+                                              (Run report)
+                                            </span>
+                                          </>
+                                        ) : (
+                                          <>
+                                            <span
+                                              style={{ cursor: "pointer", color: "green" }}
+                                              onClick={() => { Gotohistory(item.c_uid) }}
+                                            >
+                                              (Account history)
+                                            </span>
+
+                                          </>
+                                        )
+                                      }
+
+                                      <RowEditComponentfirst
+                                        Gotodetailaccount={Gotodetailaccount}
+                                        c_uid={item?.c_uid}
+                                        id={item?.c_id}
+                                        c_id={item?.c_id}
+                                        handleShow={handleShow}
+                                        setShowUpdate={setShowUpdate}
+                                        account_name={item?.account_name}
+                                        type_id={item?.type_id}
+                                        detail_type_id={item?.detail_type_id}
+                                        balance={item?.c_balance}
+                                        desc={item?.c_desc}
+                                        setName={setName}
+                                        editaccountype={editaccountype}
+                                        ac_ty_id={item?.ac_ty_id}
+                                        _onshowcreatestatus={_onshowcreatestatus}
+                                        _oneditshowcurrency={_oneditshowcurrency}
+                                        currencies_id={item?.cy_id}
+                                        setDescription={setDescription}
+                                        editbeginningbalancefirst={editbeginningbalancefirst}
+                                        _ongetCurrencyvalues={_ongetCurrencyvalues}
+                                        getstutas={getstutas}
+                                        _onsearchaccountid={_onsearchaccountid}
+                                      />
+
+                                    </TableCell>
+                                  </TableRow>
+                                  < RowComponentSearch
+                                    children={listallaccountchildren}
+                                    id={item.c_id}
+                                    level={40}
+                                    Gotodetailaccount={Gotodetailaccount}
+                                    Gotohistory={Gotohistory}
+                                    handleShow={handleShow}
+                                    setShowUpdate={setShowUpdate}
+                                    setName={setName}
+                                    editaccountype={editaccountype}
+                                    _onshowcreatestatus={_onshowcreatestatus}
+                                    _oneditshowcurrency={_oneditshowcurrency}
+                                    currencies_id={item.currency_uid}
+                                    setDescription={setDescription}
+                                    getNameList={getNameList}
+                                    checkedtrue={checkedtrue}
+                                    listsubaccountname={listsubaccountname}
+                                    editbeginningbalanceSecond={editbeginningbalanceSecond}
+                                    _ongetCurrencyvalues={_ongetCurrencyvalues}
+                                    getstutas={getstutas}
+                                    _onsearchaccountid={_onsearchaccountid}
+                                  />
+                                </>
+                              )
+                            })
+                          }
+
+                        </>)
+
+
+                    }
                   </>
                 ) : (
                   <>
@@ -2061,7 +2774,6 @@ export default function ChartAccounts() {
                           <TableRow key={index}>
                             <TableCell>{item.account_name}</TableCell>
                             <TableCell align="left">{item.accounttype_name}</TableCell>
-                            <TableCell align="left">{item.detailtypename}</TableCell>
                             <TableCell align="left">{item.currencesname}</TableCell>
                             <TableCell align="left">{item.c_desc}</TableCell>
                             <TableCell align="right">{getFormatNumber(item.c_balance)}</TableCell>
@@ -2118,7 +2830,7 @@ export default function ChartAccounts() {
                           < RowComponent
                             children={listallaccountchildren}
                             id={item.c_id}
-                            level={20}
+                            level={40}
                             Gotodetailaccount={Gotodetailaccount}
                             Gotohistory={Gotohistory}
                             handleShow={handleShow}
@@ -2147,7 +2859,6 @@ export default function ChartAccounts() {
           </Table>
         </TableContainer>
         <div style={{ display: "flex", justifyContent: "space-between", flexDirection: "row", width: "100%" }}>
-
           <Row>
             <Col className="bulletinPagination" md={12}>
               <ReactPaginate
@@ -2177,7 +2888,7 @@ export default function ChartAccounts() {
   );
 }
 // Level 1
-function RowComponent({ children, id, level, Gotodetailaccount, Gotohistory, handleShow, setShowUpdate, getstutas, _onsearchaccountid, setName, editaccountype, _onshowcreatestatus, _oneditshowcurrency, currencies_id, setDescription, getNameList, checkedtrue, listsubaccountname, editbeginningbalanceSecond, _ongetCurrencyvalues }) {
+function RowComponent({ children, id, level, Gotodetailaccount, Gotohistory, handleShow, setShowUpdate, getstutas, _onsearchaccountid, setName, editaccountype, _onshowcreatestatus, _oneditshowcurrency, setDescription, getNameList, checkedtrue, listsubaccountname, editbeginningbalanceSecond, _ongetCurrencyvalues }) {
   const filter = children.filter((el) => el.parents == id);
   if (filter.length === 0) return <></>;
   return (
@@ -2192,7 +2903,6 @@ function RowComponent({ children, id, level, Gotodetailaccount, Gotohistory, han
                 {data?.account_name}
               </TableCell>
               <TableCell align="left">{data?.accounttype_name}</TableCell>
-              <TableCell align="left">{data?.detailtypename}</TableCell>
               <TableCell align="left">{data?.currencesname}</TableCell>
               <TableCell align="left">{data?.c_desc}</TableCell>
               <TableCell align="right">{getFormatNumber(data.c_balance)}</TableCell>
@@ -2251,7 +2961,111 @@ function RowComponent({ children, id, level, Gotodetailaccount, Gotohistory, han
               children={children}
               id={data?.c_id}
               c_id={data?.c_id}
-              level={level * 2}
+              level={level * 2 - 30}
+              Gotodetailaccount={Gotodetailaccount}
+              Gotohistory={Gotohistory}
+              handleShow={handleShow}
+              setShowUpdate={setShowUpdate}
+              setName={setName}
+              account_name={data?.account_name}
+              editaccountype={editaccountype}
+              ac_ty_id={data?.ac_ty_id}
+              detail_type_id={data?.detail_type_id}
+              _onshowcreatestatus={_onshowcreatestatus}
+              _oneditshowcurrency={_oneditshowcurrency}
+              currencies_id={data?.currency_uid}
+              setDescription={setDescription}
+              type_id={data?.type_id}
+              checkedtrue={checkedtrue}
+              getNameList={getNameList}
+              listsubaccountname={listsubaccountname}
+              desc={data?.c_desc}
+              editbeginningbalanceSecond={editbeginningbalanceSecond}
+              _ongetCurrencyvalues={_ongetCurrencyvalues}
+              getstutas={getstutas}
+              _onsearchaccountid={_onsearchaccountid}
+            />
+          </>
+        );
+      })}
+    </>
+  );
+}
+// search componentSearch
+function RowComponentSearch({ children, id, level, Gotodetailaccount, Gotohistory, handleShow, setShowUpdate, getstutas, _onsearchaccountid, setName, editaccountype, _onshowcreatestatus, _oneditshowcurrency, setDescription, getNameList, checkedtrue, listsubaccountname, editbeginningbalanceSecond, _ongetCurrencyvalues }) {
+  const filter = children.filter((el) => el.parents == id);
+  if (filter.length === 0) return <></>;
+  return (
+    <>
+      {filter.map((data, index) => {
+        return (
+          <>
+            <TableRow key={index}>
+              <TableCell style={{
+                paddingLeft: level,
+              }}>
+                {data?.account_name}
+              </TableCell>
+              <TableCell align="left">{data?.accounttype_name}</TableCell>
+              <TableCell align="left">{data?.currencesname}</TableCell>
+              <TableCell align="left">{data?.c_desc}</TableCell>
+              <TableCell align="right">{getFormatNumber(data.c_balance)}</TableCell>
+              <TableCell align="right">
+                {
+                  data?.createstatus == "In" || data?.createstatus == "Ex" ? (
+                    <>
+                      <span
+                        style={{ cursor: "pointer", color: "green" }}
+                        onClick={() => { Gotodetailaccount(data.c_uid) }}
+                      >
+                        (Run report)
+                      </span>
+                    </>
+                  ) : (
+                    <>
+                      <span
+                        style={{ cursor: "pointer", color: "green" }}
+                        onClick={() => { Gotohistory(data.c_uid) }}
+                      >
+                        (Account history)
+                      </span>
+
+                    </>
+                  )
+                }
+                <RowEditComponentSecond
+                  Gotodetailaccount={Gotodetailaccount}
+                  c_uid={data?.c_uid}
+                  c_id={data?.c_id}
+                  id={data?.c_id}
+                  handleShow={handleShow}
+                  setShowUpdate={setShowUpdate}
+                  setName={setName}
+                  account_name={data?.account_name}
+                  editaccountype={editaccountype}
+                  ac_ty_id={data?.ac_ty_id}
+                  detail_type_id={data?.detail_type_id}
+                  _onshowcreatestatus={_onshowcreatestatus}
+                  _oneditshowcurrency={_oneditshowcurrency}
+                  currencies_id={data?.currency_uid}
+                  setDescription={setDescription}
+                  getNameList={getNameList}
+                  type_id={data?.type_id}
+                  checkedtrue={checkedtrue}
+                  desc={data?.c_desc}
+                  listsubaccountname={listsubaccountname}
+                  editbeginningbalanceSecond={editbeginningbalanceSecond}
+                  _ongetCurrencyvalues={_ongetCurrencyvalues}
+                  getstutas={getstutas}
+                  _onsearchaccountid={_onsearchaccountid}
+                />
+              </TableCell>
+            </TableRow>
+            <RowComponentSearch
+              children={children}
+              id={data?.c_id}
+              c_id={data?.c_id}
+              level={level * 2 - 30}
               Gotodetailaccount={Gotodetailaccount}
               Gotohistory={Gotohistory}
               handleShow={handleShow}
@@ -2385,7 +3199,23 @@ function RowEditComponentSecond({ Gotodetailaccount, c_uid, handleShow, setShowU
               onMouseLeave={() => setActive(null)}
             >
               <ListItem button style={{ color: "" }}
-                onClick={() => { handleShow(); handleClick(); setShowUpdate(true); _ongetCurrencyvalues(currencies_id); getstutas(c_id); _onsearchaccountid(type_id); setName(account_name); editaccountype(type_id); _onshowcreatestatus(type_id); _oneditshowcurrency(currencies_id); setDescription(desc); getNameList(id); checkedtrue(); listsubaccountname(type_id); editbeginningbalanceSecond(c_id); editbeginningbalancefirst() }}
+                onClick={() => { 
+                handleShow(); 
+                handleClick(); 
+                setShowUpdate(true);
+                _ongetCurrencyvalues(currencies_id); 
+                getstutas(c_id);
+                _onsearchaccountid(type_id); 
+                setName(account_name); 
+                editaccountype(type_id); 
+                _onshowcreatestatus(type_id);
+                _oneditshowcurrency(currencies_id); 
+                setDescription(desc); 
+                getNameList(id); 
+                checkedtrue();
+                listsubaccountname(type_id); 
+                editbeginningbalanceSecond(c_id); 
+                editbeginningbalancefirst(c_id) }}
               >
                 Edit
               </ListItem>

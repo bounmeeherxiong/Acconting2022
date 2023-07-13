@@ -1,5 +1,4 @@
-import React, { useState, useContext, useEffect } from "react";
-import { LoginContext } from "../page/contexts/LoginContext";
+import React, { useState, useEffect } from "react";
 import { makeStyles } from '@material-ui/core/styles';
 import Table from '@material-ui/core/Table';
 import TableBody from '@material-ui/core/TableBody';
@@ -59,7 +58,6 @@ export default function ViewUnrealisedgain_or_loss() {
     const [searchtotal,setSearchtotal]=useState([])
     const OnloadListData = () => {
         axios.get('/accounting/api/listLossAndGain/getList').then((data) => {
-            console.log("data=",{...data?.data})
             setListTotal([...data?.data?.totalGainAndLoss])
             setList({ ...data?.data })
         }).catch((err) => {
@@ -68,7 +66,6 @@ export default function ViewUnrealisedgain_or_loss() {
     }
     const OnloadSearchListData =()=>{
         axios.get('/accounting/api/listLossAndGain/callLossAndgain').then((data)=>{
-            console.log("searchlistdata=",{...data?.data})
             setSearchtotal([...data?.data?.totalGainAndLoss])
             setSeachlist({...data?.data})
 

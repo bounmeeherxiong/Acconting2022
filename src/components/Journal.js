@@ -122,25 +122,33 @@ export default function Journal() {
     setSelectedImages(updatedList);
   }
   const onBlurCurrency = (value, key, x, y) => {
-
     if (key == "USD") {
-      let number = value.replaceAll(',', '')
-      let format_number = new Intl.NumberFormat("en-US", { style: 'currency', currency: 'USD' }).format(number)
-      let rate = format_number.replaceAll('$', '')
-      let exchange = rate.replaceAll(',', '')
-      setUsd(format_number.replaceAll('$', ''))
+      // let number = value.replaceAll(',', '')
+      let number=value.toString().replaceAll(',', '').replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1,");
+      // let format_number = new Intl.NumberFormat("en-US", { style: 'currency', currency: 'USD' }).format(number)
+      // let rate = format_number.replaceAll('$', '')
+      // let exchange = rate.replaceAll(',', '')
+  
+      // setUsd(format_number.replaceAll('$', ''))
+      let exchange = number.replaceAll(',', '')
+      setUsd(number)
+      
       let convert_x = x.replaceAll(',', '')
       let TotalDebit = (parseFloat(exchange) * parseFloat(convert_x))
+  
       let convert_y = y.replaceAll(',', '')
       let TotalCredit = (parseFloat(exchange) * parseFloat(convert_y))
       setNetTotalDebit(Intl.NumberFormat("en-US", { style: 'currency', currency: 'USD' }).format(TotalDebit))
       setNetTotalCrebit(Intl.NumberFormat("en-US", { style: 'currency', currency: 'USD' }).format(TotalCredit))
     } else {
-      let number = value.replaceAll(',', '')
-      let format_number = new Intl.NumberFormat("en-US", { style: 'currency', currency: 'USD' }).format(number)
-      let rate = format_number.replaceAll('$', '')
-      let exchange = rate.replaceAll(',', '')
-      setThb(format_number.replaceAll('$', ''))
+      // let number = value.replaceAll(',', '')
+      // let format_number = new Intl.NumberFormat("en-US", { style: 'currency', currency: 'USD' }).format(number)
+      // let rate = format_number.replaceAll('$', '')
+      // let exchange = rate.replaceAll(',', '')
+      let number=value.toString().replaceAll(',', '').replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1,");
+      setThb(number)
+      let exchange = number.replaceAll(',', '')
+     
       let convert_x = x.replaceAll(',', '')
       let TotalDebit = (parseFloat(exchange) * parseFloat(convert_x))
       let convert_y = y.replaceAll(',', '')
@@ -208,7 +216,7 @@ export default function Journal() {
       object[key] = value;
     }
     const cloneData = [...data];
-    console.log("cloneData=",cloneData)
+
     cloneData[index] = { ...object };
     setData([...cloneData]);
   };
@@ -348,6 +356,7 @@ export default function Journal() {
         formData.append("file_attachment", file[key]);
       }
       formData.append("file_attachment", file);
+     
       let profileImageReturnName = await axios.post("/accounting/api/journal-entries/upload", formData);
       images = profileImageReturnName.data;
     }
@@ -359,22 +368,21 @@ export default function Journal() {
       informdata: data,
       file_attachment: images
     }
+   
+    
     if (debit != credit) {
       setIsLoading(false);
       setSomething(true)
     } else {
       axios.post("/accounting/api/journal-entries/create", journaldata).then((data) => {
-        setThb('')
-        setUsd('')
         setErragain('')
         setShowToast(true);
         onloadreportGl();
-        OnloadResetCondition()
-        // OnloadBalancesheet();   
         onloadAutomaticGl();
-    
       }).catch((err) => {
+       
         let statusCode = err.response?.data?.statusCode
+        console.log("statusCode=",statusCode)
         if (statusCode == '405') {
           setErrInforCurrency('405')
           return;
@@ -439,14 +447,13 @@ export default function Journal() {
       informdata: data,
       file_attachment: images
     }
+    
    
     if (debit != credit) {
       setIsLoading(false);
       setSomething_Mobile(true)
     } else {
       axios.post("/accounting/api/journal-entries/create", journaldata).then((data) => {
-        setThb('')
-        setUsd('')
         setErragain('')
         setShowToast(true);
         onloadreportGl();
@@ -535,6 +542,7 @@ export default function Journal() {
       informdata: data,
       file_attachment: images
     }
+
   
     if (debit != credit) {
       setIsLoadingnew(false);
@@ -695,7 +703,7 @@ export default function Journal() {
           }}>
             <ToastShow show={showToast} setShow={setShowToast} iconNmame={<CheckCircle size={24} style={{ marginTop: 20, color: "#EC7380" }} />} />
           </div>
-          {JSON.stringify(data)}
+          {/* {JSON.stringify(data)} */}
           <div className={classes.root} style={{ position: "absolute" }}>
             {
               errInforCurrency == '405' || errInforCurrency == '401' || errInforCurrency == '402' || errInforCurrency == '403' ?

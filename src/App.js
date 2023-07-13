@@ -33,6 +33,7 @@ import DetailAutomatic from "./page/DetailAutomatic";
 import Unrealisedgain_or_loss from "./page/Unrealisedgain_or_loss";
 import ViewUnrealisedgain_or_loss from "./page/ViewUnrealisedgain_or_loss";
 import ExchangeRate from "./page/ExchangeRate";
+
 axios.defaults.baseURL = api;
 function App() {
   const [listaccount, setListaccount] = useState([]);
@@ -53,19 +54,21 @@ function App() {
   const [listgl, setListgl] = useState({})
   const [totalgain,setTotalgain]=useState([])
   const [rate,setRate]=useState([])
-  // const [heading, setHeading] = useState([]);
-  // const [headingprofi, setHeadingprofi] = useState({})
-  // const [netTotal, setNetTotal] = useState([])
-  // const [netTotalLiabilities, setNetTotalLiabilities] = useState([])
-  // const [balancesheetandloss, setBalancesheetandloss] = useState([])
   const [loading, setLoading] = useState(false);
-  const [listcondition, setListcondition] = useState([])
-  // const [profitandloss, setProfitandloss] = useState([])
-  // const [incomeandcost, setIncomeandcost] = useState([])
-  // const [show, setShow] = useState(false)
- 
-
-
+  const [searchcondition,setSearchcondition]=useState(false)
+  const [tra_balance, setTra_balance] = useState(false);
+  const [isDisabled, setIsDisabled] = useState([]);
+  const [chartofaccountslevels_one,setChartofaccountslevels_one]=useState([])
+  const [chartofaccountslevels_two,setChartofaccountslevels_two]=useState([])
+  const [chartofaccountslevels_three,setChartofaccountslevels_three]=useState([])
+  const [chartofaccountslevels_four,setChartofaccountslevels_four]=useState([])
+  const [chartofaccountslevels_five,setChartofaccountslevels_five]=useState([])
+  const [chartofaccountslevels_six,setChartofaccountslevels_six]=useState([])
+  const [chartofaccountslevels_seven,setChartofaccountslevels_seven]=useState([])
+  const [chartofaccountslevels_eight,setChartofaccountslevels_eight]=useState([])
+  const [chartofaccountslevels_nine,setChartofaccountslevels_nine]=useState([])
+  const [chartofaccountslevels_ten,setChartofaccountslevels_ten]=useState([])
+  
   const onloadaccount = () => {
     axios
       .get("/accounting/api/accounts")
@@ -102,8 +105,6 @@ function App() {
   };
   const onloadallaccount = () => {
     axios.get("/accounting/api/chartofaccounts/all/accountname").then((data) => {
-      console.log("data=",data?.data?.message)
-      console.log("Children=",data?.data?.children)
       setListallaccount([...data?.data?.message])
       setListallaccountchildren([...data?.data?.children])
     }).catch((err) => {
@@ -171,34 +172,45 @@ const onLoadrate = () => {
 }
 const onloadreportGl = () => {
   axios.get("/accounting/api/report/reportGl").then((data) => {
-
     setListgl({ ...data?.data })
   })
 }
+const onloadChecktrue_and_false=()=>{
+  // axios.get('/accounting/api/balance-sheet/onloadcheck/').then((data)=>{
+  //     setTra_balance([...data?.data?.onloadChecktrue_and_false][0].conditions_check)
+  //     setIsDisabled([...data?.data?.onloadChecktrue_and_false][0].conditions_check)
 
-// const OnloadBalancesheet = () => {
-//   axios.get('/accounting/api/balance-sheet/reports').then((data) => {
+  // }).catch((err)=>{
+  //     console.log(err)
+  // })
+}
+const onloadLevelforchartofaccount=()=>{
+  axios.get('/accounting/api/chartofaccounts/getlevels').then((data)=>{
+    console.log("data=",data)
     
-//       setHeading({ ...data?.data })
-//       setNetTotal([...data?.data?.sumAsset])
-//       setid([...data?.data?.Ownersequity][0].bs_id)
-//       setNetTotalLiabilities([...data?.data?.sumliabilitiesAndOwnerequity])
-//       if ([...data?.data?.sumBalanceSheet][0].balances == null) {
-//           setBalancesheetandloss(0)
-//       } else {
-//           setBalancesheetandloss([...data?.data?.sumBalanceSheet][0].balances)
-//       }
-//   }).catch((err) => {
-//       console.log(err)
-//   })
-// }
-const OnloadResetCondition = () => {
-  axios.get('/accounting/api/report/ConditionResetGL').then((data) => {
-    setListcondition([...data?.data?.results][0].counts)
-  }).catch((err) => {
+    setChartofaccountslevels_one([...data?.data?.levels_one])
+    setChartofaccountslevels_two([...data?.data?.levels_two])
+    setChartofaccountslevels_three([...data?.data?.levels_three])
+    setChartofaccountslevels_four([...data?.data?.levels_four])
+    setChartofaccountslevels_five([...data?.data?.levels_five])
+    setChartofaccountslevels_six([...data?.data?.levels_six])
+    setChartofaccountslevels_seven([...data?.data?.levels_seven])
+    setChartofaccountslevels_eight([...data?.data?.levels_eight])
+    setChartofaccountslevels_nine([...data?.data?.levels_nine])
+    setChartofaccountslevels_ten([...data?.data?.levels_ten])
+  
+
+  }).catch((err)=>{
     console.log(err)
   })
 }
+// const OnloadResetCondition = () => {
+//   axios.get('/accounting/api/report/ConditionResetGL').then((data) => {
+//     setListcondition([...data?.data?.results][0].counts)
+//   }).catch((err) => {
+//     console.log(err)
+//   })
+// }
 // const onloadAutomaticGl = () => {
 //   axios.get("/accounting/api/report/reportAutoGL").then((data) => {
 //     console.log(data)
@@ -249,36 +261,37 @@ const OnloadResetCondition = () => {
     onloadaccountdetailType();
     onloadaccountlistname();
     onloadreportjournalentries();
-    onloadtransaction();
-    // onLoadExchangeRates();
+
     OnloadgainAndLoss();
     OnLoadgainandlossTransaction()
     OnLoadTotalgainAndLoss();
     onLoadrate();
     onloadreportGl();
-    // OnloadBalancesheet();
-    OnloadResetCondition();
-    // onloadAutomaticGl();
-    // OnloadHeading();
+    onloadChecktrue_and_false();
+    onloadLevelforchartofaccount();
+
+   
+
+
+
  
   }, []); 
   // if(!login){
   //   return <Login setLogin={setLogin}/>
   // }
-  if(login === false){
-    return(
-      <Login 
-      setLogin={setLogin}
+  // if(login === false){
+  //   return(
+  //     <Login 
+  //     setLogin={setLogin}
       
-      />
-    )
-  }
+  //     />
+  //   )
+  // }
   
   return (
     <div>
       <LoginContext.Provider
         value={{
-          listcondition,
           listaccount,
           listaccountType,
           onloadaccountType,
@@ -317,21 +330,25 @@ const OnloadResetCondition = () => {
           setid,
           loading,
           setLoading,
-          OnloadResetCondition,
-          // onloadAutomaticGl,
-          // OnloadHeading,
-          // headingprofi,
-          // setHeadingprofi,
-          // profitandloss,
-          // setProfitandloss,
-          // incomeandcost,
-          // setIncomeandcost,
-          // show,
-          // setShow
-
+          searchcondition,
+          setSearchcondition,
+          tra_balance,
+          setTra_balance,
+          onloadChecktrue_and_false,
+          isDisabled,
+          setIsDisabled,
+          chartofaccountslevels_one,
+          chartofaccountslevels_two,
+          chartofaccountslevels_three,
+          chartofaccountslevels_four,
+          chartofaccountslevels_five,
+          chartofaccountslevels_six,
+          chartofaccountslevels_seven,
+          chartofaccountslevels_eight,
+          chartofaccountslevels_nine,
+          chartofaccountslevels_ten
         }}
       >
-
         
         <Router>
           <Home>
@@ -355,7 +372,7 @@ const OnloadResetCondition = () => {
               <Route exact path="/BalanceSheet" element={< BalanceSheet />}></Route>
               <Route exact path="/DetailReportTrialbalances/:id" element={< DetailReportTrialbalances />}></Route>
               <Route exact path="/UnrealisedGainsAndLosses" element={< UnrealisedGainsAndLosses/>}></Route>
-              <Route exact path="/Profitandloss" element={< Profitandloss/>}></Route>
+              <Route exact path="/Profitandloss/:conditionsof" element={< Profitandloss/>}></Route>
               <Route exact path="/DetailBalancSheet/:id" element={< DetailBalancSheet />}></Route> 
               <Route exact path="/DetailFitandLoss/:id" element={<DetailFitandLoss />}></Route>
               <Route exact path="/DetailAutomatic/:id" element={< DetailAutomatic />} ></Route>

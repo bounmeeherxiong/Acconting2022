@@ -16,7 +16,7 @@ import Button from '@material-ui/core/Button';
 import ReactToPrint from "react-to-print";
 import moment from 'moment';
 import axios from "axios";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import PrintIcon from '@material-ui/icons/Print';
 import Spinner from 'react-bootstrap/Spinner';
 import SettingsIcon from "@material-ui/icons/Settings";
@@ -35,49 +35,44 @@ const rows = [
 export default function Profitandloss() {
     let componentRef = useRef(null)
     const navigate = useNavigate();
+    const { conditionsof } = useParams();
+    console.log("conditions=", conditionsof)
     const Gotodetailaccount = (id) => {
         navigate(`/DetailFitandLoss/${id}`);
     }
     const {
-        totalgain,OnloadResetCondition,listcondition
+        totalgain
     } = useContext(LoginContext);
-
     const [getvalues, setGetvalues] = useState('')
     const [defaultValue, setDefaultValue] = useState("")
     const [defaultValue1, setDefaultValue1] = useState("")
     const classes = useStyles();
     const [headingprofi, setHeadingprofi] = useState({})
     const [profitandloss, setProfitandloss] = useState([])
+    const [transact_balance, setTransact_balance] = useState([])
     const [incomeandcost, setIncomeandcost] = useState([])
-    // const [show, setShow] = useState(false)
+    const [dataconditions, setDataconditions] = useState(false)
+    const [listcondition, setListcondition] = useState([])
     const [showSetting, setShowSetting] = useState(false)
     const [loading, setLoading] = useState(false);
     const [gain, setGain] = useState(false);
-    const [condition,setCondition]=useState(1)
+    const [condi, setCondi] = useState(true)
+    const [condition, setCondition] = useState(1)
     const OnloadHeading = () => {
         axios.get('/accounting/api/profit-loss/heading').then((data) => {
-            console.log("dataList=",{...data?.data})
+            console.log("data=", data)
             setHeadingprofi({ ...data?.data })
             setProfitandloss([...data?.data?.sumBalanceSheet][0].balances)
+            setTransact_balance([...data?.data?.sumBalanceSheet][0].transact_balance)
             setIncomeandcost([...data?.data?.sumBalanceIncomeAndCostofsale][0].balances)
-            // let keys = ['amout'];
-            // let values = ['Other Expense'];
-            // let filtered_data = [...data?.data?.headingExpenses].filter(d => {
-            //     for (let key of keys) {
-            //         for (let value of values) {
-            //             if (d[key] == value) {
-            //                 return true;
-            //             }
-            //         }
-            //     }
-            //     return false;
-            // });
-            // if (filtered_data.length === 0) {
-            //     setShow(true)
-            // } else {
-            //     setShow(false)
-            // }
             setLoading(true)
+
+        }).catch((err) => {
+            console.log(err)
+        })
+    }
+    const OnResetConditions = () => {
+        axios.get('/accounting/api/profit-loss/reset-condition').then((data) => {
         }).catch((err) => {
             console.log(err)
         })
@@ -85,13 +80,7 @@ export default function Profitandloss() {
     const Setting = () => {
         setShowSetting(!showSetting)
     }
-    const OnGain = () => {
-        setGain(!gain)
-    }
-    const OnLosses = () => {
-     
-    }
-    const GoExchanage=(e)=>{
+    const GoExchanage = (e) => {
         navigate(`/ExchangeRate/${e}`)
     }
     const _searchbydate = (e) => {
@@ -103,41 +92,31 @@ export default function Profitandloss() {
     const _onShow = (e) => {
         setGetvalues(e)
     }
-    // const onloadAutomaticGl = () => {
-    //     axios.get("/accounting/api/report/reportAutoGL").then((data) => {
-    //       console.log("automatic=",{...data?.data})
-    //     }).catch((err) => {
-    //       console.log(err)
-    //     })
-    //   }
-      const Onloadreset = () => {
-        window.location.reload();
-        // axios.get('/accounting/api/report/createResetExchange_gl').then((data) => {
-        //   onloadreportGl();
-        //   OnloadResetCondition();
-        //   onloadAutomaticGl();
-        // }).catch((err) => {
-        //   console.log(err)
-        // })
-    
-      }
-      const Onloadreset1 = () => {
-        axios.get('/accounting/api/report/createResetExchange_gl').then((data) => {
-          console.log(data)
-          OnloadHeading()
-          OnloadResetCondition()
-        //   onloadAutomaticGl();
-          _searchbydate()
-          _searchstartdate()
-          setGetvalues('')
-          // window.location.reload();
+    const onloadAutomaticGl = () => {
+        axios.get("/accounting/api/report/reportAutoGL").then((data) => {
+            console.log(data)
         }).catch((err) => {
-          console.log(err)
+            console.log(err)
         })
-    
-      }
+    }
+    const OnloadResetCondition = () => {
+        axios.get('/accounting/api/report/ConditionResetGL').then((data) => {
+            setListcondition([...data?.data?.results][0].counts)
+        }).catch((err) => {
+            console.log(err)
+        })
+    }
+    const Onloadreset1 = () => {
+        axios.get('/accounting/api/report/createResetExchange_gl').then((data) => {
+            OnloadHeading()
+            OnloadResetCondition()
+        }).catch((err) => {
+            console.log(err)
+        })
+    }
     const Reset = () => {
         OnloadHeading()
+        OnResetConditions();
         window.location.reload();
         _searchbydate()
         _searchstartdate()
@@ -146,13 +125,6 @@ export default function Profitandloss() {
     const ViewUnrealised = (e) => {
         navigate(`/ViewUnrealisedgain_or_loss/${e}`);
     }
-    const onloadAutomaticGl = () => {
-        axios.get("/accounting/api/report/reportAutoGL").then((data) => {
-          console.log(data)
-        }).catch((err) => {
-          console.log(err)
-        })
-      }
     const OnRunReport = () => {
         setLoading(false)
         setCondition(2)
@@ -162,27 +134,13 @@ export default function Profitandloss() {
                 end: defaultValue1
             }
             axios.post('/accounting/api/profit-loss/report/allreports', data).then((data) => {
-                console.log("Search=",{...data?.data})
+                if ([...data?.data?.childrenFirst][0][0] == 0) {
+                    setDataconditions(true)
+                }
                 setHeadingprofi({ ...data?.data })
                 setProfitandloss([...data?.data?.sumBalanceSheet][0].balances)
+                setTransact_balance([...data?.data?.sumBalanceSheet][0].transact_balance)
                 setIncomeandcost([...data?.data?.sumBalanceIncomeAndCostofsale][0].balances)
-                // let keys = ['amout'];
-                // let values = ['Other Expense'];
-                // let filtered_data = [...data?.data?.headingExpenses].filter(d => {
-                //     for (let key of keys) {
-                //         for (let value of values) {
-                //             if (d[key] == value) {
-                //                 return true;
-                //             }
-                //         }
-                //     }
-                //     return false;
-                // });
-                // if (filtered_data.length === 0) {
-                //     setShow(true)
-                // } else {
-                //     setShow(false)
-                // }
                 setLoading(true)
                 onloadAutomaticGl();
             }).catch((err) => {
@@ -190,22 +148,23 @@ export default function Profitandloss() {
             })
         }
     }
-    const ReportExchange=()=>{
-        axios.get('/accounting/api/report/report_Exchange').then((data)=>{
-          console.log(data)      
-          OnloadResetCondition();
-          OnloadHeading();
-        }).catch((err)=>{
-          console.log(err)
+    const ReportExchange = () => {
+        axios.get('/accounting/api/report/report_Exchange').then((data) => {
+            OnloadHeading();
+            OnloadResetCondition()
+        }).catch((err) => {
+            console.log(err)
         })
-      }
-
+    }
+    const OnGain = () => {
+        setGain(!gain)
+    }
     useEffect(() => {
-        // onloadAutomaticGl();
+        OnloadResetCondition()
         OnloadHeading()
         _searchbydate()
         _searchstartdate()
-     
+
     }, [])
     return (
         <>
@@ -303,47 +262,48 @@ export default function Profitandloss() {
                         Run report
                     </Button>
                     {
-            listcondition === 0 ? (
-              <>
-                <button
-                  style={{
-                    backgroundColor: "#3f51b5",
-                    border: "none",
-                    height: 30,
-                    borderRadius: 2,
-                    paddingLeft: 10,
-                    paddingRight: 10,
-                    color: "white",
-                    alignItems: "center",
-                    marginLeft: 10,
-                  }}
-                  onClick={() => Onloadreset()}
-                >
-                  RESET
-                </button>
+                        listcondition == 1 ? (
+                            <>
+                                <Button variant="contained" color="primary"
 
-              </>
-            ) : (
-              <>
-                <button
-                  style={{
-                    backgroundColor: "red",
-                    border: "none",
-                    height: 30,
-                    borderRadius: 2,
-                    paddingLeft: 10,
-                    paddingRight: 10,
-                    color: "white",
-                    alignItems: "center",
-                    marginLeft: 10,
-                  }}
-                  onClick={() => Onloadreset1()}
-                >
-                  RESET
-                </button>
-              </>
-            )
-          }
+                                    style={{
+                                        backgroundColor: "red",
+                                        border: "none",
+                                        height: 30,
+                                        borderRadius: 2,
+                                        paddingLeft: 10,
+                                        paddingRight: 10,
+                                        color: "white",
+                                        alignItems: "center",
+                                        marginLeft: 10,
+                                    }}
+                                    onClick={() => Onloadreset1()}
+                                >
+                                    RESET
+                                </Button>
+                            </>
+                        ) : (
+                            <>
+                                <Button variant="contained" color="primary"
+                                    style={{
+                                        border: "none",
+                                        height: 30,
+                                        borderRadius: 2,
+                                        paddingLeft: 10,
+                                        paddingRight: 10,
+                                        color: "white",
+                                        alignItems: "center",
+                                        marginLeft: 10,
+                                    }}
+                                    onClick={() => Reset()}
+                                >
+                                    RESET
+                                </Button>
+
+
+                            </>
+                        )
+                    }
                     <ReactToPrint
                         trigger={() =>
                             <Button variant="contained" color="primary" style={{
@@ -374,10 +334,10 @@ export default function Profitandloss() {
                             alignItems: "center",
                             marginLeft: 10,
                         }}
-                        onClick={()=>{GoExchanage(2)}}
+                        onClick={() => { GoExchanage(2) }}
                     >
                         <AddIcon />
-                         RATE
+                        RATE
                     </button>
                     <button
                         style={{
@@ -391,10 +351,9 @@ export default function Profitandloss() {
                             alignItems: "center",
                             marginLeft: 10,
                         }}
-                        onClick={()=>{ReportExchange()}}
+                        onClick={() => { ReportExchange() }}
                     >
-                   
-                       RUN EXCHANGE
+                        RUN EXCHANGE
                     </button>
 
                 </div>
@@ -456,102 +415,127 @@ export default function Profitandloss() {
                     }
                 </div>
             </div>
-            {
-                loading ? (
-                    <>
-                        <TableContainer component={Paper} ref={(el) => (componentRef = el)}>
-                            <Table className={classes.table} size="small" aria-label="a dense table">
-                                <TableHead>
-                                    <TableRow>
-                                        <TableCell></TableCell>
-                                        <TableCell align="right">TOTAL</TableCell>
-                                    </TableRow>
-                                </TableHead>
-                                <TableBody>
-                                    {
-                                        headingprofi?.headingIncomeandCost == 0 ? (<>
-                                            <ComponentHeadingIncomeShow />
-                                        </>) : (<>
+            {dataconditions === true ? (
+                <div style={{ display: 'flex', flexDirection: 'column', border: '1px solid grey', justifyContent: 'center', justifyItems: 'center', marginTop: 10, height: 200 }}>
+                    <div style={{ fontWeight: 'bold', display: 'flex', fontSize: 20, flexDirection: 'row', justifyContent: 'center', justifyItems: 'center' }}><small>Profit and loss</small></div>
+                    <div style={{ display: 'flex', flexDirection: 'row', fontSize: 19, justifyContent: 'center', justifyItems: 'center', marginTop: 20 }}><small>This report does not contain any data.</small></div>
+                </div>
+            ) : (
+                <>
+                    {
+                        loading ? (
+                            <>
+                                <TableContainer component={Paper} ref={(el) => (componentRef = el)}>
+                                    <Table className={classes.table} size="small" aria-label="a dense table">
+                                        <TableHead>
+                                            <TableRow>
+                                                <TableCell></TableCell>
+                                                <TableCell align="right">TOTAL</TableCell>
+                                            </TableRow>
+                                        </TableHead>
+                                        <TableBody>
                                             {
-                                                headingprofi?.headingIncomeandCost
-                                                && headingprofi?.headingIncomeandCost
-                                                    .map((data, index) => {
-                                                        return (
-                                                            <>
-                                                                <ComponentHeadingIn
-                                                                    data={data}
-                                                                    key={index}
-                                                                    childrenFirstFloor={headingprofi?.childrenFirst}
-                                                                    childrenSecondFloor={headingprofi?.childrenSecond}
-                                                                    TotaldrenFirstFloor={headingprofi?.firsttotal}
-                                                                    Gotodetailaccount={Gotodetailaccount}
-                                                                />
-                                                            </>
-                                                        )
-                                                    })
+                                                headingprofi?.headingIncomeandCost == 0 ? (<>
+                                                    <ComponentHeadingIncomeShow />
+                                                </>) : (<>
+                                                    {
+                                                        headingprofi?.headingIncomeandCost
+                                                        && headingprofi?.headingIncomeandCost
+                                                            .map((data, index) => {
+                                                                return (
+                                                                    <>
+                                                                        <ComponentHeadingIn
+                                                                            data={data}
+                                                                            key={index}
+                                                                            childrenFirstFloor={headingprofi?.childrenFirst}
+                                                                            childrenSecondFloor={headingprofi?.childrenSecond}
+                                                                            TotaldrenFirstFloor={headingprofi?.firsttotal}
+                                                                            Gotodetailaccount={Gotodetailaccount}
+                                                                        />
+                                                                    </>
+                                                                )
+                                                            })
+                                                    }
+                                                </>)
                                             }
-                                        </>)
-                                    }
-                                    <TableRow>
-                                        <TableCell component="th" scope="row" style={{ cursor: 'pointer', paddingLeft: 30, fontWeight: 'bold' }}>
-                                            GROSS PROFIT
-                                        </TableCell>
-                                        <TableCell align="right">{getFormatNumber(incomeandcost)}₭</TableCell>
-                                    </TableRow>
-                                </TableBody>
-                            </Table>
-                        </TableContainer>
-                        <TableContainer component={Paper} ref={(el) => (componentRef = el)}>
-                            <Table className={classes.table} size="small" aria-label="a dense table">
-                                <TableBody>
-                                    {
-                                        headingprofi?.headingExpenses == 0 ? (
-                                            <>
-                                                <ComponentHeadingExShow
-                                                    totalgain={totalgain}
-                                                />
-                                            </>
-                                        ) : (
-                                            <>
+                                            <TableRow>
+                                                <TableCell component="th" scope="row" style={{ cursor: 'pointer', paddingLeft: 30, fontWeight: 'bold' }}>
+                                                    GROSS PROFIT
+                                                </TableCell>
+                                                <TableCell align="right">{getFormatNumber(incomeandcost)}₭</TableCell>
+                                            </TableRow>
+                                        </TableBody>
+                                    </Table>
+                                </TableContainer>
+                                <TableContainer component={Paper} ref={(el) => (componentRef = el)}>
+                                    <Table className={classes.table} size="small" aria-label="a dense table">
+                                        <TableBody>
+                                            {
+                                                headingprofi?.headingExpenses == 0 ? (
+                                                    <>
+                                                        <ComponentHeadingExShow
+                                                            totalgain={totalgain}
+                                                        />
+                                                    </>
+                                                ) : (
+                                                    <>
+                                                        {
+                                                            headingprofi?.headingExpenses && headingprofi?.headingExpenses.map((data, index) => {
+                                                                return (
+                                                                    <>
+                                                                        <ComponentHeading
+                                                                            data={data}
+                                                                            key={index}
+                                                                            childrenFirstFloor={headingprofi?.childrenFirst}
+                                                                            childrenSecondFloor={headingprofi?.childrenSecond}
+                                                                            TotaldrenFirstFloor={headingprofi?.firsttotal}
+                                                                            totalgain={totalgain}
+                                                                            exchangegainloss={headingprofi?.ExchangeTotalGainAndLosses}
+                                                                            Gotodetailaccount={Gotodetailaccount}
+                                                                            ViewUnrealised={ViewUnrealised}
+                                                                            gain={gain}
+                                                                            e={condition}
+                                                                            conditionsof={conditionsof}
+                                                                        />
+                                                                    </>
+                                                                )
+                                                            })
+                                                        }
+                                                    </>
+                                                )
+                                            }
+                                            <TableRow>
+                                                <TableCell style={{ fontWeight: 'bold' }}>
+                                                    NET EARNINGS
+                                                </TableCell>
                                                 {
-                                                    headingprofi?.headingExpenses && headingprofi?.headingExpenses.map((data, index) => {
-                                                        return (
-                                                            <>
-                                                                <ComponentHeading
-                                                                    data={data}
-                                                                    key={index}
-                                                                    childrenFirstFloor={headingprofi?.childrenFirst}
-                                                                    childrenSecondFloor={headingprofi?.childrenSecond}
-                                                                    TotaldrenFirstFloor={headingprofi?.firsttotal}
-                                                                    totalgain={totalgain}
-                                                                    exchangegainloss={headingprofi?.ExchangeTotalGainAndLosses}
-                                                                    Gotodetailaccount={Gotodetailaccount}
-                                                                    ViewUnrealised={ViewUnrealised}
-                                                                    gain={gain}
-                                                                    e={condition}
-                                                                />
-                                                            </>
-                                                        )
-                                                    })
+                                                     conditionsof== 1 ? (<>
+                                                        <TableCell align="right" style={{ fontWeight: 'bold' }}>{getFormatNumber(parseFloat(transact_balance))}₭</TableCell>
+                                                    </>) : (<>
+                                                        <TableCell align="right" style={{ fontWeight: 'bold' }}>{getFormatNumber(parseFloat(profitandloss))}₭</TableCell>
+
+                                                    </>)
                                                 }
-                                            </>
-                                        )
-                                    }
-                                    <TableRow>
-                                        <TableCell style={{ fontWeight: 'bold' }}>
-                                            NET EARNINGS
-                                        </TableCell>
-                                        <TableCell align="right" style={{ fontWeight: 'bold' }}>{getFormatNumber(parseFloat(profitandloss))}₭</TableCell>
-                                    </TableRow>
-                                </TableBody>
-                            </Table>
-                        </TableContainer>
-                    </>) : (<>
-                        <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-                            <Spinner animation="border" variant="primary" style={{ width: 100, height: 100, marginTop: 100 }} />
-                        </div>
-                    </>)
+
+                                            </TableRow>
+                                        </TableBody>
+                                    </Table>
+                                </TableContainer>
+                            </>) : (<>
+                                <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+                                    <Spinner animation="border" variant="primary" style={{ width: 100, height: 100, marginTop: 100 }} />
+                                </div>
+                            </>)
+                    }
+
+                </>
+            )
+
             }
+
+
+
+
 
 
 
@@ -577,7 +561,7 @@ function ComponentHeadingExShow({ totalgain }) {
                 <TableCell component="th" scope="row" onClick={() => {
                     handleClick()
                 }} style={{ cursor: 'pointer' }}>{open ? <ExpandLess /> : <ExpandMore />}
-                    Other Expenses  
+                    Other Expenses
                 </TableCell>
                 <TableCell align="right" style={{ fontWeight: 'bold' }}>
                 </TableCell>
@@ -712,7 +696,7 @@ function TableCellComponentIncome({ data, childrenSecondFloor, TotaldrenFirstFlo
             c_id: e
         }
         axios.post("/accounting/api/balance-sheet/sumtotal", data).then((data) => {
-          
+
             setNetTotal([...data?.data?.data][0].balances)
         }).catch((err) => {
             console.log(err)
@@ -1367,13 +1351,14 @@ function TableCellComponentIncome12({ data, childrenSecondFloor, TotaldrenSecond
         </>
     )
 }
-function ComponentHeading({ data, childrenFirstFloor, childrenSecondFloor, TotaldrenFirstFloor, totalgain, Gotodetailaccount, ViewUnrealised, gain, exchangegainloss ,e}) {
+function ComponentHeading({ data, childrenFirstFloor, conditionsof, childrenSecondFloor, TotaldrenFirstFloor, totalgain, Gotodetailaccount, ViewUnrealised, gain, exchangegainloss, e }) {
     const [open, setOpen] = useState(true);
     const handleClick = () => {
         setOpen(!open);
     };
     if (exchangegainloss === null) return <></>
     const datafilter = exchangegainloss.filter((el) => el.bs_id === data?.bs_id);
+
     return (
         <>
             <TableRow>
@@ -1394,7 +1379,7 @@ function ComponentHeading({ data, childrenFirstFloor, childrenSecondFloor, Total
                 open ? (<>
 
                     <ComponentExpenseFirst
-                        
+
                         id={data?.bs_id}
                         childrenFirstFloor={childrenFirstFloor}
                         childrenSecondFloor={childrenSecondFloor}
@@ -1403,12 +1388,13 @@ function ComponentHeading({ data, childrenFirstFloor, childrenSecondFloor, Total
                         Gotodetailaccount={Gotodetailaccount}
                         ViewUnrealised={ViewUnrealised}
                         gain={gain}
+                        conditionsof={conditionsof}
                         e={e}
                     />
 
                     <TableRow>
                         <TableCell component="th" scope="row" onClick={() => { handleClick() }} style={{ cursor: 'pointer', fontWeight: 'bold' }}>
-                            Total: {data?.bs_name}
+                            Total:{data?.bs_name}
                         </TableCell>
                         {
                             gain === true ? (<>
@@ -1473,10 +1459,10 @@ function UnrealisedGainorLoss({ totalgain }) {
         </TableRow>
     </>)
 }
-function ComponentExpenseFirst({ id, childrenFirstFloor, childrenSecondFloor, TotaldrenFirstFloor, rows, Gotodetailaccount, ViewUnrealised, gain,e }) {
+function ComponentExpenseFirst({ id, childrenFirstFloor, conditionsof, childrenSecondFloor, TotaldrenFirstFloor, rows, Gotodetailaccount, ViewUnrealised, gain, e }) {
     if (childrenFirstFloor === null) return <></>
     const filter = childrenFirstFloor.filter((el) => el.bs_id === id);
-    
+
 
     // const datafilter = rows.filter((el) => el.id === id);
     // let tax;
@@ -1528,7 +1514,7 @@ function ComponentExpenseFirst({ id, childrenFirstFloor, childrenSecondFloor, To
             } */}
             {
                 filter && filter.map((data, index) => {
-                  
+
                     return (
                         <>
                             <TableCellComponentExpense
@@ -1541,6 +1527,7 @@ function ComponentExpenseFirst({ id, childrenFirstFloor, childrenSecondFloor, To
                                 Gotodetailaccount={Gotodetailaccount}
                                 gain={gain}
                                 e={e}
+                                conditionsof={conditionsof}
                             />
                         </>
                     )
@@ -1549,8 +1536,8 @@ function ComponentExpenseFirst({ id, childrenFirstFloor, childrenSecondFloor, To
         </>
     )
 }
-function TableCellComponentExpense({ data, childrenSecondFloor, TotaldrenFirstFloor, id, Gotodetailaccount, ViewUnrealised, gain,e }) {
-    
+function TableCellComponentExpense({ data, childrenSecondFloor, conditionsof, TotaldrenFirstFloor, id, Gotodetailaccount, ViewUnrealised, gain, e }) {
+
     const [checkvalues, setCheckvalues] = useState(0)
     const [netTotal1, setNetTotal1] = useState(0)
     const [open, setOpen] = useState(true);
@@ -1558,7 +1545,7 @@ function TableCellComponentExpense({ data, childrenSecondFloor, TotaldrenFirstFl
     const filter = TotaldrenFirstFloor.filter((el) => el.id === id);
 
 
-    
+
     if (filter.length === 0) return <></>;
     const handleClick = () => {
         setOpen(!open);
@@ -1568,7 +1555,7 @@ function TableCellComponentExpense({ data, childrenSecondFloor, TotaldrenFirstFl
             c_id: e
         }
         axios.post("/accounting/api/balance-sheet/sumtotal", data).then((data) => {
-            
+
             setNetTotal1([...data?.data?.data][0].balances)
         }).catch((err) => {
             console.log(err)
@@ -1606,19 +1593,28 @@ function TableCellComponentExpense({ data, childrenSecondFloor, TotaldrenFirstFl
                 {
                     data?.p_and_l == 3 || data?.p_and_l == 4 ? (
                         <>
-                            <TableCell align="right" style={{ cursor: 'pointer', color: 'red' }} onClick={() => { ViewUnrealised(e) }}>
-                                {
-                                    open ? (
-                                        <>
-                                            {getFormatNumber(data?.bs_amount)}₭
+                            {conditionsof == 2 ? (<>
+                                <TableCell align="right" style={{ cursor: 'pointer', color: 'red' }} onClick={() => { ViewUnrealised(e) }}>
+                                    {
+                                        open ? (
+                                            <>
+                                                {getFormatNumber(data?.bs_amount)}₭
 
-                                        </>
-                                    ) : (<>
-                                        {getFormatNumber(netTotal1)}₭
-                                    </>)
-                                }
-                            </TableCell>
+                                            </>
+                                        ) : (<>
+                                            {getFormatNumber(netTotal1)}₭
+                                        </>)
+                                    }
+                                </TableCell>
 
+
+                            </>) : (<>
+
+                                <TableCell align="right" style={{ cursor: 'pointer', color: 'red' }}> 0.00
+                                    
+                                </TableCell>
+
+                            </>)}
 
                         </>) : (
                         <>
@@ -1675,22 +1671,22 @@ function TableCellComponentExpense({ data, childrenSecondFloor, TotaldrenFirstFl
                     />
                     {
                         checkvalues === 0 ? (<></>) : (<>
-                        {
-                            data?.statu_auto_GainAndLoss  == 3 || data?.statu_auto_GainAndLoss  == 4 ? (<>
-                           
-                            </>):(<>
-                                <TableRow>
-                                <TableCell component="th" scope="row" onClick={() => { handleClick() }} style={{ cursor: 'pointer', fontWeight: 'bold', paddingLeft: 30 }}>
-                                    Total: {data?.name_eng}
-                                </TableCell>
-                                <TableCell align="right"  >
-                                    {getFormatNumber(filter[0].balances)}₭
-                                </TableCell>
-                            </TableRow>
-                            
-                            </>)
-                        }
-                            
+                            {
+                                data?.statu_auto_GainAndLoss == 3 || data?.statu_auto_GainAndLoss == 4 ? (<>
+
+                                </>) : (<>
+                                    <TableRow>
+                                        <TableCell component="th" scope="row" onClick={() => { handleClick() }} style={{ cursor: 'pointer', fontWeight: 'bold', paddingLeft: 30 }}>
+                                            Total: {data?.name_eng}
+                                        </TableCell>
+                                        <TableCell align="right"  >
+                                            {getFormatNumber(filter[0].balances)}₭
+                                        </TableCell>
+                                    </TableRow>
+
+                                </>)
+                            }
+
                         </>)
                     }
 
@@ -1886,7 +1882,7 @@ function TableCellComponentExpense4({ data, childrenSecondFloor, TotaldrenSecond
                         </>) : (<>
                             {getFormatNumber(netTotal)}₭
                         </>)
-                    }₭</TableCell>
+                    }</TableCell>
             </TableRow>
             {
                 open ? (<>
