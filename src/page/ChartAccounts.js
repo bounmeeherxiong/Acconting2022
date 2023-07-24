@@ -34,6 +34,8 @@ import KeyboardArrowRight from '@material-ui/icons/KeyboardArrowRight';
 import ReactPaginate from "react-paginate";
 import PrintIcon from '@material-ui/icons/Print';
 import ReactToPrint from "react-to-print";
+import WarningIcon from '@material-ui/icons/Warning';
+import { Button } from "@material-ui/core";
 // import PrintChartAccounts from "../components/PrintChartAccounts";
 const useStyles = makeStyles((theme) => ({
   table: {
@@ -80,7 +82,6 @@ export default function ChartAccounts() {
     setBalancelak('')
     setCurrencystatus('')
     setBalance('')
-    setCurrencystatus('')
     setErrorcurrency('')
     setErrorparrens('')
     setAlready('')
@@ -125,6 +126,8 @@ export default function ChartAccounts() {
   const [balance, setBalance] = useState("0");
   const [balancelak, setBalancelak] = useState("0");
   const [currencystatus, setCurrencystatus] = useState([]);
+  const [editbank_id, setEditbank_id] = useState('')
+  const [editbank_name, setEditbank_name] = useState('')
   const [open, setOpen] = useState(false);
   const [exchangeRate, setExchangeRate] = useState("0")
   const [debit, setDebit] = useState("");
@@ -171,7 +174,22 @@ export default function ChartAccounts() {
   const [levels_eight, setLevels_eight] = useState([])
   const [levels_nine, setLevels_nine] = useState([])
   const [levels_ten, setLevels_ten] = useState([])
+  const [firstdatachartofaccount, setFirstdatachartofaccount] = useState([])
+  const [seconddatachartofaccount, setSeconddatachartofaccount] = useState([])
+  const [searchlevels_zero, setSearchlevels_zero] = useState([])
+  const [sublevels_one, setSublevels_one] = useState([])
+  const [sublevels_two, setSublevels_two] = useState([])
+  const [sublevels_three, setsublevels_three] = useState([])
+  const [sublevels_four, setSublevels_four] = useState([])
+  const [sublevels_five, setSublevels_five] = useState([])
+  const [sublevels_six, setSublevels_six] = useState([])
+  const [sublevels_senven, setSublevels_senven] = useState([])
+  const [sublevels_eight, setSublevels_eight] = useState([])
+  const [sublevels_nine, setSublevels_nine] = useState([])
+  const [sublevels_ten, setSublevels_ten] = useState([])
 
+  const [showleave, setShowleave] = useState(false);
+  const [c_uid, setC_uid] = useState('')
   const {
     onloadallaccount,
     listallaccount,
@@ -189,9 +207,6 @@ export default function ChartAccounts() {
     chartofaccountslevels_nine,
     chartofaccountslevels_ten
   } = useContext(LoginContext);
-
-
-
 
   const bulletinsPerPage = 25;
   const pagesVisited = pageNumber * bulletinsPerPage;
@@ -228,6 +243,15 @@ export default function ChartAccounts() {
     setCheckdebitcredit(true)
     seterrcheckdebitcredit(false)
   }
+  const handleLeaveClosedel = () => {
+    setShowleave(false)
+  }
+
+  const handleShowDelelete = (e) => {
+    setC_uid(e)
+    setShowleave(true)
+  };
+
   const functionCheckCredit = (e) => {
     setCredit(e)
     setCheckdebitcredit(true)
@@ -241,11 +265,11 @@ export default function ChartAccounts() {
     } else {
       setCheckDisabled(false)
     }
-    // setCheckDisabled(true)
+
   }
   const checkedtrue = () => {
     if (nameShow.length > 0) {
-      
+
     } else {
       setIsDisabled(true)
       setDisblebtn(false);
@@ -261,7 +285,7 @@ export default function ChartAccounts() {
       setDisblebtn(true);
       console.log("false")
       setPrentid('')
-    
+
 
     }
     setIsSubscribed(current => !current);
@@ -291,11 +315,29 @@ export default function ChartAccounts() {
   }, [ac_type]);
 
   const _ongetCurrencyvalues = (e) => {
+    console.log("e=", e)
+
     setErrselectcurrency('')
     setErrorcurrency('')
     setCurrency(e)
     axios.get(`/accounting/api/chartofaccounts/currency/${e}`).then((data) => {
+
+
       setCurrencystatus([...data?.data?.result][0].cy_code)
+    }).catch((err) => {
+      console.log(err)
+    })
+  }
+  const _ongetBanckvalues = (e) => {
+
+    setListbank(e)
+    axios.get(`/accounting/api/bank/one/${e}`).then((data) => {
+      console.log("ed=", data?.data?.result?.bank_name)
+
+
+      setEditbank_id(data?.data?.result?.bank_id)
+      setEditbank_name(data?.data?.result?.bank_name)
+
     }).catch((err) => {
       console.log(err)
     })
@@ -325,10 +367,12 @@ export default function ChartAccounts() {
     // })
   }
   const listsubaccountname = (ac_type) => {
+    console.log("dddd=", ac_type)
     if (!ac_type) {
     } else {
       axios.get(`/accounting/api/chartofaccounts/all/${ac_type}`).then((data) => {
         setListaccountname([...data?.data.result])
+        console.log("ListAccounting=", [...data?.data?.result])
       }).catch((err) => {
         console.log(err)
       })
@@ -343,7 +387,7 @@ export default function ChartAccounts() {
   };
   const OnblurChangeText = (e) => {
     let number = e.replaceAll(',', '')
-    let rate=e.toString().replaceAll(',', '').replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1,");
+    let rate = e.toString().replaceAll(',', '').replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1,");
     // let format_number = new Intl.NumberFormat("en-US", { style: 'currency', currency: 'USD' }).format(number)
     // let rate = format_number.replaceAll('$', '')
     setExchangeRate(rate)
@@ -360,7 +404,7 @@ export default function ChartAccounts() {
   };
   const OnblurTextbalance = (e) => {
     let number = e.replaceAll(',', '')
-    let rate=e.toString().replaceAll(',', '').replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1,");
+    let rate = e.toString().replaceAll(',', '').replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1,");
     // let format_number = new Intl.NumberFormat("en-US", { style: 'currency', currency: 'USD' }).format(number)
     // let rate = format_number.replaceAll('$', '')
     // console.log("rate=", rate)
@@ -376,6 +420,7 @@ export default function ChartAccounts() {
   }
   const currencies = () => {
     axios.get("/accounting/api/currencies").then((data) => {
+
       setListcurrency([...data?.data.result])
     }).catch((err) => {
       console.log(err)
@@ -425,8 +470,10 @@ export default function ChartAccounts() {
     setValuedate(e)
   }
   const editbeginningbalanceSecond = (e) => {
+
     setGetid(e)
     axios.get(`/accounting/api/chartofaccounts/openingData/${e}`).then((data) => {
+
       functionCheck([...data?.data?.editCondition][0])
       let daIn = [...data?.data?.result][0].createdate
       setDefaultValue(moment(daIn).format("DD-MM-YYYY"))
@@ -439,11 +486,10 @@ export default function ChartAccounts() {
         setOpening_status("1")
       }
 
-      let money_rate=[...data?.data?.result][0].ExchangeRate.toString().replaceAll(',', '').replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1,");
-      
-      // setExchangeRate(getFormatNumber([...data?.data?.result][0].ExchangeRate))
-       setExchangeRate(money_rate)
-     
+      let money_rate = [...data?.data?.result][0].ExchangeRate.toString().replaceAll(',', '').replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1,");
+
+      setExchangeRate(money_rate)
+
       if ([...data?.data?.result][0].currencystatus == "USD" || [...data?.data?.result][0].currencystatus == "THB") {
         setBalance(getFormatNumber([...data?.data?.result][0].balancescurrency.replaceAll("-", '')))
         let BalanceaLL = parseFloat([...data?.data?.result][0].ExchangeRate) * parseFloat([...data?.data?.result][0].balancescurrency)
@@ -466,7 +512,6 @@ export default function ChartAccounts() {
     axios.get(`/accounting/api/chartofaccounts/openingData/${e}`).then((data) => {
       functionCheck([...data?.data?.editCondition][0])
       if ([...data?.data?.result].length == 0) {
-
       } else {
         let daIn = [...data?.data?.result][0].createdate
         setDefaultValue(moment(daIn).format("DD-MM-YYYY"))
@@ -478,10 +523,10 @@ export default function ChartAccounts() {
         } else {
           setOpening_status("1")
         }
-        let money_rate=[...data?.data?.result][0].ExchangeRate.toString().replaceAll(',', '').replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1,");
-      
+        let money_rate = [...data?.data?.result][0].ExchangeRate.toString().replaceAll(',', '').replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1,");
+
         // setExchangeRate(getFormatNumber([...data?.data?.result][0].ExchangeRate))
-          setExchangeRate(money_rate)
+        setExchangeRate(money_rate)
         if ([...data?.data?.result][0].currencystatus == "USD" || [...data?.data?.result][0].currencystatus == "THB") {
           setBalance(getFormatNumber([...data?.data?.result][0].balancescurrency.replaceAll("-", '')))
           setBalancelak(getFormatNumber(parseFloat([...data?.data?.result][0].ExchangeRate) * parseFloat([...data?.data?.result][0].balancescurrency)))
@@ -504,6 +549,20 @@ export default function ChartAccounts() {
     setErrname(false)
     setName(e)
   }
+  // funcction Delete
+  const DeletedChartAaccount = (c_id) => {
+    console.log("delete=", c_id)
+
+    axios.delete(`/accounting/api/chartofaccounts/delete/${c_id}`).then((data) => {
+
+      onloadallaccount();
+      handleLeaveClosedel()
+
+    }).catch((err) => {
+      console.log(err)
+    })
+
+  }
   // function CreateChartAccount
   const CreateChartAccount = () => {
 
@@ -517,6 +576,7 @@ export default function ChartAccounts() {
       setErrname(true)
       return;
     }
+
 
     let data;
     let stutas;
@@ -597,7 +657,7 @@ export default function ChartAccounts() {
       c_rate: exchangeRate,
       bank_id: listbank
     }
-    console.log("Insert data=",data)
+    console.log("Insert data=", data)
     axios
       .post("/accounting/api/chartofaccounts/create", data)
       .then((data) => {
@@ -605,6 +665,7 @@ export default function ChartAccounts() {
         onloadreportGl();
         setAc_type('');
         setShowUpdate(false);
+        setConditionsdata(false)
         setName('');
         setDescription('');
         setTypedetail('');
@@ -628,6 +689,7 @@ export default function ChartAccounts() {
         setDebit('')
         credit('')
         setListbank('')
+
       }
       ).catch((err) => {
         console.log(err)
@@ -831,6 +893,7 @@ export default function ChartAccounts() {
       ac_type: ac_type,
       name_eng: name,
       c_desc: description,
+      accountid: uid,
       parents: prentid,
       c_balance: balance,
       c_rate: exchangeRate,
@@ -838,8 +901,9 @@ export default function ChartAccounts() {
       balance_status: stutas,
       opening_status: opening_status,
       lg_id: ledgerid,
+      currency_uid: currency,
+      bank_id: listbank
     }
-
 
     axios.post("/accounting/api/chartofaccounts/update", data).then((data) => {
       handleClose(false)
@@ -890,6 +954,7 @@ export default function ChartAccounts() {
         const names = data?.data?.message.map((item) => {
           return item.name_eng;
         });
+
         names.reverse();
         setNameShow(names.join(":"));
         setShowBox(!showBox);
@@ -907,18 +972,74 @@ export default function ChartAccounts() {
     setErrac_type(false)
     let id = listaccountid.filter((el) => el.uid.includes(ac_type));
     setUid([...id][0].main_type)
+    axios.get(`/accounting/api/chartofaccounts/getaccountdata/${ac_type}`).then((data) => {
+      setFirstdatachartofaccount([...data?.data?.GetChartOfAaccountFirstFloor])
+      setSeconddatachartofaccount([...data?.data?.GetChartOfAaccountSecondFloor])
+
+    }).catch((err) => {
+      console.log(err)
+    })
+    axios.get(`/accounting/api/chartofaccounts/getsublevels/${ac_type}`).then((data) => {
+
+      setSublevels_one([...data?.data?.sub_one])
+      setSublevels_two([...data?.data?.sub_two])
+      setsublevels_three([...data?.data?.sub_three])
+      setSublevels_four([...data?.data?.sub_four])
+      setSublevels_five([...data?.data?.sub_five])
+      setSublevels_six([...data?.data?.sub_six])
+      setSublevels_senven([...data?.data?.sub_seven])
+      setSublevels_eight([...data?.data?.sub_eight])
+      setSublevels_nine([...data?.data?.sub_nine])
+      setSublevels_ten([...data?.data?.sub_ten])
+
+
+
+
+    }).catch((err) => {
+      console.log(err)
+    })
   }
+
   const _onBank = (e) => {
     setListbank(e)
     setErrbank(false)
   }
   const _onSearchList = (e) => {
     setNameShow(e);
-    let searchName = listaccountname.filter((el) => el.name_eng.includes(e));
+
+    let searchName = listaccountname.filter((el) => el.name_eng.toLowerCase().includes(e.toLowerCase()));
+    console.log("Search=", searchName)
+    let searchName1 = firstdatachartofaccount.filter((el) => el.account_name.toLowerCase().includes(e.toLowerCase()));
+
+    let sub_one = sublevels_one.filter((el) => el.account_name.toLowerCase().includes(e.toLowerCase()));
+    console.log("sublevels_one=", sublevels_one)
+
+    let sub_tow = sublevels_two.filter((el) => el.account_name.toLowerCase().includes(e.toLowerCase()));
+    let sub_three = sublevels_three.filter((el) => el.account_name.toLowerCase().includes(e.toLowerCase()));
+    let sub_four = sublevels_four.filter((el) => el.account_name.toLowerCase().includes(e.toLowerCase()));
+    let sub_five = sublevels_five.filter((el) => el.account_name.toLowerCase().includes(e.toLowerCase()));
+    let sub_six = sublevels_six.filter((el) => el.account_name.toLowerCase().includes(e.toLowerCase()));
+    let sub_senven = sublevels_senven.filter((el) => el.account_name.toLowerCase().includes(e.toLowerCase()));
+    let sub_eight = sublevels_eight.filter((el) => el.account_name.toLowerCase().includes(e.toLowerCase()));
+    let sub_nine = sublevels_nine.filter((el) => el.account_name.toLowerCase().includes(e.toLowerCase()));
+    let sub_ten = sublevels_ten.filter((el) => el.account_name.toLowerCase().includes(e.toLowerCase()));
+    console.log("sub_TEn=", sub_ten)
+
     if (!e) {
       setSearchResult([]);
     } else {
-      setSearchResult([...searchName]);
+      setSearchResult([...searchName])
+      setFirstdatachartofaccount([...searchName1])
+      setSublevels_one([...sub_one])
+      setSublevels_two([...sub_tow])
+      setsublevels_three([...sub_three])
+      setSublevels_four([...sub_four])
+      setSublevels_five([...sub_five])
+      setSublevels_six([...sub_six])
+      setSublevels_senven([...sub_senven])
+      setSublevels_eight([...sub_eight])
+      setSublevels_nine([...sub_nine])
+      setSublevels_ten([...sub_ten])
     }
   };
 
@@ -928,7 +1049,7 @@ export default function ChartAccounts() {
   const _Onsearch = (e) => {
     setSearch(e)
     let searchName = listallaccount.filter((el) => el.account_name.toLowerCase().includes(e.toLowerCase()));
-    // let children = listallaccountchildren.filter((el) => el.account_name.toLowerCase().includes(e.toLowerCase()));
+
     let lev_one = chartofaccountslevels_one.filter((el) => el.account_name.toLowerCase().includes(e.toLowerCase()));
     let lev_two = chartofaccountslevels_two.filter((el) => el.account_name.toLowerCase().includes(e.toLowerCase()));
     let lev_three = chartofaccountslevels_three.filter((el) => el.account_name.toLowerCase().includes(e.toLowerCase()));
@@ -944,7 +1065,7 @@ export default function ChartAccounts() {
       onloadallaccount()
     } else {
       setListallaccount(searchName)
-      // setSecondSearch(children)
+
       setLevels_one(lev_one)
       setLevels_two(lev_two)
       setLevels_three(lev_three)
@@ -1058,7 +1179,7 @@ export default function ChartAccounts() {
                       {listaccountType &&
                         listaccountType.map((data, index) => {
                           return (
-                            <option key={index} value={data?.type_uid} disabled={true}>
+                            <option key={index} value={data?.type_uid}>
                               {data?.type_name_eng}
                             </option>
                           );
@@ -1097,7 +1218,24 @@ export default function ChartAccounts() {
                       aria-label="Default select example"
                       onChange={(e) => _onBank(e.target.value)}
                       value={listbank}
-                    >
+                    >{
+                        showUpdate ? (
+                          <>
+                            <option value={editbank_id}>{editbank_name}</option>
+                            {bank &&
+                              bank.map((data, index) => {
+                                return (
+                                  <option key={index} value={data?.bank_id}>
+                                    {data?.bank_name}
+                                  </option>
+                                );
+                              })}
+
+                          </>) : (
+                          <>
+
+                          </>)
+                      }
                       <option>SELECT BANK</option>
                       {bank &&
                         bank.map((data, index) => {
@@ -1348,6 +1486,449 @@ export default function ChartAccounts() {
                   </div>
                 </div>
               </Form.Group>
+              {/* {
+                showBox == true ? (
+                  <>
+                    <div
+                      style={{
+                        overflowY: "scroll",
+                        height: 300,
+                        paddingTop: 5,
+                        paddingLeft: 10,
+                        position: 'absolute',
+                        backgroundColor: 'white'
+                      }}
+
+                    >
+                      {
+                        searchResult.length > 0 ? (
+                          <>
+                           
+
+
+                            {
+                              sublevels_one.length == 0 ? (
+                                <>
+                                  {
+                                    sublevels_two.length == 0 ? (
+                                      <>
+                                        {
+                                          sublevels_three.length == 0 ? (
+                                            <>
+                                              {
+                                                sublevels_four.length == 0 ? (
+                                                  <>
+                                                    {
+                                                      sublevels_five.length == 0 ? (<>
+                                                        {
+                                                          sublevels_six.length == 0 ? (<>
+                                                            {
+                                                              sublevels_senven.length == 0 ? (
+                                                                <>
+                                                                  {
+                                                                    sublevels_eight.length == 0 ? (
+                                                                      <>
+                                                                        {
+                                                                          sublevels_nine.length == 0 ? (<>
+                                                                            {
+                                                                              sublevels_ten.length == 0 ? (<></>) : (<>
+                                                                                {
+                                                                                  sublevels_ten && sublevels_ten.map((data, index) => {
+                                                                                    return (
+                                                                                      <>
+                                                                                        <div style={{ display: 'flex', flexDirection: 'column', backgroundColor: 'white' }}>
+                                                                                          <span
+                                                                                            key={index}
+                                                                                            style={{
+                                                                                              cursor: "pointer",
+                                                                                              fontWeight: active === data?.account_name ? "bold" : "",
+                                                                                            }}
+                                                                                            onClick={() => { getNameList(data?.c_id) }}
+                                                                                            onMouseOver={() => setActive(data?.account_name)}
+                                                                                            onMouseLeave={() => setActive(null)}
+                                                                                          >
+                                                                                            {data?.account_name}
+
+                                                                                          </span>
+                                                                                          <ComponentCell
+                                                                                            id={data?.c_id}
+                                                                                            level={30}
+                                                                                            listallaccountchildren={seconddatachartofaccount}
+                                                                                            getNameList1={getNameList1}
+                                                                                          />
+                                                                                        </div>
+                                                                                      </>
+                                                                                    )
+                                                                                  })
+                                                                                }
+
+                                                                              </>)
+                                                                            }
+
+                                                                          </>) : (<>
+                                                                            {
+                                                                              sublevels_nine && sublevels_nine.map((data, index) => {
+                                                                                return (<>
+                                                                                  <div style={{ display: 'flex', flexDirection: 'column', backgroundColor: 'white' }}>
+                                                                                    <span
+                                                                                      key={index}
+                                                                                      style={{
+                                                                                        cursor: "pointer",
+                                                                                        fontWeight: active === data?.account_name ? "bold" : "",
+                                                                                      }}
+                                                                                      onClick={() => { getNameList(data?.c_id) }}
+                                                                                      onMouseOver={() => setActive(data?.account_name)}
+                                                                                      onMouseLeave={() => setActive(null)}
+                                                                                    >
+                                                                                      {data?.account_name}
+
+                                                                                    </span>
+                                                                                    <ComponentCell
+                                                                                      id={data?.c_id}
+                                                                                      level={30}
+                                                                                      listallaccountchildren={seconddatachartofaccount}
+                                                                                      getNameList1={getNameList1}
+                                                                                    />
+                                                                                  </div>
+                                                                                </>)
+                                                                              })
+                                                                            }
+
+                                                                          </>)
+                                                                        }
+
+                                                                      </>
+                                                                    ) : (
+                                                                      <>
+                                                                        {
+                                                                          sublevels_eight && sublevels_eight.map((data, index) => {
+                                                                            return (
+                                                                              <>
+                                                                                <div style={{ display: 'flex', flexDirection: 'column', backgroundColor: 'white' }}>
+                                                                                  <span
+                                                                                    key={index}
+                                                                                    style={{
+                                                                                      cursor: "pointer",
+                                                                                      fontWeight: active === data?.account_name ? "bold" : "",
+                                                                                    }}
+                                                                                    onClick={() => { getNameList(data?.c_id) }}
+                                                                                    onMouseOver={() => setActive(data?.account_name)}
+                                                                                    onMouseLeave={() => setActive(null)}
+                                                                                  >
+                                                                                    {data?.account_name}
+
+                                                                                  </span>
+                                                                                  <ComponentCell
+                                                                                    id={data?.c_id}
+                                                                                    level={30}
+                                                                                    listallaccountchildren={seconddatachartofaccount}
+                                                                                    getNameList1={getNameList1}
+                                                                                  />
+                                                                                </div>
+
+                                                                              </>
+                                                                            )
+                                                                          })
+                                                                        }
+
+                                                                      </>)
+                                                                  }
+
+                                                                </>
+                                                              ) : (<>
+                                                                {
+                                                                  sublevels_senven && sublevels_senven.map((data, index) => {
+                                                                    return (<>
+                                                                      <div style={{ display: 'flex', flexDirection: 'column', backgroundColor: 'white' }}>
+                                                                        <span
+                                                                          key={index}
+                                                                          style={{
+                                                                            cursor: "pointer",
+                                                                            fontWeight: active === data?.account_name ? "bold" : "",
+                                                                          }}
+                                                                          onClick={() => { getNameList(data?.c_id) }}
+                                                                          onMouseOver={() => setActive(data?.account_name)}
+                                                                          onMouseLeave={() => setActive(null)}
+                                                                        >
+                                                                          {data?.account_name}
+
+                                                                        </span>
+                                                                        <ComponentCell
+                                                                          id={data?.c_id}
+                                                                          level={30}
+                                                                          listallaccountchildren={seconddatachartofaccount}
+                                                                          getNameList1={getNameList1}
+                                                                        />
+                                                                      </div>
+
+                                                                    </>)
+                                                                  })
+                                                                }
+                                                              </>)
+                                                            }
+
+
+                                                          </>) : (<>
+                                                            {
+                                                              sublevels_six && sublevels_six.map((data, index) => {
+                                                                return (
+                                                                  <>
+                                                                    <div style={{ display: 'flex', flexDirection: 'column', backgroundColor: 'white' }}>
+                                                                      <span
+                                                                        key={index}
+                                                                        style={{
+                                                                          cursor: "pointer",
+                                                                          fontWeight: active === data?.account_name ? "bold" : "",
+                                                                        }}
+                                                                        onClick={() => { getNameList(data?.c_id) }}
+                                                                        onMouseOver={() => setActive(data?.account_name)}
+                                                                        onMouseLeave={() => setActive(null)}
+                                                                      >
+                                                                        {data?.account_name}
+
+                                                                      </span>
+                                                                      <ComponentCell
+                                                                        id={data?.c_id}
+                                                                        level={30}
+                                                                        listallaccountchildren={seconddatachartofaccount}
+                                                                        getNameList1={getNameList1}
+                                                                      />
+                                                                    </div>
+                                                                  </>
+                                                                )
+                                                              })
+                                                            }
+                                                          </>)
+                                                        }
+
+                                                      </>) : (
+
+                                                        <>
+                                                          {
+                                                            sublevels_five && sublevels_five.map((data, index) => {
+                                                              return (
+                                                                <>
+                                                                  <div style={{ display: 'flex', flexDirection: 'column', backgroundColor: 'white' }}>
+                                                                    <span
+                                                                      key={index}
+                                                                      style={{
+                                                                        cursor: "pointer",
+                                                                        fontWeight: active === data?.account_name ? "bold" : "",
+                                                                      }}
+                                                                      onClick={() => { getNameList(data?.c_id) }}
+                                                                      onMouseOver={() => setActive(data?.account_name)}
+                                                                      onMouseLeave={() => setActive(null)}
+                                                                    >
+                                                                      {data?.account_name}
+
+                                                                    </span>
+                                                                    <ComponentCell
+                                                                      id={data?.c_id}
+                                                                      level={30}
+                                                                      listallaccountchildren={seconddatachartofaccount}
+                                                                      getNameList1={getNameList1}
+                                                                    />
+                                                                  </div>
+                                                                </>
+                                                              )
+                                                            })
+                                                          }
+
+
+
+                                                        </>)
+                                                    }
+                                                  </>) : (
+                                                  <>{
+                                                    sublevels_four && sublevels_four.map((data, index) => {
+                                                      return (
+                                                        <>
+                                                          <div style={{ display: 'flex', flexDirection: 'column', backgroundColor: 'white' }}>
+                                                            <span
+                                                              key={index}
+                                                              style={{
+                                                                cursor: "pointer",
+                                                                fontWeight: active === data?.account_name ? "bold" : "",
+                                                              }}
+                                                              onClick={() => { getNameList(data?.c_id) }}
+                                                              onMouseOver={() => setActive(data?.account_name)}
+                                                              onMouseLeave={() => setActive(null)}
+                                                            >
+                                                              {data?.account_name}
+
+                                                            </span>
+                                                            <ComponentCell
+                                                              id={data?.c_id}
+                                                              level={30}
+                                                              listallaccountchildren={seconddatachartofaccount}
+                                                              getNameList1={getNameList1}
+                                                            />
+                                                          </div>
+
+                                                        </>
+                                                      )
+                                                    })
+                                                  }
+
+
+                                                  </>)
+                                              }
+
+                                            </>
+                                          ) : (
+                                            <>
+                                              {
+                                                sublevels_three && sublevels_three.map((data, index) => {
+                                                  return (
+                                                    <>
+                                                      <div style={{ display: 'flex', flexDirection: 'column', backgroundColor: 'white' }}>
+                                                        <span
+                                                          key={index}
+                                                          style={{
+                                                            cursor: "pointer",
+                                                            fontWeight: active === data?.account_name ? "bold" : "",
+                                                          }}
+                                                          onClick={() => { getNameList(data?.c_id) }}
+                                                          onMouseOver={() => setActive(data?.account_name)}
+                                                          onMouseLeave={() => setActive(null)}
+                                                        >
+                                                          {data?.account_name}
+
+                                                        </span>
+                                                        <ComponentCell
+                                                          id={data?.c_id}
+                                                          level={30}
+                                                          listallaccountchildren={seconddatachartofaccount}
+                                                          getNameList1={getNameList1}
+                                                        />
+                                                      </div>
+
+                                                    </>
+                                                  )
+                                                })
+                                              }
+
+                                            </>)
+                                        }
+
+                                      </>) : (
+                                      <>
+                                        {
+                                          sublevels_two && sublevels_two.map((data, index) => {
+                                            return (
+                                              <>
+                                                <div style={{ display: 'flex', flexDirection: 'column', backgroundColor: 'white' }}>
+                                                  <span
+                                                    key={index}
+                                                    style={{
+                                                      cursor: "pointer",
+                                                      fontWeight: active === data?.account_name ? "bold" : "",
+                                                    }}
+                                                    onClick={() => { getNameList(data?.c_id) }}
+                                                    onMouseOver={() => setActive(data?.account_name)}
+                                                    onMouseLeave={() => setActive(null)}
+                                                  >
+                                                    {data?.account_name}
+
+                                                  </span>
+                                                  <ComponentCell
+                                                    id={data?.c_id}
+                                                    level={30}
+                                                    listallaccountchildren={seconddatachartofaccount}
+                                                    getNameList1={getNameList1}
+                                                  />
+                                                </div>
+                                              </>
+                                            )
+                                          })
+                                        }
+
+                                      </>)
+                                  }
+
+                                </>
+                              ) : (
+                                <>
+                                  {
+                                    sublevels_one && sublevels_one.map((data, index) => {
+                                      return (
+                                        <>
+                                          <div style={{ display: 'flex', flexDirection: 'column', backgroundColor: 'white' }}>
+                                            <span
+                                              key={index}
+                                              style={{
+                                                cursor: "pointer",
+                                                fontWeight: active === data?.account_name ? "bold" : "",
+                                              }}
+                                              onClick={() => { getNameList(data?.c_id) }}
+                                              onMouseOver={() => setActive(data?.account_name)}
+                                              onMouseLeave={() => setActive(null)}
+                                            >
+                                              {data?.account_name}
+
+                                            </span>
+                                            <ComponentCell
+                                              id={data?.c_id}
+                                              level={30}
+                                              listallaccountchildren={seconddatachartofaccount}
+                                              getNameList1={getNameList1}
+                                            />
+
+                                          </div>
+                                        </>
+                                      )
+                                    })
+                                  }
+
+                                </>)
+                            }
+                          </>) : (
+                          <>
+                            {firstdatachartofaccount.map((data, index) => {
+                              return (
+                                <>
+                                  <div style={{ display: 'flex', flexDirection: 'column', backgroundColor: 'white' }}>
+                                    <span
+                                      key={index}
+                                      style={{
+                                        cursor: "pointer",
+                                        fontWeight: active === data?.account_name ? "bold" : "",
+                                      }}
+                                      onClick={() => { getNameList(data?.c_id) }}
+                                      onMouseOver={() => setActive(data?.account_name)}
+                                      onMouseLeave={() => setActive(null)}
+                                    >
+                                      {data?.account_name}
+
+                                    </span>
+                                    <ComponentCell
+                                      id={data?.c_id}
+                                      level={30}
+                                      listallaccountchildren={seconddatachartofaccount}
+                                      getNameList1={getNameList1}
+                                    />
+
+                                  </div>
+
+
+                                </>
+                              );
+                            })}
+
+
+                          </>
+                        )
+                      }
+
+
+                    </div>
+
+
+
+
+
+                  </>) : null
+              } */}
               {showBox && (
                 <>
                   <Card style={{
@@ -1374,7 +1955,7 @@ export default function ChartAccounts() {
                                     onMouseOver={() => setActive(data?.name_eng)}
                                     onMouseLeave={() => setActive(null)}
                                   >
-                                    {data?.name_eng}- {data?.currencies_name}
+                                    {data?.name_eng}
                                   </Typography>
                                   <br />
                                 </div>
@@ -1398,7 +1979,7 @@ export default function ChartAccounts() {
                                     onMouseOver={() => setActive(data?.name_eng)}
                                     onMouseLeave={() => setActive(null)}
                                   >
-                                    {data?.name_eng} - {data?.currencies_name}
+                                    {data?.name_eng}
                                   </Typography>
                                   <br />
                                 </div>
@@ -1411,6 +1992,89 @@ export default function ChartAccounts() {
                   </Card>
                 </>
               )}
+
+              {/* {showBox && (
+                <div
+                  style={{
+                    overflowY: "scroll",
+                    height: 200,
+                    paddingTop: 5,
+                    paddingLeft: 10,
+                    position: 'absolute',
+                    backgroundColor: 'white',
+                    display: 'flex',
+                    flexDirection: 'column'
+                  }}
+                >
+                  {searchResult.length > 0 ? (
+                    <>
+                      {searchResult.map((data, index1) => {
+                        return (
+                          <>
+
+                            <span
+                              key={index1}
+                              style={{
+                                cursor: "pointer",
+                                fontWeight: active === data?.account_name ? "bold" : "",
+                              }}
+                              onClick={() => { getNameList1(data?.c_id) }}
+                            
+                              onMouseOver={() => setActive(data?.account_name)}
+                              onMouseLeave={() => setActive(null)}
+                            >
+                              {data?.account_name}
+
+                            </span>
+                            <ComponentCell
+                              id={data?.c_id}
+                              level={30}
+                              listallaccountchildren={listallaccountchildren}
+                              getNameList1={getNameList1}
+                            />
+
+                          </>
+                        );
+                      })}
+                    </>
+                  ) : (
+                    <>
+                      {listaccountname.map((data, index1) => {
+                        return (
+                          <>
+                            <div style={{ display: 'flex', flexDirection: 'column', backgroundColor: 'white' }}>
+                              <span
+                                key={index1}
+                                style={{
+                                  cursor: "pointer",
+                                  fontWeight: active === data?.account_name ? "bold" : "",
+                                }}
+                                onClick={() => { getNameList1() }}
+                                onMouseOver={() => setActive(data?.account_name)}
+                                onMouseLeave={() => setActive(null)}
+                              >
+                                {data?.account_name}
+
+                              </span>
+                              <ComponentCell
+                                id={data?.c_id}
+                                level={30}
+                                listallaccountchildren={listallaccountchildren}
+                                getNameList1={getNameList1}
+                              />
+                            </div>
+
+
+
+
+
+                          </>
+                        );
+                      })}
+                    </>
+                  )}
+                </div>
+              )} */}
               {
                 checked == "In" || checked == "Ex" ? (
                   <>
@@ -1814,6 +2478,25 @@ export default function ChartAccounts() {
           )}
         </Modal.Footer>
       </Modal>
+
+      <Modal show={showleave} onHide={handleLeaveClosedel} style={{ paddingTop: 50 }} size="sm">
+        <Modal.Header>
+          < WarningIcon style={{ color: "red" }} />
+          <span style={{ fontSize: 14, paddingTop: 10 }}>
+            Do you want to Deleted Or Not ? </span>
+        </Modal.Header>
+        <Modal.Footer>
+          <Button onClick={handleLeaveClosedel}>
+            No
+          </Button>
+          <Button onClick={() => {
+            DeletedChartAaccount(c_uid)
+          }}
+          >
+            Yes
+          </Button>
+        </Modal.Footer>
+      </Modal>
       <Breadcrumbs aria-label="breadcrumb">
         <div
           style={{
@@ -2010,6 +2693,7 @@ export default function ChartAccounts() {
                               detail_type_id={item?.detail_type_id}
                               balance={item?.c_balance}
                               desc={item?.c_desc}
+                              bank_id={item?.bank_id}
                               setName={setName}
                               editaccountype={editaccountype}
                               ac_ty_id={item?.ac_ty_id}
@@ -2021,6 +2705,8 @@ export default function ChartAccounts() {
                               _ongetCurrencyvalues={_ongetCurrencyvalues}
                               getstutas={getstutas}
                               _onsearchaccountid={_onsearchaccountid}
+
+
                             />
 
                           </>
@@ -2075,6 +2761,7 @@ export default function ChartAccounts() {
 
       </div>
       {/* ==============================================TableListShow====================================*/}
+      {/* {JSON.stringify(firstdatachartofaccount)} */}
 
       <div style={{ paddingTop: 20, paddingBottom: 50 }}>
         <TableContainer component={Paper}>
@@ -2144,30 +2831,35 @@ export default function ChartAccounts() {
                                                                         </>
                                                                       )
                                                                     }
-
-                                                                    <RowEditComponentfirst
+                                                                    <RowEditComponentSecond
                                                                       Gotodetailaccount={Gotodetailaccount}
                                                                       c_uid={item?.c_uid}
-                                                                      id={item?.c_id}
                                                                       c_id={item?.c_id}
+                                                                      id={item?.c_id}
+                                                                      bank_id={item?.bank_id}
                                                                       handleShow={handleShow}
                                                                       setShowUpdate={setShowUpdate}
-                                                                      account_name={item?.account_name}
-                                                                      type_id={item?.type_id}
-                                                                      detail_type_id={item?.detail_type_id}
-                                                                      balance={item?.c_balance}
-                                                                      desc={item?.c_desc}
                                                                       setName={setName}
+                                                                      account_name={item?.account_name}
                                                                       editaccountype={editaccountype}
                                                                       ac_ty_id={item?.ac_ty_id}
+                                                                      detail_type_id={item?.detail_type_id}
                                                                       _onshowcreatestatus={_onshowcreatestatus}
                                                                       _oneditshowcurrency={_oneditshowcurrency}
-                                                                      currencies_id={item?.cy_id}
+                                                                      currencies_id={item?.currency_uid}
                                                                       setDescription={setDescription}
-                                                                      editbeginningbalancefirst={editbeginningbalancefirst}
+                                                                      getNameList={getNameList}
+                                                                      type_id={item?.type_id}
+                                                                      checkedtrue={checkedtrue}
+                                                                      desc={item?.c_desc}
+                                                                      listsubaccountname={listsubaccountname}
+                                                                      editbeginningbalanceSecond={editbeginningbalanceSecond}
                                                                       _ongetCurrencyvalues={_ongetCurrencyvalues}
                                                                       getstutas={getstutas}
                                                                       _onsearchaccountid={_onsearchaccountid}
+                                                                      handleShowDelelete={handleShowDelelete}
+                                                                      _ongetBanckvalues={_ongetBanckvalues}
+
                                                                     />
 
                                                                   </TableCell>
@@ -2193,6 +2885,8 @@ export default function ChartAccounts() {
                                                                   _ongetCurrencyvalues={_ongetCurrencyvalues}
                                                                   getstutas={getstutas}
                                                                   _onsearchaccountid={_onsearchaccountid}
+                                                                  _ongetBanckvalues={_ongetBanckvalues}
+                                                                  handleShowDelelete={handleShowDelelete}
                                                                 />
                                                               </>
                                                             )
@@ -2235,29 +2929,35 @@ export default function ChartAccounts() {
                                                                       )
                                                                     }
 
-                                                                    <RowEditComponentfirst
+                                                                    <RowEditComponentSecond
                                                                       Gotodetailaccount={Gotodetailaccount}
                                                                       c_uid={item?.c_uid}
-                                                                      id={item?.c_id}
                                                                       c_id={item?.c_id}
+                                                                      id={item?.c_id}
+                                                                      bank_id={item?.bank_id}
                                                                       handleShow={handleShow}
                                                                       setShowUpdate={setShowUpdate}
-                                                                      account_name={item?.account_name}
-                                                                      type_id={item?.type_id}
-                                                                      detail_type_id={item?.detail_type_id}
-                                                                      balance={item?.c_balance}
-                                                                      desc={item?.c_desc}
                                                                       setName={setName}
+                                                                      account_name={item?.account_name}
                                                                       editaccountype={editaccountype}
                                                                       ac_ty_id={item?.ac_ty_id}
+                                                                      detail_type_id={item?.detail_type_id}
                                                                       _onshowcreatestatus={_onshowcreatestatus}
                                                                       _oneditshowcurrency={_oneditshowcurrency}
-                                                                      currencies_id={item?.cy_id}
+                                                                      currencies_id={item?.currency_uid}
                                                                       setDescription={setDescription}
-                                                                      editbeginningbalancefirst={editbeginningbalancefirst}
+                                                                      getNameList={getNameList}
+                                                                      type_id={item?.type_id}
+                                                                      checkedtrue={checkedtrue}
+                                                                      desc={item?.c_desc}
+                                                                      listsubaccountname={listsubaccountname}
+                                                                      editbeginningbalanceSecond={editbeginningbalanceSecond}
                                                                       _ongetCurrencyvalues={_ongetCurrencyvalues}
                                                                       getstutas={getstutas}
                                                                       _onsearchaccountid={_onsearchaccountid}
+                                                                      handleShowDelelete={handleShowDelelete}
+                                                                      _ongetBanckvalues={_ongetBanckvalues}
+
                                                                     />
 
                                                                   </TableCell>
@@ -2328,32 +3028,36 @@ export default function ChartAccounts() {
                                                                   </>
                                                                 )
                                                               }
-
-                                                              <RowEditComponentfirst
+                                                              <RowEditComponentSecond
                                                                 Gotodetailaccount={Gotodetailaccount}
                                                                 c_uid={item?.c_uid}
-                                                                id={item?.c_id}
                                                                 c_id={item?.c_id}
+                                                                id={item?.c_id}
+                                                                bank_id={item?.bank_id}
                                                                 handleShow={handleShow}
                                                                 setShowUpdate={setShowUpdate}
-                                                                account_name={item?.account_name}
-                                                                type_id={item?.type_id}
-                                                                detail_type_id={item?.detail_type_id}
-                                                                balance={item?.c_balance}
-                                                                desc={item?.c_desc}
                                                                 setName={setName}
+                                                                account_name={item?.account_name}
                                                                 editaccountype={editaccountype}
                                                                 ac_ty_id={item?.ac_ty_id}
+                                                                detail_type_id={item?.detail_type_id}
                                                                 _onshowcreatestatus={_onshowcreatestatus}
                                                                 _oneditshowcurrency={_oneditshowcurrency}
-                                                                currencies_id={item?.cy_id}
+                                                                currencies_id={item?.currency_uid}
                                                                 setDescription={setDescription}
-                                                                editbeginningbalancefirst={editbeginningbalancefirst}
+                                                                getNameList={getNameList}
+                                                                type_id={item?.type_id}
+                                                                checkedtrue={checkedtrue}
+                                                                desc={item?.c_desc}
+                                                                listsubaccountname={listsubaccountname}
+                                                                editbeginningbalanceSecond={editbeginningbalanceSecond}
                                                                 _ongetCurrencyvalues={_ongetCurrencyvalues}
                                                                 getstutas={getstutas}
                                                                 _onsearchaccountid={_onsearchaccountid}
-                                                              />
+                                                                handleShowDelelete={handleShowDelelete}
+                                                                _ongetBanckvalues={_ongetBanckvalues}
 
+                                                              />
                                                             </TableCell>
                                                           </TableRow>
                                                           < RowComponentSearch
@@ -2422,29 +3126,35 @@ export default function ChartAccounts() {
                                                           )
                                                         }
 
-                                                        <RowEditComponentfirst
+                                                        <RowEditComponentSecond
                                                           Gotodetailaccount={Gotodetailaccount}
                                                           c_uid={item?.c_uid}
-                                                          id={item?.c_id}
                                                           c_id={item?.c_id}
+                                                          id={item?.c_id}
+                                                          bank_id={item?.bank_id}
                                                           handleShow={handleShow}
                                                           setShowUpdate={setShowUpdate}
-                                                          account_name={item?.account_name}
-                                                          type_id={item?.type_id}
-                                                          detail_type_id={item?.detail_type_id}
-                                                          balance={item?.c_balance}
-                                                          desc={item?.c_desc}
                                                           setName={setName}
+                                                          account_name={item?.account_name}
                                                           editaccountype={editaccountype}
                                                           ac_ty_id={item?.ac_ty_id}
+                                                          detail_type_id={item?.detail_type_id}
                                                           _onshowcreatestatus={_onshowcreatestatus}
                                                           _oneditshowcurrency={_oneditshowcurrency}
-                                                          currencies_id={item?.cy_id}
+                                                          currencies_id={item?.currency_uid}
                                                           setDescription={setDescription}
-                                                          editbeginningbalancefirst={editbeginningbalancefirst}
+                                                          getNameList={getNameList}
+                                                          type_id={item?.type_id}
+                                                          checkedtrue={checkedtrue}
+                                                          desc={item?.c_desc}
+                                                          listsubaccountname={listsubaccountname}
+                                                          editbeginningbalanceSecond={editbeginningbalanceSecond}
                                                           _ongetCurrencyvalues={_ongetCurrencyvalues}
                                                           getstutas={getstutas}
                                                           _onsearchaccountid={_onsearchaccountid}
+                                                          handleShowDelelete={handleShowDelelete}
+                                                          _ongetBanckvalues={_ongetBanckvalues}
+
                                                         />
 
                                                       </TableCell>
@@ -2517,29 +3227,35 @@ export default function ChartAccounts() {
                                                     )
                                                   }
 
-                                                  <RowEditComponentfirst
+                                                  <RowEditComponentSecond
                                                     Gotodetailaccount={Gotodetailaccount}
                                                     c_uid={item?.c_uid}
-                                                    id={item?.c_id}
                                                     c_id={item?.c_id}
+                                                    id={item?.c_id}
+                                                    bank_id={item?.bank_id}
                                                     handleShow={handleShow}
                                                     setShowUpdate={setShowUpdate}
-                                                    account_name={item?.account_name}
-                                                    type_id={item?.type_id}
-                                                    detail_type_id={item?.detail_type_id}
-                                                    balance={item?.c_balance}
-                                                    desc={item?.c_desc}
                                                     setName={setName}
+                                                    account_name={item?.account_name}
                                                     editaccountype={editaccountype}
                                                     ac_ty_id={item?.ac_ty_id}
+                                                    detail_type_id={item?.detail_type_id}
                                                     _onshowcreatestatus={_onshowcreatestatus}
                                                     _oneditshowcurrency={_oneditshowcurrency}
-                                                    currencies_id={item?.cy_id}
+                                                    currencies_id={item?.currency_uid}
                                                     setDescription={setDescription}
-                                                    editbeginningbalancefirst={editbeginningbalancefirst}
+                                                    getNameList={getNameList}
+                                                    type_id={item?.type_id}
+                                                    checkedtrue={checkedtrue}
+                                                    desc={item?.c_desc}
+                                                    listsubaccountname={listsubaccountname}
+                                                    editbeginningbalanceSecond={editbeginningbalanceSecond}
                                                     _ongetCurrencyvalues={_ongetCurrencyvalues}
                                                     getstutas={getstutas}
                                                     _onsearchaccountid={_onsearchaccountid}
+                                                    handleShowDelelete={handleShowDelelete}
+                                                    _ongetBanckvalues={_ongetBanckvalues}
+
                                                   />
 
                                                 </TableCell>
@@ -2610,29 +3326,35 @@ export default function ChartAccounts() {
                                               )
                                             }
 
-                                            <RowEditComponentfirst
+                                            <RowEditComponentSecond
                                               Gotodetailaccount={Gotodetailaccount}
                                               c_uid={item?.c_uid}
-                                              id={item?.c_id}
                                               c_id={item?.c_id}
+                                              id={item?.c_id}
+                                              bank_id={item?.bank_id}
                                               handleShow={handleShow}
                                               setShowUpdate={setShowUpdate}
-                                              account_name={item?.account_name}
-                                              type_id={item?.type_id}
-                                              detail_type_id={item?.detail_type_id}
-                                              balance={item?.c_balance}
-                                              desc={item?.c_desc}
                                               setName={setName}
+                                              account_name={item?.account_name}
                                               editaccountype={editaccountype}
                                               ac_ty_id={item?.ac_ty_id}
+                                              detail_type_id={item?.detail_type_id}
                                               _onshowcreatestatus={_onshowcreatestatus}
                                               _oneditshowcurrency={_oneditshowcurrency}
-                                              currencies_id={item?.cy_id}
+                                              currencies_id={item?.currency_uid}
                                               setDescription={setDescription}
-                                              editbeginningbalancefirst={editbeginningbalancefirst}
+                                              getNameList={getNameList}
+                                              type_id={item?.type_id}
+                                              checkedtrue={checkedtrue}
+                                              desc={item?.c_desc}
+                                              listsubaccountname={listsubaccountname}
+                                              editbeginningbalanceSecond={editbeginningbalanceSecond}
                                               _ongetCurrencyvalues={_ongetCurrencyvalues}
                                               getstutas={getstutas}
                                               _onsearchaccountid={_onsearchaccountid}
+                                              handleShowDelelete={handleShowDelelete}
+                                              _ongetBanckvalues={_ongetBanckvalues}
+
                                             />
 
                                           </TableCell>
@@ -2658,6 +3380,7 @@ export default function ChartAccounts() {
                                           _ongetCurrencyvalues={_ongetCurrencyvalues}
                                           getstutas={getstutas}
                                           _onsearchaccountid={_onsearchaccountid}
+                                          handleShowDelelete={handleShowDelelete}
                                         />
                                       </>
                                     )
@@ -2704,36 +3427,43 @@ export default function ChartAccounts() {
                                         )
                                       }
 
-                                      <RowEditComponentfirst
+
+                                      <RowEditComponentSecond
                                         Gotodetailaccount={Gotodetailaccount}
                                         c_uid={item?.c_uid}
-                                        id={item?.c_id}
                                         c_id={item?.c_id}
+                                        id={item?.c_id}
+                                        bank_id={item?.bank_id}
                                         handleShow={handleShow}
                                         setShowUpdate={setShowUpdate}
-                                        account_name={item?.account_name}
-                                        type_id={item?.type_id}
-                                        detail_type_id={item?.detail_type_id}
-                                        balance={item?.c_balance}
-                                        desc={item?.c_desc}
                                         setName={setName}
+                                        account_name={item?.account_name}
                                         editaccountype={editaccountype}
                                         ac_ty_id={item?.ac_ty_id}
+                                        detail_type_id={item?.detail_type_id}
                                         _onshowcreatestatus={_onshowcreatestatus}
                                         _oneditshowcurrency={_oneditshowcurrency}
-                                        currencies_id={item?.cy_id}
+                                        currencies_id={item?.currency_uid}
                                         setDescription={setDescription}
-                                        editbeginningbalancefirst={editbeginningbalancefirst}
+                                        getNameList={getNameList}
+                                        type_id={item?.type_id}
+                                        checkedtrue={checkedtrue}
+                                        desc={item?.c_desc}
+                                        listsubaccountname={listsubaccountname}
+                                        editbeginningbalanceSecond={editbeginningbalanceSecond}
                                         _ongetCurrencyvalues={_ongetCurrencyvalues}
                                         getstutas={getstutas}
                                         _onsearchaccountid={_onsearchaccountid}
+                                        handleShowDelelete={handleShowDelelete}
+                                        _ongetBanckvalues={_ongetBanckvalues}
+
                                       />
 
                                     </TableCell>
                                   </TableRow>
                                   < RowComponentSearch
                                     children={listallaccountchildren}
-                                    id={item.c_id}
+                                    id={item?.c_id}
                                     level={40}
                                     Gotodetailaccount={Gotodetailaccount}
                                     Gotohistory={Gotohistory}
@@ -2743,7 +3473,7 @@ export default function ChartAccounts() {
                                     editaccountype={editaccountype}
                                     _onshowcreatestatus={_onshowcreatestatus}
                                     _oneditshowcurrency={_oneditshowcurrency}
-                                    currencies_id={item.currency_uid}
+                                    currencies_id={item?.currency_uid}
                                     setDescription={setDescription}
                                     getNameList={getNameList}
                                     checkedtrue={checkedtrue}
@@ -2752,6 +3482,9 @@ export default function ChartAccounts() {
                                     _ongetCurrencyvalues={_ongetCurrencyvalues}
                                     getstutas={getstutas}
                                     _onsearchaccountid={_onsearchaccountid}
+                                    handleShowDelelete={handleShowDelelete}
+                                    _ongetBanckvalues={_ongetBanckvalues}
+
                                   />
                                 </>
                               )
@@ -2805,6 +3538,7 @@ export default function ChartAccounts() {
                                 c_uid={item?.c_uid}
                                 id={item?.c_id}
                                 c_id={item?.c_id}
+                                bank_id={item?.bank_id}
                                 handleShow={handleShow}
                                 setShowUpdate={setShowUpdate}
                                 account_name={item?.account_name}
@@ -2823,13 +3557,15 @@ export default function ChartAccounts() {
                                 _ongetCurrencyvalues={_ongetCurrencyvalues}
                                 getstutas={getstutas}
                                 _onsearchaccountid={_onsearchaccountid}
+                                handleShowDelelete={handleShowDelelete}
+                                _ongetBanckvalues={_ongetBanckvalues}
                               />
                             </TableCell>
                           </TableRow>
                           {/* level 1 */}
                           < RowComponent
                             children={listallaccountchildren}
-                            id={item.c_id}
+                            id={item?.c_id}
                             level={40}
                             Gotodetailaccount={Gotodetailaccount}
                             Gotohistory={Gotohistory}
@@ -2848,6 +3584,9 @@ export default function ChartAccounts() {
                             _ongetCurrencyvalues={_ongetCurrencyvalues}
                             getstutas={getstutas}
                             _onsearchaccountid={_onsearchaccountid}
+                            handleShowDelelete={handleShowDelelete}
+                            _ongetBanckvalues={_ongetBanckvalues}
+
                           />
                         </>
                       )
@@ -2888,7 +3627,7 @@ export default function ChartAccounts() {
   );
 }
 // Level 1
-function RowComponent({ children, id, level, Gotodetailaccount, Gotohistory, handleShow, setShowUpdate, getstutas, _onsearchaccountid, setName, editaccountype, _onshowcreatestatus, _oneditshowcurrency, setDescription, getNameList, checkedtrue, listsubaccountname, editbeginningbalanceSecond, _ongetCurrencyvalues }) {
+function RowComponent({ children, id, _ongetBanckvalues, level, handleShowDelelete, Gotodetailaccount, Gotohistory, handleShow, setShowUpdate, getstutas, _onsearchaccountid, setName, editaccountype, _onshowcreatestatus, _oneditshowcurrency, setDescription, getNameList, checkedtrue, listsubaccountname, editbeginningbalanceSecond, _ongetCurrencyvalues }) {
   const filter = children.filter((el) => el.parents == id);
   if (filter.length === 0) return <></>;
   return (
@@ -2902,7 +3641,7 @@ function RowComponent({ children, id, level, Gotodetailaccount, Gotohistory, han
               }}>
                 {data?.account_name}
               </TableCell>
-              <TableCell align="left">{data?.accounttype_name}</TableCell>
+              <TableCell align="left">{data?.accounttype_name}Second</TableCell>
               <TableCell align="left">{data?.currencesname}</TableCell>
               <TableCell align="left">{data?.c_desc}</TableCell>
               <TableCell align="right">{getFormatNumber(data.c_balance)}</TableCell>
@@ -2934,6 +3673,7 @@ function RowComponent({ children, id, level, Gotodetailaccount, Gotohistory, han
                   c_uid={data?.c_uid}
                   c_id={data?.c_id}
                   id={data?.c_id}
+                  bank_id={data?.bank_id}
                   handleShow={handleShow}
                   setShowUpdate={setShowUpdate}
                   setName={setName}
@@ -2954,6 +3694,9 @@ function RowComponent({ children, id, level, Gotodetailaccount, Gotohistory, han
                   _ongetCurrencyvalues={_ongetCurrencyvalues}
                   getstutas={getstutas}
                   _onsearchaccountid={_onsearchaccountid}
+                  handleShowDelelete={handleShowDelelete}
+                  _ongetBanckvalues={_ongetBanckvalues}
+
                 />
               </TableCell>
             </TableRow>
@@ -2962,6 +3705,8 @@ function RowComponent({ children, id, level, Gotodetailaccount, Gotohistory, han
               id={data?.c_id}
               c_id={data?.c_id}
               level={level * 2 - 30}
+              bank_id={data?.bank_id}
+              c_uid={data?.c_uid}
               Gotodetailaccount={Gotodetailaccount}
               Gotohistory={Gotohistory}
               handleShow={handleShow}
@@ -2984,6 +3729,8 @@ function RowComponent({ children, id, level, Gotodetailaccount, Gotohistory, han
               _ongetCurrencyvalues={_ongetCurrencyvalues}
               getstutas={getstutas}
               _onsearchaccountid={_onsearchaccountid}
+              handleShowDelelete={handleShowDelelete}
+              _ongetBanckvalues={_ongetBanckvalues}
             />
           </>
         );
@@ -2992,7 +3739,7 @@ function RowComponent({ children, id, level, Gotodetailaccount, Gotohistory, han
   );
 }
 // search componentSearch
-function RowComponentSearch({ children, id, level, Gotodetailaccount, Gotohistory, handleShow, setShowUpdate, getstutas, _onsearchaccountid, setName, editaccountype, _onshowcreatestatus, _oneditshowcurrency, setDescription, getNameList, checkedtrue, listsubaccountname, editbeginningbalanceSecond, _ongetCurrencyvalues }) {
+function RowComponentSearch({ children, id, level, handleShowDelelete, _ongetBanckvalues, Gotodetailaccount, Gotohistory, handleShow, setShowUpdate, getstutas, _onsearchaccountid, setName, editaccountype, _onshowcreatestatus, _oneditshowcurrency, setDescription, getNameList, checkedtrue, listsubaccountname, editbeginningbalanceSecond, _ongetCurrencyvalues }) {
   const filter = children.filter((el) => el.parents == id);
   if (filter.length === 0) return <></>;
   return (
@@ -3038,6 +3785,7 @@ function RowComponentSearch({ children, id, level, Gotodetailaccount, Gotohistor
                   c_uid={data?.c_uid}
                   c_id={data?.c_id}
                   id={data?.c_id}
+                  bank_id={data?.bank_id}
                   handleShow={handleShow}
                   setShowUpdate={setShowUpdate}
                   setName={setName}
@@ -3058,6 +3806,9 @@ function RowComponentSearch({ children, id, level, Gotodetailaccount, Gotohistor
                   _ongetCurrencyvalues={_ongetCurrencyvalues}
                   getstutas={getstutas}
                   _onsearchaccountid={_onsearchaccountid}
+                  _ongetBanckvalues={_ongetBanckvalues}
+                  handleShowDelelete={handleShowDelelete}
+
                 />
               </TableCell>
             </TableRow>
@@ -3088,6 +3839,8 @@ function RowComponentSearch({ children, id, level, Gotodetailaccount, Gotohistor
               _ongetCurrencyvalues={_ongetCurrencyvalues}
               getstutas={getstutas}
               _onsearchaccountid={_onsearchaccountid}
+              _ongetBanckvalues={_ongetBanckvalues}
+              handleShowDelelete={handleShowDelelete}
             />
           </>
         );
@@ -3149,7 +3902,35 @@ function RowComponentPrint({ children, id, level, Gotodetailaccount, Gotohistory
     </>
   );
 }
-function RowEditComponentSecond({ Gotodetailaccount, c_uid, handleShow, setShowUpdate, c_id, _ongetCurrencyvalues, getstutas, _onsearchaccountid, account_name, type_id, currencies_id, detail_type_id, desc, setName, editaccountype, ac_ty_id, _onshowcreatestatus, _oneditshowcurrency, setDescription, getNameList, id, checkedtrue, listsubaccountname, editbeginningbalanceSecond, editbeginningbalancefirst }) {
+function RowEditComponentSecond({
+  Gotodetailaccount,
+  c_uid,
+  handleShow,
+  setShowUpdate,
+  c_id,
+  bank_id,
+  _ongetCurrencyvalues,
+  getstutas,
+  _onsearchaccountid,
+  account_name,
+  type_id,
+  currencies_id,
+  desc,
+  setName,
+  editaccountype,
+  _onshowcreatestatus,
+  _oneditshowcurrency,
+  setDescription,
+  getNameList,
+  id,
+  checkedtrue,
+  listsubaccountname,
+  editbeginningbalanceSecond,
+  handleShowDelelete,
+  _ongetBanckvalues
+
+
+}) {
   const [open, setOpen] = useState(true);
   const [active, setActive] = useState("");
   const handleClick = () => {
@@ -3199,23 +3980,24 @@ function RowEditComponentSecond({ Gotodetailaccount, c_uid, handleShow, setShowU
               onMouseLeave={() => setActive(null)}
             >
               <ListItem button style={{ color: "" }}
-                onClick={() => { 
-                handleShow(); 
-                handleClick(); 
-                setShowUpdate(true);
-                _ongetCurrencyvalues(currencies_id); 
-                getstutas(c_id);
-                _onsearchaccountid(type_id); 
-                setName(account_name); 
-                editaccountype(type_id); 
-                _onshowcreatestatus(type_id);
-                _oneditshowcurrency(currencies_id); 
-                setDescription(desc); 
-                getNameList(id); 
-                checkedtrue();
-                listsubaccountname(type_id); 
-                editbeginningbalanceSecond(c_id); 
-                editbeginningbalancefirst(c_id) }}
+                onClick={() => {
+                  handleShow();
+                  handleClick();
+                  setShowUpdate(true);
+                  _ongetCurrencyvalues(currencies_id);
+                  getstutas(c_id);
+                  _onsearchaccountid(type_id);
+                  setName(account_name);
+                  editaccountype(type_id);
+                  _onshowcreatestatus(type_id);
+                  _oneditshowcurrency(currencies_id);
+                  setDescription(desc);
+                  getNameList(id);
+                  checkedtrue();
+                  listsubaccountname(type_id);
+                  editbeginningbalanceSecond(c_id);
+                  _ongetBanckvalues(bank_id)
+                }}
               >
                 Edit
               </ListItem>
@@ -3227,6 +4009,11 @@ function RowEditComponentSecond({ Gotodetailaccount, c_uid, handleShow, setShowU
               <ListItem button>
                 Make inactive
               </ListItem>
+              <ListItem button
+                onClick={() => { handleShowDelelete(c_uid) }}
+              >
+                Deleted
+              </ListItem>
             </div>
           </>
         )
@@ -3234,7 +4021,32 @@ function RowEditComponentSecond({ Gotodetailaccount, c_uid, handleShow, setShowU
     </>
   );
 }
-function RowEditComponentfirst({ Gotodetailaccount, c_id, c_uid, handleShow, setShowUpdate, id, editbeginningbalancefirst, _ongetCurrencyvalues, getstutas, _onsearchaccountid, account_name, type_id, currencies_id, desc, setName, editaccountype, ac_ty_id, _onshowcreatestatus, _oneditshowcurrency, setDescription, checkedtrue, listsubaccountname }) {
+function RowEditComponentfirst(
+
+  {
+    Gotodetailaccount,
+    c_id,
+    c_uid,
+    handleShow,
+    setShowUpdate,
+    id,
+    bank_id,
+    editbeginningbalancefirst,
+    _ongetCurrencyvalues,
+    _ongetBanckvalues,
+    getstutas,
+    _onsearchaccountid,
+    account_name,
+    type_id,
+    currencies_id,
+    desc, setName,
+    editaccountype,
+    _onshowcreatestatus,
+    _oneditshowcurrency,
+    setDescription,
+    // listsubaccountname,
+    handleShowDelelete
+  }) {
   const [open, setOpen] = useState(true);
   const [active, setActive] = useState("");
 
@@ -3281,7 +4093,25 @@ function RowEditComponentfirst({ Gotodetailaccount, c_id, c_uid, handleShow, set
               onMouseLeave={() => setActive(null)}
 
             >
-              <ListItem button style={{ color: "" }} onClick={() => { handleShow(); handleClick(); setShowUpdate(true); editbeginningbalancefirst(id); _ongetCurrencyvalues(currencies_id); getstutas(c_id); _onsearchaccountid(type_id); setName(account_name); editaccountype(type_id); _onshowcreatestatus(type_id); _oneditshowcurrency(currencies_id); setDescription(desc); checkedtrue(); listsubaccountname(type_id) }}>
+              <ListItem button style={{ color: "" }}
+                onClick={() => {
+                  handleShow();
+                  handleClick();
+                  setShowUpdate(true);
+                  editbeginningbalancefirst(id);
+                  _ongetCurrencyvalues(currencies_id);
+                  getstutas(c_id);
+                  _onsearchaccountid(type_id);
+                  setName(account_name);
+                  editaccountype(type_id);
+                  _onshowcreatestatus(type_id);
+                  _oneditshowcurrency(currencies_id);
+                  setDescription(desc);
+                  // listsubaccountname(type_id)
+                  _ongetBanckvalues(bank_id)
+
+
+                }}>
                 Edit
               </ListItem>
               <ListItem button style={{ color: "" }}
@@ -3291,6 +4121,12 @@ function RowEditComponentfirst({ Gotodetailaccount, c_id, c_uid, handleShow, set
               </ListItem>
               <ListItem button>
                 Make inactive
+              </ListItem>
+              <ListItem button
+                onClick={() => { handleShowDelelete(c_uid) }}
+
+              >
+                Deleted
               </ListItem>
 
             </div>
@@ -3318,6 +4154,243 @@ function ToastShow({ show, setShow, iconNmame }) {
     </Row>
 
   );
+}
+
+function ComponentCell({ listallaccountchildren, level, id, getNameList1 }) {
+  const [active, setActive] = useState('')
+  const filter = listallaccountchildren.filter((el) => el.parents == id);
+  return (<>
+    {
+      filter.map((items, index) => {
+        return (
+          <>
+            <span
+              key={index}
+              style={{
+                cursor: "pointer",
+                paddingLeft: level,
+                fontWeight: active === items?.account_name ? "bold" : "",
+              }}
+              onClick={() => { getNameList1(items?.c_id) }}
+              onMouseOver={() => setActive(items?.account_name)}
+              onMouseLeave={() => setActive(null)}
+            >
+              {items?.account_name}
+            </span>
+            <ComponentCell1
+              id={items?.c_id}
+              getNameList1={getNameList1}
+              listallaccountchildren={listallaccountchildren}
+            />
+          </>
+
+        )
+      })
+    }
+  </>)
+}
+function ComponentCell1({ listallaccountchildren, id, getNameList1 }) {
+  const [active, setActive] = useState('')
+  const filter = listallaccountchildren.filter((el) => el.parents == id);
+  return (<>
+    {
+      filter.map((items, index) => {
+        return (
+          <>
+            <span
+              key={index}
+              style={{
+                cursor: "pointer",
+                paddingLeft: 50,
+                fontWeight: active === items?.account_name ? "bold" : "",
+              }}
+              onClick={() => { getNameList1(items?.c_id) }}
+              onMouseOver={() => setActive(items?.account_name)}
+              onMouseLeave={() => setActive(null)}
+            >
+              {items?.account_name}
+            </span>
+            <ComponentCell2
+              id={items?.c_id}
+              getNameList1={getNameList1}
+              listallaccountchildren={listallaccountchildren}
+            />
+
+          </>
+
+        )
+      })
+    }
+  </>)
+}
+function ComponentCell2({ listallaccountchildren, id, getNameList1 }) {
+  const [active, setActive] = useState('')
+  const filter = listallaccountchildren.filter((el) => el.parents == id);
+  return (<>
+    {
+      filter.map((items, index) => {
+        return (
+          <>
+            <span
+              key={index}
+              style={{
+                cursor: "pointer",
+                paddingLeft: 70,
+                fontWeight: active === items?.account_name ? "bold" : "",
+              }}
+              onClick={() => { getNameList1(items?.c_id) }}
+              onMouseOver={() => setActive(items?.account_name)}
+              onMouseLeave={() => setActive(null)}
+            >
+              {items?.account_name}
+            </span>
+            <ComponentCell3
+              id={items?.c_id}
+              getNameList1={getNameList1}
+              listallaccountchildren={listallaccountchildren}
+            />
+
+          </>
+
+        )
+      })
+    }
+  </>)
+}
+function ComponentCell3({ listallaccountchildren, id, getNameList1 }) {
+  const [active, setActive] = useState('')
+  const filter = listallaccountchildren.filter((el) => el.parents == id);
+  return (<>
+    {
+      filter.map((items, index) => {
+        return (
+          <>
+            <span
+              key={index}
+              style={{
+                cursor: "pointer",
+                paddingLeft: 90,
+                fontWeight: active === items?.account_name ? "bold" : "",
+              }}
+              onClick={() => { getNameList1(items?.c_id) }}
+              onMouseOver={() => setActive(items?.account_name)}
+              onMouseLeave={() => setActive(null)}
+            >
+              {items?.account_name}
+            </span>
+            <ComponentCell4
+              id={items?.c_id}
+              getNameList1={getNameList1}
+              listallaccountchildren={listallaccountchildren}
+            />
+
+          </>
+
+        )
+      })
+    }
+  </>)
+}
+function ComponentCell4({ listallaccountchildren, id, getNameList1 }) {
+  const [active, setActive] = useState('')
+  const filter = listallaccountchildren.filter((el) => el.parents == id);
+  return (<>
+    {
+      filter.map((items, index) => {
+        return (
+          <>
+            <span
+              key={index}
+              style={{
+                cursor: "pointer",
+                paddingLeft: 105,
+                fontWeight: active === items?.account_name ? "bold" : "",
+              }}
+              onClick={() => { getNameList1(items?.c_id) }}
+              onMouseOver={() => setActive(items?.account_name)}
+              onMouseLeave={() => setActive(null)}
+            >
+              {items?.account_name}
+            </span>
+            <ComponentCell5
+              id={items?.c_id}
+              getNameList1={getNameList1}
+              listallaccountchildren={listallaccountchildren}
+            />
+
+          </>
+
+        )
+      })
+    }
+  </>)
+}
+function ComponentCell5({ listallaccountchildren, id, getNameList1 }) {
+  const [active, setActive] = useState('')
+  const filter = listallaccountchildren.filter((el) => el.parents == id);
+  return (<>
+    {
+      filter.map((items, index) => {
+        return (
+          <>
+            <span
+              key={index}
+              style={{
+                cursor: "pointer",
+                paddingLeft: 120,
+                fontWeight: active === items?.account_name ? "bold" : "",
+              }}
+              onClick={() => { getNameList1(items?.c_id) }}
+              onMouseOver={() => setActive(items?.account_name)}
+              onMouseLeave={() => setActive(null)}
+            >
+              {items?.account_name}
+            </span>
+            <ComponentCell6
+              id={items?.c_id}
+              getNameList1={getNameList1}
+              listallaccountchildren={listallaccountchildren}
+            />
+
+          </>
+
+        )
+      })
+    }
+  </>)
+}
+function ComponentCell6({ listallaccountchildren, id, getNameList1 }) {
+  const [active, setActive] = useState('')
+  const filter = listallaccountchildren.filter((el) => el.parents == id);
+  return (<>
+    {
+      filter.map((items, index) => {
+        return (
+          <>
+            <span
+              key={index}
+              style={{
+                cursor: "pointer",
+                paddingLeft: 120,
+                fontWeight: active === items?.account_name ? "bold" : "",
+              }}
+              onClick={() => { getNameList1(items?.c_id) }}
+              onMouseOver={() => setActive(items?.account_name)}
+              onMouseLeave={() => setActive(null)}
+            >
+              {items?.account_name}
+            </span>
+            <ComponentCell5
+              id={items?.c_id}
+              getNameList1={getNameList1}
+              listallaccountchildren={listallaccountchildren}
+            />
+          </>
+
+        )
+      })
+    }
+  </>)
 }
 function TablePaginationActions(props) {
   const classes = useStyles();

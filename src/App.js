@@ -58,6 +58,7 @@ function App() {
   const [searchcondition,setSearchcondition]=useState(false)
   const [tra_balance, setTra_balance] = useState(false);
   const [isDisabled, setIsDisabled] = useState([]);
+  const [listTransactions,setListTransactions]=useState([])
   const [chartofaccountslevels_one,setChartofaccountslevels_one]=useState([])
   const [chartofaccountslevels_two,setChartofaccountslevels_two]=useState([])
   const [chartofaccountslevels_three,setChartofaccountslevels_three]=useState([])
@@ -105,6 +106,7 @@ function App() {
   };
   const onloadallaccount = () => {
     axios.get("/accounting/api/chartofaccounts/all/accountname").then((data) => {
+      
       setListallaccount([...data?.data?.message])
       setListallaccountchildren([...data?.data?.children])
     }).catch((err) => {
@@ -120,6 +122,7 @@ function App() {
   }
   const onloadaccountlistname = () => {
     axios.get("/accounting/api/chartofaccounts").then((data) => {
+      
       setListaccountname([...data?.data.result])
     }).catch((err) => {
       console.log(err)
@@ -127,6 +130,8 @@ function App() {
   }
   const onloadtransaction = () => {
     axios.get("/accounting/api/journal-entries/selectAllTransaction").then((data) => {
+      console.log("onlaodtarnsactions=",data)
+      setListTransactions([...data?.data?.result])
       setList([...data?.data.result])
     }).catch((err) => {
         console.log(err)
@@ -152,6 +157,7 @@ const OnloadgainAndLoss = () => {
 };
 const OnLoadgainandlossTransaction = () => {
   axios.get('/accounting/api/loss-gain/transaction').then((data) => {
+   
     setListgain([...data?.data?.result])
   }).catch((err) => {
     console.log(err)
@@ -186,8 +192,6 @@ const onloadChecktrue_and_false=()=>{
 }
 const onloadLevelforchartofaccount=()=>{
   axios.get('/accounting/api/chartofaccounts/getlevels').then((data)=>{
-    console.log("data=",data)
-    
     setChartofaccountslevels_one([...data?.data?.levels_one])
     setChartofaccountslevels_two([...data?.data?.levels_two])
     setChartofaccountslevels_three([...data?.data?.levels_three])
@@ -204,47 +208,7 @@ const onloadLevelforchartofaccount=()=>{
     console.log(err)
   })
 }
-// const OnloadResetCondition = () => {
-//   axios.get('/accounting/api/report/ConditionResetGL').then((data) => {
-//     setListcondition([...data?.data?.results][0].counts)
-//   }).catch((err) => {
-//     console.log(err)
-//   })
-// }
-// const onloadAutomaticGl = () => {
-//   axios.get("/accounting/api/report/reportAutoGL").then((data) => {
-//     console.log(data)
-//   }).catch((err) => {
-//     console.log(err)
-//   })
-// }
-// const OnloadHeading = () => {
-//   axios.get('/accounting/api/profit-loss/heading').then((data) => {
-//       setHeadingprofi({ ...data?.data })
-//       setProfitandloss([...data?.data?.sumBalanceSheet][0].balances)
-//       setIncomeandcost([...data?.data?.sumBalanceIncomeAndCostofsale][0].balances)
-//       let keys = ['amout'];
-//       let values = ['Other Expense'];
-//       let filtered_data = [...data?.data?.headingExpenses].filter(d => {
-//           for (let key of keys) {
-//               for (let value of values) {
-//                   if (d[key] == value) {
-//                       return true;
-//                   }
-//               }
-//           }
-//           return false;
-//       });
-//       if (filtered_data.length === 0) {
-//           setShow(true)
-//       } else {
-//           setShow(false)
-//       }
-//       setLoading(true)
-//   }).catch((err) => {
-//       console.log(err)
-//   })
-// }
+
 
   useEffect(() => {
     let users = Cookies.get("user");
@@ -269,6 +233,7 @@ const onloadLevelforchartofaccount=()=>{
     onloadreportGl();
     onloadChecktrue_and_false();
     onloadLevelforchartofaccount();
+    onloadtransaction();
 
    
 
@@ -305,6 +270,7 @@ const onloadLevelforchartofaccount=()=>{
           showEditJournal,
           setShowEditJournal,
           id,
+          setid,
           onloadallaccount,
           listallaccount,
           setListallaccount,
@@ -346,7 +312,9 @@ const onloadLevelforchartofaccount=()=>{
           chartofaccountslevels_seven,
           chartofaccountslevels_eight,
           chartofaccountslevels_nine,
-          chartofaccountslevels_ten
+          chartofaccountslevels_ten,
+          listTransactions,
+          onloadtransaction
         }}
       >
         
@@ -379,7 +347,6 @@ const onloadLevelforchartofaccount=()=>{
               <Route exact path="/DetailUnrealisedgain/:id" element={< Unrealisedgain_or_loss />} ></Route>
               <Route exact path="/ViewUnrealisedgain_or_loss/:id" element={< ViewUnrealisedgain_or_loss />} ></Route>
               <Route exact path="/ExchangeRate/:id" element={< ExchangeRate />} ></Route>
-
             </Routes>
           </Home>
         </Router>

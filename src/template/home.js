@@ -115,9 +115,15 @@ export default function Home(props) {
   const [listOpentExchange, setListOpentExchange] = useState(false);
   const [show, setShow] = useState(false);
   const [exshow, setExshow] = useState(false);
+  const [searchResult, setSearchResult] = useState([])
+  const [hidden, setHidden] = useState(false)
+  const [search, setSearch] = useState('')
+  const [active, setActive] = useState('')
+
   const {
     rate,
     id,
+    setid,
     showEditJournal,
     setShowEditJournal,
     showfullscreen,
@@ -128,11 +134,13 @@ export default function Home(props) {
     onloadreportGl,
     OnloadBalancesheet,
     OnloadResetCondition,
+    listTransactions,
   } = useContext(LoginContext);
   const handleShow = () => {
     setShow(true)
   };
   const handleClose = () => {
+   
     setShow(false);
   };
   const handleExchangeShow = () => {
@@ -144,7 +152,7 @@ export default function Home(props) {
   const CloseShoFullScrreen = () => {
     setShowEditJournal(false)
   }
-  
+
   const ShowfullscreenJournal = () => {
     setShowfullscreen(true)
   }
@@ -163,20 +171,39 @@ export default function Home(props) {
   const exchangerate = () => {
     setListOpentExchange(!listOpentExchange);
   }
-  const gotoUnrealisedGainsAndLoss = () => {
+  const _onSearchList=(e)=>{
+    console.log("e=",e)
+    setSearch(e)
+    let searchName = listTransactions.filter((el) => el.journal_no.toLowerCase().includes(e.toLowerCase()));
+    if(!e){
+      setSearchResult([])
+
+    }else{
+      setSearchResult([...searchName])
+    }
+  }
+  const gotoeditjournal = (id) => {
     handleClose(false)
-    Navigate('/UnrealisedGainsAndLosses');
+    setid(id)
+    setShowEditJournal(true)
+    setSearchResult('')
+    setHidden(false)
+    setSearch('')
+    
   }
   return (
     <>
       {
         showfullscreen == true ? (
           <>
-            <Journal />
+            <Journal
+  
+            />
           </>
         ) : (showEditJournal == true) ? (<>
           <EditComponentJournal
-            onloadreportGl={ onloadreportGl}
+            onloadreportGl={onloadreportGl}
+            onloadtransaction={onloadtransaction}
             id={id}
             CloseShoFullScrreen={CloseShoFullScrreen}
           />
@@ -217,6 +244,117 @@ export default function Home(props) {
                   </div>
                 </Toolbar>
               </AppBar>
+              <Modal show={show} onHide={handleClose} style={{ paddingTop: 50 }} size="lg" >
+                <Modal.Header closeButton >
+                  <Modal.Title>
+              
+                    <div style={{
+                      display: 'flex',
+                      flexDirection: 'row',
+                      width: '100%',
+
+                    }}>
+                      <SearchIcon style={{ position: 'absolute', paddingTop: 5 }} />
+                      <input
+                        style={{
+                          border: '1px solid #ccc',
+                          height: 30,
+                          width: 700,
+                          paddingLeft: 10,
+                          outline: 'none',
+                          paddingLeft: 30,
+                          fontSize: 12,
+                          borderRadius: 5
+                        }}
+                        onChange={(e)=>_onSearchList(e.target.value)}
+                        value={search}
+                        onClick={() => setHidden(true)}
+
+                      />
+
+                    </div>
+                  </Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                  {
+                    hidden && (
+                      <div style={{
+                        overflowY: 'scroll',
+                        height: 100,
+                        paddingTop: 5,
+                        paddingLeft: 10
+                      }}>
+                        {
+                          searchResult.length > 0 ? (
+                            <>
+                              {
+                                searchResult.map((data, index) => {
+                                  const datetime = moment(data?.tr_date).format('YYYY-MM-DD')
+                                  return (
+                                    <>
+                                      <span key={index}
+                                        style={{
+                                          display:'flex',
+                                          flexDirection:'column',
+                                          cursor: 'pointer', fontWeight: active === data?.journal_no ? "bold" : "",
+
+                                        }}
+                                        onClick={()=>gotoeditjournal(data?.tr_id)}
+                                        onMouseOver={() => setActive(data?.journal_no)}
+                                        onMouseLeave={() => setActive(null)}
+                                      >
+                                        Journal Entry {data?.journal_no} | {datetime}
+
+
+
+                                      </span>
+
+                                    </>
+                                  )
+                                })
+                              }
+
+                            </>) : (
+                            <>
+                              {
+                                listTransactions.map((data, index) => {
+                                  const datetime = moment(data?.tr_date).format('YYYY-MM-DD')
+                                  return (
+                                    <>
+                                      <span
+                                        key={index}
+                                        style={{
+                                          display: 'flex',
+                                          flexDirection: 'column',
+                                          cursor: 'pointer',
+                                          fontWeight: active === data?.journal_no ? 'bold' : '',
+                                        }}
+                                        onClick={()=>gotoeditjournal(data?.tr_id)}
+                                        onMouseOver={() => setActive(data?.journal_no)}
+                                        onMouseLeave={() => setActive(null)}
+                                      >
+                                        Journal Entry {data?.journal_no} | {datetime}
+
+
+                                      </span>
+
+                                    </>
+                                  )
+                                })
+                              }
+
+
+                            </>)
+                        }
+
+
+
+
+                      </div>)
+                  }
+
+                </Modal.Body>
+              </Modal>
               < ComponentBoxGainsAndLosses
                 handleClose={handleClose}
                 show={show}
@@ -224,7 +362,7 @@ export default function Home(props) {
                 onLoadrate={onLoadrate}
                 onloadreportGl={onloadreportGl}
                 OnloadBalancesheet={OnloadBalancesheet}
-                OnloadResetCondition={OnloadResetCondition}      
+                OnloadResetCondition={OnloadResetCondition}
               />
               <Drawer
                 variant="permanent"
@@ -285,7 +423,7 @@ export default function Home(props) {
                   </ListItem>
                   <Collapse in={listOpentExchange} timeout="auto" unmountOnExit>
                     <List component="div" disablePadding>
-            
+
                       <ListItem button className={classes.nested} onClick={() => Navigate(`ExchangeRate/${1}`)}>
                         <ListItemIcon>
                         </ListItemIcon>
@@ -342,7 +480,7 @@ export default function Home(props) {
                     Profit and loss
                     <ListItemText />
                   </ListItem>
-                 
+
                 </List>
               </Drawer>
               <main className={classes.content}>
@@ -358,8 +496,9 @@ export default function Home(props) {
 }
 
 
-function EditComponentJournal({ id, CloseShoFullScrreen, onloadreportGl }) {
+function EditComponentJournal({ id, CloseShoFullScrreen,onloadtransaction,onloadreportGl }) {
   const classes = useStyles();
+  console.log("edit=",id)
 
   const [data, setData] = useState([
     { name: '', debit: '', credit: '', description: '', Tax: '', Employee: '' },
@@ -545,7 +684,7 @@ function EditComponentJournal({ id, CloseShoFullScrreen, onloadreportGl }) {
         let money_rate = [...data?.data?.transactions][0].rate
         // let format_number = new Intl.NumberFormat("en-US", { style: 'currency', currency: 'USD' }).format(money_rate)
         // let rate = format_number.replaceAll('$', '')
-        let rate=money_rate.toString().replaceAll(',', '').replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1,");
+        let rate = money_rate.toString().replaceAll(',', '').replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1,");
         let exchange = rate.replaceAll(',', '')
         let TotalDebit = (parseFloat(exchange) * parseFloat(sumdebit))
         let TotalCredit = (parseFloat(exchange) * parseFloat(sumcredit))
@@ -576,7 +715,7 @@ function EditComponentJournal({ id, CloseShoFullScrreen, onloadreportGl }) {
     })
   }
   const deleteTransaction = (e) => {
-   
+
     const transitionID = e
     let data = {
       tr_id: transitionID
@@ -653,7 +792,7 @@ function EditComponentJournal({ id, CloseShoFullScrreen, onloadreportGl }) {
   const changeText = (value, key, index) => {
     const object = { ...data[index] };
     if (key == 'debit' || key == 'credit') {
-    
+
       object[key] = value.toString().replaceAll(',', '').replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1,");
     } else {
       object[key] = value;
@@ -665,24 +804,24 @@ function EditComponentJournal({ id, CloseShoFullScrreen, onloadreportGl }) {
   const onBlurCurrency = (value, key, x, y) => {
     if (key == "USD") {
       let number = value.replaceAll(',', '')
-      let rate=number.toString().replaceAll(',', '').replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1,");
+      let rate = number.toString().replaceAll(',', '').replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1,");
       // let format_number = new Intl.NumberFormat("en-US", { style: 'currency', currency: 'USD' }).format(number)
       // let rate = format_number.replaceAll('$', '')
       let exchange = rate.replaceAll(',', '')
       setUsd(rate)
-      let TotalDebit = (parseFloat(exchange) * parseFloat(x.replaceAll(',','')))
-      let TotalCredit = (parseFloat(exchange) * parseFloat(y.replaceAll(',','')))
+      let TotalDebit = (parseFloat(exchange) * parseFloat(x.replaceAll(',', '')))
+      let TotalCredit = (parseFloat(exchange) * parseFloat(y.replaceAll(',', '')))
       setNetTotalDebit(Intl.NumberFormat("en-US", { style: 'currency', currency: 'USD' }).format(TotalDebit))
       setNetTotalCrebit(Intl.NumberFormat("en-US", { style: 'currency', currency: 'USD' }).format(TotalCredit))
     } else {
       let number = value.replaceAll(',', '')
-      let rate=number.toString().replaceAll(',', '').replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1,");
+      let rate = number.toString().replaceAll(',', '').replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1,");
       // let format_number = new Intl.NumberFormat("en-US", { style: 'currency', currency: 'USD' }).format(number)
       // let rate = format_number.replaceAll('$', '')
       let exchange = rate.replaceAll(',', '')
       setThb(rate)
-      let TotalDebit = (parseFloat(exchange) * parseFloat(x.replaceAll(',','')))
-      let TotalCredit = (parseFloat(exchange) * parseFloat(y.replaceAll(',','')))
+      let TotalDebit = (parseFloat(exchange) * parseFloat(x.replaceAll(',', '')))
+      let TotalCredit = (parseFloat(exchange) * parseFloat(y.replaceAll(',', '')))
       setNetTotalDebit(Intl.NumberFormat("en-US", { style: 'currency', currency: 'USD' }).format(TotalDebit))
       setNetTotalCrebit(Intl.NumberFormat("en-US", { style: 'currency', currency: 'USD' }).format(TotalCredit))
     }
@@ -778,12 +917,12 @@ function EditComponentJournal({ id, CloseShoFullScrreen, onloadreportGl }) {
       setSomething(true)
     } else {
       axios.put("/accounting/api/journal-entries/update", journaldata).then((data) => {
- 
         setDefaultValue('')
         setShowToast(true);
         onloadreportGl();
         onloadAutomaticGl();
-      
+        onloadtransaction();
+
       }).catch((err) => {
         console.log(err)
         let statusCode = err.response?.data?.statusCode
@@ -1037,7 +1176,7 @@ function EditComponentJournal({ id, CloseShoFullScrreen, onloadreportGl }) {
                     <div style={{ marginTop: 5, paddingLeft: 10 }}>LAK</div>
                   </div>
                 </>
-              ) :null
+              ) : null
             }
           </div>
         </div>
@@ -1694,7 +1833,7 @@ function ToastShow1({ show, setShow, iconNmame }) {
 
   );
 }
-function ComponentBoxGainsAndLosses({ show, handleClose, rate, onLoadrate,onloadreportGl, OnloadBalancesheet,OnloadResetCondition }) {
+function ComponentBoxGainsAndLosses({ show, handleClose, rate, onLoadrate, onloadreportGl, OnloadBalancesheet, OnloadResetCondition }) {
   const [defaultValue, setDefaultValue] = useState("")
   const [defaultValue1, setDefaultValue1] = useState("")
   const [exchange, setExchange] = useState([])
@@ -1769,27 +1908,7 @@ function ComponentBoxGainsAndLosses({ show, handleClose, rate, onLoadrate,onload
     let format_number = new Intl.NumberFormat("en-US", { style: 'currency', currency: 'USD' }).format(number)
     setExchange(format_number.replaceAll('$', ''))
   }
-  const insert = () => {
-    let informdata = {
-      date: defaultValue,
-      conver_rate: conver_rate,
-      currency_code: currency_code
-    }
-    axios.post('/accounting/api/report/insertExchangeRate', informdata).then((data) => {
-      setDefaultValue('')
-      setCurrency_code('')
-      setExchange('')
-      onLoadrate()
-      onloadreportGl()
-      OnloadBalancesheet()
-      setIsDisabled(true)
-      OnloadResetCondition();
-      // onloadAutomaticGl();
 
-    }).catch((err) => {
-      console.log(err)
-    })
-  }
   const OnGetvaues = (e) => {
     setCurrency_code(e)
     let dataList = {
@@ -1809,236 +1928,6 @@ function ComponentBoxGainsAndLosses({ show, handleClose, rate, onLoadrate,onload
   useEffect(() => {
     OnTransactionRate();
   }, [])
-  return (
-    <>
-      <Modal show={show} onHide={handleClose} style={{ paddingTop: 50 }} size="lg" >
-        <Modal.Header closeButton >
-          <Modal.Title>
-            Enter Exchange Rate
-          </Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-          <div style={{ display: 'flex', flexDirection: 'row' }}>
-            <Button variant="outlined" style={{ color: `${isCheckRateColor}` }} onClick={() => { OnRate() }}>Rate</Button>
-            <Button variant="outlined" style={{ color: `${isCheckExchangeRateColor}` }} onClick={() => { OnExchangeRate() }}>
-              Exchange Rate
-            </Button>
-          </div>
-
-          <div style={{ marginTop: 10 }}>
-          </div>
-          {
-            isCheckExchangeRate === true ? (<>
-              <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'flex-start' }}>
-                <div style={{ display: 'flex', flexDirection: 'row' }}>
-                  <small style={{ marginTop: 5, fontWeight: 'bold', fontSize: 15 }}>Enter Date</small>
-                  <input
-                    type="text"
-                    placeholder="dd/MM/yyyy"
-                    value={defaultValue}
-                    onChange={(e) => setDefaultValue(e.target.value)}
-                    style={{
-                      border: '1px solid #ccc',
-                      height: 30,
-                      borderRadius: 3,
-                      width: 100,
-                      paddingLeft: 10,
-                      marginLeft: 5,
-                      textAlign: "right",
-                      borderRight: "none",
-                    }}
-                  />
-                  <input
-                    type="date"
-                    style={{
-                      border: '1px solid #ccc',
-                      height: 30,
-                      borderRadius: 3,
-                      width: 30,
-                      paddingLeft: 10,
-                    }}
-                    onChange={(e) => EnterDate(e.target.value)}
-                  />
-                </div>
-                <div style={{ display: 'flex', flexDirection: 'row', marginLeft: 10, justifyContent: 'flex-start' }}>
-                  <select
-                    disabled={isDisabled}
-                    style={{
-                      border: '1px solid #ccc',
-                      height: 30,
-                      borderRadius: 3,
-                      width: 130,
-                      marginRight: 10
-                    }}
-                    onChange={(e) => {
-                      OnGetvaues(e.target.value);
-                    }}
-                    value={currency_code}
-                  >
-                    <option>SELECT CURRENCY</option>
-                    <option>USD</option>
-                    <option>THB</option>
-                  </select>
-                  <input
-                    type="text"
-                    value={exchange}
-                    placeholder="Exchange Rate"
-                    style={{
-                      border: '0.1px solid #ccc',
-                      outline: 'none',
-                      borderRadius: 3,
-                      height: 30,
-                      textAlign: 'right'
-                    }}
-                    onChange={(e) => onChangeTextCurrency(e.target.value)}
-                    onBlur={(e) => onBlurCurrency(e.target.value)}
-                  />
-                  <Button variant="contained" color="primary" style={{ height: 30, marginLeft: 10 }} onClick={() => { insert() }}>Add</Button>
-                  <Button variant="contained" color="primary" style={{ height: 30, marginLeft: 10 }} onClick={() => { Clear() }}>Clear</Button>
-                </div>
-              </div>
-              {/* {JSON.stringify(data)} */}
-              <div style={{ height: 20 }}></div>
-              <Table striped bordered hover size="sm" style={{
-                width: '100%',
-                textAlign: 'left',
-                overflow: 'scroll',
-                borderCollapse: 'collapse',
-                cursor: 'pointer'
-              }}>
-                <thead>
-                  <tr>
-                    <th>#</th>
-                    <th style={{ textAlign: 'center' }}>Currency</th>
-                    <th style={{ textAlign: 'center' }}>Date Exchange Rate</th>
-                    <th style={{ textAlign: 'right' }}>Exchange Rate</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {
-                    rate && rate.map((data, index) => {
-                      return (
-                        <>
-                          <tr>
-                            <td>{index + 1}</td>
-                            {
-                              data?.foreign_code === 'USD' ? (<>
-
-                                <td align="center"><img alt="Logo" src="/assets/images/USA.png" style={{ width: 30, height: 30, marginTop: 5, borderRadius: '50%' }} /></td>
-                              </>) : (<>
-                                <td align="center"><img alt="Logo" src="/assets/images/thailand.png" style={{ width: 30, height: 30, marginTop: 5, borderRadius: '50%' }} /></td>
-                              </>)
-                            }
-                            <td align="center">{moment(data?.createdate).format("DD-MM-YYYY")}</td>
-      
-                            <td align="right">{getFormatNumber(data?.rate_exchange)}</td>
-                          </tr>
-                        </>
-                      )
-                    })
-                  }
-                </tbody>
-              </Table>
-            </>) : (<>
-              <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'flex-start' }}>
-                <div style={{ display: 'flex', flexDirection: 'row' }}>
-                  <small style={{ marginTop: 5, fontWeight: 'bold', fontSize: 15 }}>Enter Date</small>
-                  <input
-                    type="text"
-                    placeholder="dd/MM/yyyy"
-                    value={defaultValue1}
-                    onChange={(e) => setDefaultValue1(e.target.value)}
-                    style={{
-                      border: '1px solid #ccc',
-                      height: 30,
-                      borderRadius: 3,
-                      width: 100,
-                      paddingLeft: 10,
-                      marginLeft: 5,
-                      textAlign: "right",
-                      borderRight: "none",
-                    }}
-                  />
-                  <input
-                    type="date"
-                    style={{
-                      border: '1px solid #ccc',
-                      height: 30,
-                      borderRadius: 3,
-                      width: 30,
-                      paddingLeft: 10,
-                    }}
-                    onChange={(e) => EnterDate1(e.target.value)}
-                  />
-                </div>
-                <div style={{ display: 'flex', flexDirection: 'row', marginLeft: 10, justifyContent: 'flex-start' }}>
-                  <input
-                    type="text"
-                    value={exchange}
-                    placeholder="Exchange Rate"
-                    style={{
-                      border: '0.1px solid #ccc',
-                      outline: 'none',
-                      borderRadius: 3,
-                      height: 30,
-                      textAlign: 'right'
-                    }}
-                    onChange={(e) => onChangeTextCurrency(e.target.value)}
-                    onBlur={(e) => onBlurCurrency(e.target.value)}
-                  />
-                  <Button variant="contained" color="primary" style={{ height: 30, marginLeft: 10 }} onClick={() => { insert() }}>Add</Button>
-                  <Button variant="contained" color="primary" style={{ height: 30, marginLeft: 10 }} onClick={() => { Clear() }}>Clear</Button>
-                </div>
-              </div>
-              {/* {JSON.stringify(data)} */}
-              <div style={{ height: 20 }}></div>
-              <Table striped bordered hover size="sm" style={{
-                width: '100%',
-                textAlign: 'left',
-                overflow: 'scroll',
-                borderCollapse: 'collapse',
-                cursor: 'pointer'
-              }}>
-                <thead>
-                  <tr>
-                    <th>#</th>
-                    <th style={{ textAlign: 'center' }}>Currency</th>
-                    <th style={{ textAlign: 'center' }}>Journal no</th>
-                    <th style={{ textAlign: 'center' }}>Date Exchange Rate</th>
-                    <th style={{ textAlign: 'right' }}>Exchange Rate</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {
-                    listrate && listrate.map((data, index) => {
-                      return (
-                        <>
-                          <tr>
-                            <td>{index + 1}</td>
-                            {
-                              data?.currency_status === 'USD' ? (<>
-
-                                <td align="center"><img alt="Logo" src="/assets/images/USA.png" style={{ width: 30, height: 30, marginTop: 5, borderRadius: '50%' }} /></td>
-                              </>) : (<>
-                                <td align="center"><img alt="Logo" src="/assets/images/thailand.png" style={{ width: 30, height: 30, marginTop: 5, borderRadius: '50%' }} /></td>
-                              </>)
-                            }
-                            <td align="center">{data?.journal_no}</td>
-                            <td align="center">{moment(data?.tr_date).format("DD-MM-YYYY")}</td>
-                            <td align="right">{getFormatNumber(data?.money_rate)}</td>
-                          </tr>
-                        </>
-                      )
-                    })
-                  }
-                </tbody>
-              </Table>
-            </>)
-          }
-        </Modal.Body>
-      </Modal>
-    </>
-  )
 }
 function ComponentRate({ item, data, index, setData }) {
   const [currency, setCurrency] = useState('')

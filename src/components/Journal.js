@@ -13,7 +13,7 @@ import AttachFileIcon from '@material-ui/icons/AttachFile';
 import AddCircleOutlineIcon from '@material-ui/icons/AddCircleOutline';
 import DeleteIcon from '@material-ui/icons/Delete';
 import { makeStyles } from '@material-ui/core/styles';
-import CloudUploadIcon from '@material-ui/icons/CloudUpload';
+
 import Button from '@material-ui/core/Button';
 import { Alert } from '@material-ui/lab';
 import { BrowserView, MobileView } from 'react-device-detect';
@@ -29,8 +29,10 @@ const useStyles = makeStyles((theme) => ({
 export default function Journal() {
   const classes = useStyles();
   const {
-    setShowfullscreen,onloadreportGl,OnloadBalancesheet,OnTransactionRate,OnloadResetCondition
+    setShowfullscreen, onloadreportGl,onloadtransaction, OnloadResetCondition, listallaccountchildren
   } = useContext(LoginContext);
+
+ 
 
   const [data, setData] = useState([
     { name: '', debit: '', credit: '', description: '', Tax: '', Employee: '' },
@@ -66,7 +68,7 @@ export default function Journal() {
   const [mobile_journal, setmobile_journal] = useState(false);
   const [mobile_currency, setMobile_currency] = useState(false);
   const [something, setSomething] = useState(false);
-  const [something_Mobile,setSomething_Mobile]=useState(false);
+  const [something_Mobile, setSomething_Mobile] = useState(false);
   const [onFucused, setOnFocused] = useState(false);
   const [onSaveNew, setOnSaveNew] = useState(false);
   const [errInforCurrency, setErrInforCurrency] = useState("");
@@ -81,7 +83,7 @@ export default function Journal() {
   const [errjournal, setErrjournal] = useState("")
   const [erragain, setErragain] = useState("")
   const addMore = () => {
-    console.log('data=',[...data])
+    console.log('data=', [...data])
     setData([...data, {}]);
   };
   const addLines = (index) => {
@@ -124,18 +126,18 @@ export default function Journal() {
   const onBlurCurrency = (value, key, x, y) => {
     if (key == "USD") {
       // let number = value.replaceAll(',', '')
-      let number=value.toString().replaceAll(',', '').replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1,");
+      let number = value.toString().replaceAll(',', '').replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1,");
       // let format_number = new Intl.NumberFormat("en-US", { style: 'currency', currency: 'USD' }).format(number)
       // let rate = format_number.replaceAll('$', '')
       // let exchange = rate.replaceAll(',', '')
-  
+
       // setUsd(format_number.replaceAll('$', ''))
       let exchange = number.replaceAll(',', '')
       setUsd(number)
-      
+
       let convert_x = x.replaceAll(',', '')
       let TotalDebit = (parseFloat(exchange) * parseFloat(convert_x))
-  
+
       let convert_y = y.replaceAll(',', '')
       let TotalCredit = (parseFloat(exchange) * parseFloat(convert_y))
       setNetTotalDebit(Intl.NumberFormat("en-US", { style: 'currency', currency: 'USD' }).format(TotalDebit))
@@ -145,10 +147,10 @@ export default function Journal() {
       // let format_number = new Intl.NumberFormat("en-US", { style: 'currency', currency: 'USD' }).format(number)
       // let rate = format_number.replaceAll('$', '')
       // let exchange = rate.replaceAll(',', '')
-      let number=value.toString().replaceAll(',', '').replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1,");
+      let number = value.toString().replaceAll(',', '').replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1,");
       setThb(number)
       let exchange = number.replaceAll(',', '')
-     
+
       let convert_x = x.replaceAll(',', '')
       let TotalDebit = (parseFloat(exchange) * parseFloat(convert_x))
       let convert_y = y.replaceAll(',', '')
@@ -208,8 +210,8 @@ export default function Journal() {
   }
   const changeText = (value, key, index) => {
     const object = { ...data[index] };
-  
-    console.log("object=",object)
+
+    console.log("object=", object)
     if (key == 'debit' || key == 'credit') {
       object[key] = value.toString().replaceAll(',', '').replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1,");
     } else {
@@ -277,12 +279,12 @@ export default function Journal() {
     }
   }
   const onloadAutomaticGl = () => {
-  axios.get("/accounting/api/report/reportAutoGL").then((data) => {
-    console.log(data)
-  }).catch((err) => {
-    console.log(err)
-  })
-}
+    axios.get("/accounting/api/report/reportAutoGL").then((data) => {
+      console.log(data)
+    }).catch((err) => {
+      console.log(err)
+    })
+  }
   const defaultDate = (e) => {
     setErragain('')
     setDefaultValue(e)
@@ -295,6 +297,7 @@ export default function Journal() {
   const onchanges = (e) => {
     setThb(e)
   }
+
   const OnLoadData = (index) => {
     let keys = ['currency_code'];
     let values = ['USD', 'THB'];
@@ -340,6 +343,8 @@ export default function Journal() {
       maincurrency = thb
     } else if (currency_id == "USD") {
       maincurrency = usd
+    }else{
+      maincurrency= 0
     }
     if (currency_id == "USD" || currency_id == "THB") {
       if (!usd || !thb) {
@@ -356,7 +361,7 @@ export default function Journal() {
         formData.append("file_attachment", file[key]);
       }
       formData.append("file_attachment", file);
-     
+
       let profileImageReturnName = await axios.post("/accounting/api/journal-entries/upload", formData);
       images = profileImageReturnName.data;
     }
@@ -368,21 +373,23 @@ export default function Journal() {
       informdata: data,
       file_attachment: images
     }
-   
-    
     if (debit != credit) {
       setIsLoading(false);
       setSomething(true)
     } else {
+      console.log("Insert=",journaldata)
       axios.post("/accounting/api/journal-entries/create", journaldata).then((data) => {
-        setErragain('')
-        setShowToast(true);
+       
+
         onloadreportGl();
         onloadAutomaticGl();
+        onloadtransaction()
+        setErragain('')
+        setShowToast(true);
       }).catch((err) => {
-       
+
         let statusCode = err.response?.data?.statusCode
-        console.log("statusCode=",statusCode)
+        console.log("statusCode=", statusCode)
         if (statusCode == '405') {
           setErrInforCurrency('405')
           return;
@@ -409,86 +416,7 @@ export default function Journal() {
       })
     }
   }
-  const createdataformobile = async () => {
-    let images
-    setErrInforCurrency('')
-    const debit = sumData('debit')
-    const credit = sumData('credit')
-    let journaldata;
-    let maincurrency;
-    if (currency_id == "THB") {
-      maincurrency = thb
-    } else if (currency_id == "USD") {
-      maincurrency = usd
-    }
-    if (currency_id == "USD" || currency_id == "THB") {
-      if (!usd || !thb) {
-        setErrExchange(true)
-        return;
-      }
-    }
-    if (!file) {
-      images = 0
-    } else {
-      let formData = new FormData();
-      for (const key of Object.keys(file)) {
-        formData.append("file_attachment", file[key]);
-      }
-      formData.append("file_attachment", file);
-      let profileImageReturnName = await axios.post("/accounting/api/journal-entries/upload", formData);
-      images = profileImageReturnName.data; 
-    }
-    setIsLoading(true);
-    journaldata = {
-      journal_no: journalNo,
-      tr_date: defaultValue,
-      currency_code: currency,
-      money_rate: maincurrency,
-      informdata: data,
-      file_attachment: images
-    }
-    
-   
-    if (debit != credit) {
-      setIsLoading(false);
-      setSomething_Mobile(true)
-    } else {
-      axios.post("/accounting/api/journal-entries/create", journaldata).then((data) => {
-        setErragain('')
-        setShowToast(true);
-        onloadreportGl();
-        OnloadResetCondition();
-        // OnloadBalancesheet();
-        // OnTransactionRate();
 
-      }).catch((err) => {
-        let statusCode = err.response?.data?.statusCode
-        if (statusCode == '405') {
-          setMobile_currency(true)
-          return;
-        } else if (statusCode == '401') {
-          setMobile_currency(true)
-          return;
-        } else if (statusCode == '402') {
-          setMobile_currency(true)
-          return;
-        } else if (statusCode == '403') {
-          setMobile_currency(true)
-          return;
-        } else if (statusCode == '407') {
-          return;
-        } else if (statusCode == '409') {
-          setmobile_journal(true)
-          return;
-        } else {
-          setErragain('500')
-          return;
-        }
-      }).finally(() => {
-        setIsLoading(false);
-      })
-    }
-  }
   const ClearAllLines = () => {
     setCurrency_id('')
     setThb('')
@@ -500,6 +428,9 @@ export default function Journal() {
   }
   const ClearAllInsert = () => {
     setData([...clearData])
+  }
+  const Tessting = () => {
+    console.log("mmmmmmmmmm")
   }
 
   const createAndNew = async () => {
@@ -543,21 +474,19 @@ export default function Journal() {
       file_attachment: images
     }
 
-  
+
     if (debit != credit) {
       setIsLoadingnew(false);
       setSomething(true)
     } else {
       axios.post("/accounting/api/journal-entries/create", journaldata).then((data) => {
-        setThb('')
-        setUsd('')
+        onloadtransaction()
         setErragain('')
         ClearAllInsert()
         setShowToast(true);
         OnloadResetCondition();
         onloadreportGl();
-        // OnloadBalancesheet();
-        // onloadAutomaticGl();      
+       
 
       }).catch((err) => {
         let statusCode = err.response?.data?.statusCode
@@ -588,86 +517,7 @@ export default function Journal() {
       })
     }
   }
-  const createAndNewMobile = async () => {
-    let images
-    setErrInforCurrency('')
-    setSomething('')
-    const debit = sumData('debit')
-    const credit = sumData('credit')
-    let journaldata;
-    let maincurrency;
-    if (currency_id == "THB") {
-      maincurrency = thb
-    } else if (currency_id == "USD") {
-      maincurrency = usd
-    }
-    if (currency_id == "USD" || currency_id == "THB") {
-      if (!usd || !thb) {
-        setErrExchange(true)
-        return;
-      }
-    }
-    setIsLoadingnew(true);
-    if (!file) {
-      images = 0
-    } else {
-      let formData = new FormData();
-      for (const key of Object.keys(file)) {
-        formData.append("file_attachment", file[key]);
-      }
-      formData.append("file_attachment", file);
-      let profileImageReturnName = await axios.post("/accounting/api/journal-entries/upload", formData);
-      images = profileImageReturnName.data;
-    }
 
-    journaldata = {
-      journal_no: journalNo,
-      tr_date: defaultValue,
-      currency_code: currency,
-      money_rate: maincurrency,
-      informdata: data,
-      file_attachment: images
-    }
-    console.log("journaldata=",journaldata)
-    if (debit != credit) {
-      setIsLoadingnew(false);
-      setSomething(true)
-    } else {
-      axios.post("/accounting/api/journal-entries/create", journaldata).then((data) => {
-        setThb('')
-        setUsd('')
-        setErragain('')
-        ClearAllInsert()
-        setShowToast(true);
-      }).catch((err) => {
-       
-        let statusCode = err.response?.data?.statusCode
-        if (statusCode == '405') {
-          setMobile_currency(true)
-          return;
-        } else if (statusCode == '401') {
-          setMobile_currency(true)
-          return;
-        } else if (statusCode == '402') {
-          setMobile_currency(true)
-          return;
-        } else if (statusCode == '403') {
-          setMobile_currency(true)
-          return;
-        } else if (statusCode == '407') {
-          return;
-        } else if (statusCode == '409') {
-          setmobile_journal(true)
-          return;
-        } else {
-          setErragain('500')
-          return;
-        }
-      }).finally(() => {
-        setIsLoadingnew(false);
-      })
-    }
-  }
   return (
     <>
       <BrowserView>
@@ -946,6 +796,8 @@ export default function Journal() {
             {data.map((item, index) => {
               return (
                 <RowComponent
+                  Tessting={Tessting}
+                  listallaccountchildren={listallaccountchildren}
                   item={item}
                   key={index}
                   index={index}
@@ -1183,402 +1035,13 @@ export default function Journal() {
           </div>
         </div>
       </BrowserView>
-      <MobileView>
-        <body style={{ margin: 0, padding: 0 }}>
-          <div style={{
-            position: 'fixed',
-            top: 0,
-            width: "100%",
-            backgroundColor: "#0d6efd",
-            padding: 20
-          }}>
-            <div style={{ display: "flex", width: "100%", flexDirection: "row", justifyContent: "space-between" }}>
-              <span style={{ fontSize: 14, fontWeight: 'bold', color: "white", fontSize: 20 }}>Journal EntryRecent no.{journalNo}</span>
-              <SettingsIcon style={{ color: "white" }} />
-              <HelpOutlineIcon style={{ color: "white" }} />
-              <CloseIcon style={{ color: "black", backgroundColor: "white", borderRadius: 10 }} onClick={openfullscreen} />
-            </div>
-          </div>
-          <div style={{ position: 'absolute', marginTop: 200, width: '100%', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-            <ToastShow show={showToast} setShow={setShowToast} iconNmame={<CheckCircle size={24} style={{ marginTop: 100, color: "#EC7380" }} />} />
-            <ToastShowErrJournal show={mobile_journal} setShow={setmobile_journal} iconNmame={<ErrorIcon size={24} style={{ marginTop: 100, color: "#EC7380" }} />} />
-            <ToastShowErrCurrency show={mobile_currency} setShow={setMobile_currency} iconNmame={<ErrorIcon size={24} style={{ marginTop: 100, color: "#EC7380" }} />} />
-            <ToastShowDebitAndCredit show={something_Mobile} setShow={setSomething_Mobile} iconNmame={<ErrorIcon size={24} style={{ marginTop: 100, color: "#EC7380" }} />} />
-          </div>
-          <div style={{ height: 70 }}>
-          </div>
-          <div style={{ display: "flex", width: "100%", flexDirection: "row", marginLeft: 20 }}>
-            <div style={{ display: 'flex', width: '100%', flexDirection: 'column', }}>
-              <span>Currency</span>
-              <select
-                style={{
-                  border: '1px solid #ccc',
-                  height: 30,
-                  borderRadius: 3,
-                  width: 100,
-                  paddingLeft: 10,
-                  outline: 'none'
-                }}
-                onChange={(e) => {
-                  OnloadSelectCurrencies(e.target.value);
-                }}
-                value={currency}
-              >
-                {listcurrency &&
-                  listcurrency.map((data, index) => {
-                    return (
-                      <option key={index} value={data?.cy_uid}>
-                        {data?.name}
-                      </option>
-                    );
-                  })}
-              </select>
-            </div>
-            <div style={{ marginTop: 20, marginRight: 20 }}>
-              {currency_id == "USD" ?
-                (
-                  <>
-                    <div style={{
-                      display: 'flex',
-                      flexDirection: 'row'
-                    }}>
-
-                      <div style={{ marginTop: 5, paddingLeft: 10 }}>1USD</div>
-                      <div style={{ marginLeft: 5 }}>
-                        <img alt="Logo" src="/assets/images/USA.png" style={{ width: 40, height: 20, marginTop: 5 }} />
-                      </div>
-                      <div style={{ marginTop: 5 }}>=</div>
-                      <input
-                        value={usd}
-                        style={{
-                          border: '1px solid #ccc',
-                          height: 30,
-                          borderRadius: 3,
-                          width: 100,
-                          paddingLeft: 10,
-                          outline: 'none',
-                          textAlign: "right"
-                        }}
-                        onChange={(e) => onChangeTextCurrency(e.target.value, currency_id)}
-                        onBlur={(e) => onBlurCurrency(e.target.value, currency_id, agconvertdebit, agconvertcredit)}
-                      />
-                      <div style={{ marginLeft: 5 }}>
-                        <img alt="Logo" src="/assets/images/laos.png" style={{ width: 30, height: 20, marginTop: 5 }} />
-                      </div>
-                      <div style={{ marginTop: 5, paddingLeft: 10 }}>LAK</div>
-                    </div>
-                  </>
-                ) : (
-                  <>
-                  </>
-                )
-              }
-              {currency_id == "THB" ?
-                (
-                  <>
-                    <div style={{
-                      display: 'flex',
-                      flexDirection: 'row'
-                    }}
-                    >
-                      <div style={{ marginTop: 5, paddingLeft: 10, fontSize: 8 }}>1THB</div>
-                      <div style={{ marginLeft: 5 }}>
-                        <img alt="Logo" src="/assets/images/thailand.png" style={{ width: 30, height: 20, marginTop: 5 }} />
-                      </div>
-                      <div style={{ marginTop: 5 }}>=</div>
-                      <input
-                        value={thb}
-                        style={{
-                          border: '1px solid #ccc',
-                          height: 30,
-                          borderRadius: 3,
-                          width: 100,
-                          paddingLeft: 10,
-                          outline: 'none',
-                          textAlign: "right"
-                        }}
-                        onChange={(e) => onChangeTextCurrency(e.target.value, currency_id)}
-                        onBlur={(e) => onBlurCurrency(e.target.value, currency_id, convertdebit, convertcredit)}
-                      />
-                      <div style={{ marginLeft: 5 }}>
-                        <img alt="Logo" src="/assets/images/laos.png" style={{ width: 30, height: 20, marginTop: 5 }} />
-                      </div>
-                      <div style={{ marginTop: 5, paddingLeft: 10 }}>LAK</div>
-                    </div>
-                  </>
-                ) : null
-              }
-              <div>
-              </div>
-              <div className={classes.root}>
-                {
-                  errExchange == true ? (
-                    <>
-                      <Alert severity="error" style={{ position: "absolute", marginLeft: 50, fontSize: 12 }}>Please enter a valid exchange rate!</Alert>
-                    </>
-                  ) : null
-                }
-
-              </div>
-            </div>
-          </div>
-          <div style={{ display: 'flex', flexDirection: 'row', width: '100%', justifyContent: 'space-between', marginLeft: 20 }}>
-            <div style={{ display: 'flex', width: '100%', flexDirection: 'column' }}>
-              <span>Journal date</span>
-              <div style={{ display: 'flex', flexDirection: 'row', width: '100%' }} >
-                <input
-                  type="text"
-                  value={defaultValue}
-                  onChange={(e) => setDefaultValue(e.target.value)}
-                  style={{
-                    border: '1px solid #ccc',
-                    height: 30,
-                    borderTopLeftRadius: 4,
-                    borderBottomLeftRadius: 4,
-                    width: 100,
-                    paddingLeft: 10,
-                    textAlign: "right",
-                    borderRight: "none",
-                  }}
-                />
-                <input
-                  type="date"
-                  onChange={(e) => _searchstartdate(e.target.value)}
-                  style={{
-                    border: '1px solid #ccc',
-                    height: 30,
-                    borderTopRightRadius: 4,
-                    borderBottomRightRadius: 4,
-                    width: 30,
-                    paddingLeft: 10,
-                  }}
-                />
-
-              </div>
-            </div>
-            <div style={{ marginRight: 40, }}>
-              <div style={{ display: 'flex', width: '100%', flexDirection: 'column' }}>
-                <span>Journal no</span>
-                <input
-                  style={{
-                    border: '1px solid #ccc',
-                    height: 30,
-                    borderRadius: 3,
-                    width: 100,
-                    paddingLeft: 10,
-                    outline: 'none'
-                  }}
-                  onChange={(e) => {
-                    JournalNo(e.target.value);
-                  }}
-                  value={journalNo}
-                />
-              </div>
-            </div>
-          </div>
-          <div style={{
-            width: '95%',
-            overflowY: 'hidden',
-            marginTop: 20
-          }} >
-            <table border="1" 
-            style={{
-              width: '100%',
-              textAlign: 'left',
-              overflow: 'scroll',
-              borderCollapse: 'collapse',
-              cursor: 'pointer'
-            }}>
-              <thead >
-                <tr >
-                  <td align="center"></td>
-                  <td align="center">#</td>
-                  <td style={{ width: 100, }}>Account</td>
-                  <td style={{ width: 100, }}>DEBITS</td>
-                  <td style={{ width: 100, }}>CREDIT</td>
-                  <td style={{ width: 100, }}>DESCRIPTION</td>
-                  <td style={{ width: 100, }}>TAX</td>
-                  <td style={{ width: 100, }}>EMPLOYEE</td>
-                </tr>
-              </thead>
-              {data.map((item, index) => {
-                return (
-                  <RowComponentMobile
-                    item={item}
-                    key={index}
-                    index={index}
-                    data={data}
-                    setData={setData}
-                    setCurrency_id={setCurrency_id}
-                    setArray={setArray}
-                    array={array}
-                    setPrentid={setPrentid}
-                    currency={currency}
-                    thb={thb}
-                    usd={usd}
-                    setCurrency={setCurrency}
-                    addLines={addLines}
-                    changeText={changeText}
-                    deletechange={deletechange}
-                    copyData={copyData}
-                    paste={paste}
-                    showcp={showcp}
-                    blurHandler={blurHandler}
-                    currency_id={currency_id}
-                    agconvertdebit={agconvertdebit}
-                    agconvertcredit={agconvertcredit}
-                    setActive={setActive}
-                    active={active}
-                    OnLoadData={OnLoadData}
-                    sumData={sumData}
-                    setNetTotalDebit={setNetTotalDebit}
-                    setNetTotalCrebit={setNetTotalCrebit}
-                  />
-                );
-              })}
-              <tr style={{ border: '1px solid #ccc', backgroundColor: '#f2f3f5', height: 50 }}>
-                <td colSpan={2} align="right" style={{ paddingRight: 25 }}>Total</td>
-                <td align="right" style={{ paddingRight: 25 }}>{debit.replaceAll('$', '')}</td>
-                <td align="right" style={{ paddingRight: 25 }}>{credit.replaceAll('$', '')}</td>
-                <td></td>
-                <td></td>
-                <td></td>
-              </tr>
-              {currencystatus == "THB" ? (
-                <tr style={{ border: '1px solid #ccc', backgroundColor: '#f2f3f5', height: 50 }}>
-                  <td colSpan={1} align="right" style={{ paddingRight: 25 }}>TotalLAK:</td>
-                  <td align="right" style={{ paddingRight: 25 }}>{netTotalDebit.replaceAll('$', '')}</td>
-                  <td align="right" style={{ paddingRight: 25 }}>{netTotalCrebit.replaceAll('$', '')}</td>
-                  <td></td>
-                  <td></td>
-                  <td></td>
-                </tr>
-              ) : (
-                <></>
-              )
-              }
-              {currencystatus == "USD" ? (
-                <>
-                  <tr style={{ border: '1px solid #ccc', backgroundColor: '#f2f3f5', height: 50 }}>
-                    <td colSpan={2} align="right" style={{ paddingRight: 25 }}>TotalLAK:</td>
-                    <td align="right" style={{ paddingRight: 25 }}>{netTotalDebit.replaceAll('$', '')}</td>
-                    <td align="right" style={{ paddingRight: 25 }}>{netTotalCrebit.replaceAll('$', '')}</td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                  </tr>
-                </>
-              ) : (
-                <></>
-              )
-              }
-            </table>
-          </div>
-          <div style={{ height: 20 }}>
-          </div>
-          <div style={{ display: 'flex', flexDirection: 'row', width: '100%', marginTop: 10, justifyContent: 'space-evenly' }}>
-            <Button variant="contained" style={{ backgroundColor: 'white' }} onClick={addMore}>Add lines</Button>
-            <Button variant="contained" style={{ backgroundColor: 'white' }} onClick={resetlines}>Clear lines</Button>
-            <Button variant="contained" style={{ backgroundColor: 'white' }} onClick={ClearAllLines}>Clear lines</Button>
-          </div>
-          <div style={{ display: 'flex', flexDirection: 'row', width: '100%', marginLeft: 10, justifyContent: 'space-between' }}>
-            <label style={{ cursor: "pointer", marginTop: 20 }}>
-              <AttachFileIcon />
-              <small style={{ fontSize: 15, fontWeight: "bold" }}>Attachments</small>
-              <input
-                type="file"
-                name="images"
-                onChange={onSelectFile}
-                multiple
-                style={{ display: "none" }}
-              />
-            </label>
-            <div style={{ marginRight: 20, marginTop: 20 }}>
-              Maximum size:20MB
-            </div>
-
-          </div>
-          <div style={{
-            border: '1px solid #ccc',
-            width: '100%',
-            height: 200,
-            marginTop: 10,
-            overflowY: "scroll",
-          }} >
-            {selectedImages &&
-              selectedImages.map((data, index) => {
-                let sizes = parseFloat(data?.size / 1024).toFixed(2)
-                return (
-                  <div key={index} style={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between' }}>
-                    <small style={{ fontSize: 10, marginRight: 40 }}>{data?.name} ({sizes}) kb</small>
-                    <span
-                      style={{
-                        display: 'flex',
-                        justifyContent: 'center',
-                        alignItems: 'center',
-                        color: 'white',
-                        width: 20,
-                        borderRadius: '50%',
-                        cursor: "pointer",
-                        backgroundColor: 'red',
-                        fontSize: 20,
-                        marginRight: 20
-                      }} onClick={() => fileRemove(data)}>
-                      x
-                    </span>
-                  </div>
-                );
-              })}
-          </div>
-          <div style={{
-            backgroundColor: "#3f51b5",
-            padding: "20px",
-            position: "fixed",
-            left: "0",
-            bottom: "0",
-            height: "60px",
-            width: "100%",
-            display: 'flex',
-            justifyContent: "center",
-            alignItems: 'center'
-          }}>
-            <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between', width: '100%' }}>
-              <Button variant="contained" style={{ backgroundColor: 'white', }} onClick={createdataformobile}>
-                {!isLoading ? (
-                  <>
-                    Save
-                  </>
-                ) : (
-                  <>
-                    {
-                      <Spinner animation="border" variant="primary" size='sm' />
-                    }
-                  </>)
-                }
-              </Button>
-              <Button variant="contained" style={{ backgroundColor: 'white', }} onClick={createAndNewMobile}>
-              {!isLoadingnew ? (
-                  <>
-                    Save and New
-                  </>
-                ) : (
-                  <>
-                    {
-                      <Spinner animation="border" variant="light" size='sm' />
-                    }
-                  </>)
-                }
-              </Button>
-            </div>
-          </div>
-
-        </body>
-      </MobileView>
     </>
   );
 }
-function RowComponent({ item, index, copyData, paste, showcp, data, blurHandler, changeText, deletechange, addLines, setCurrency_id, setArray, array, setPrentid, usd, thb, agconvertdebit, agconvertcredit, setActive, active, OnLoadData, sumData, setNetTotalCrebit, setNetTotalDebit }) {
-  const { listaccountname } = useContext(LoginContext);
+function RowComponent({ item, Tessting, listallaccountchildren, index, copyData, paste, showcp, data, blurHandler, changeText, deletechange, addLines, setCurrency_id, setArray, array, setPrentid, usd, thb, agconvertdebit, agconvertcredit, setActive, active, OnLoadData, sumData, setNetTotalCrebit, setNetTotalDebit }) {
+  const {
+    listaccountname,
+  } = useContext(LoginContext);
   const [searchResult, setSearchResult] = useState([]);
   const [showBox, setShowBox] = useState(false);
   const handleClick = () => {
@@ -1598,7 +1061,9 @@ function RowComponent({ item, index, copyData, paste, showcp, data, blurHandler,
   const getarray = (el) => {
     setArray([...array, el])
   }
+
   const getNameList = (c_id, inputIdex = null) => {
+
     axios.get(`/accounting/api/chartofaccounts/all/parents/${c_id}`).then((respone) => {
       if (respone?.data?.message.length > 0) {
         getarray(respone?.data?.parent)
@@ -1709,11 +1174,13 @@ function RowComponent({ item, index, copyData, paste, showcp, data, blurHandler,
           <div
             style={{
               overflowY: "scroll",
-              height: 100,
+              height: 200,
               paddingTop: 5,
               paddingLeft: 10,
               position: 'absolute',
-              backgroundColor: 'white'
+              backgroundColor: 'white',
+              display: 'flex',
+              flexDirection: 'column'
             }}
           >
             {searchResult.length > 0 ? (
@@ -1725,15 +1192,18 @@ function RowComponent({ item, index, copyData, paste, showcp, data, blurHandler,
                         key={index1}
                         style={{
                           cursor: "pointer",
-                          fontWeight: active === data?.label ? "bold" : "",
+                          fontWeight: active === data?.name_eng ? "bold" : "",
                         }}
-                        onClick={() => { getNameList(data?.c_id, index) }}
+                        onClick={() => { getNameList(data?.c_id) }}
+                       
                         onMouseOver={() => setActive(data?.name_eng)}
                         onMouseLeave={() => setActive(null)}
                       >
                         {data?.name_eng}
+
                       </span>
-                      <br />
+               
+
                     </>
                   );
                 })}
@@ -1743,19 +1213,29 @@ function RowComponent({ item, index, copyData, paste, showcp, data, blurHandler,
                 {listaccountname.map((data, index1) => {
                   return (
                     <>
-                      <span
-                        key={index1}
-                        style={{
-                          cursor: "pointer",
-                          fontWeight: active === data?.name_eng ? "bold" : "",
-                        }}
-                        onClick={() => { getNameList(data?.c_id, index) }}
-                        onMouseOver={() => setActive(data?.name_eng)}
-                        onMouseLeave={() => setActive(null)}
-                      >
-                        {data?.name_eng}
-                      </span>
-                      <br />
+
+
+                      <div style={{ display: 'flex', flexDirection: 'column', backgroundColor: 'white' }}>
+                        <span
+                          key={index1}
+                          style={{
+                            cursor: "pointer",
+                            fontWeight: active === data?.name_eng ? "bold" : "",
+                          }}
+                          onClick={() => { getNameList(data?.c_id) }}
+                          onMouseOver={() => setActive(data?.name_eng)}
+                          onMouseLeave={() => setActive(null)}
+                        >
+                          {data?.name_eng}
+
+                        </span>
+                      
+                      </div>
+
+
+
+
+
                     </>
                   );
                 })}
@@ -2207,4 +1687,243 @@ function ToastShowDebitAndCredit({ show, setShow, iconNmame }) {
     </Row>
 
   );
+}
+
+function ComponentCell({ Tessting, listallaccountchildren, level, id }) {
+  const [active, setActive] = useState('')
+  const filter = listallaccountchildren.filter((el) => el.parents == id);
+  return (<>
+    {
+      filter.map((items, index) => {
+        return (
+          <>
+            <span
+              key={index}
+              style={{
+                cursor: "pointer",
+                paddingLeft: level,
+                fontWeight: active === items?.account_name ? "bold" : "",
+              }}
+
+              onMouseOver={() => setActive(items?.account_name)}
+              onMouseLeave={() => setActive(null)}
+              // onClick={() => { getNameList(items?.c_id) }}
+              onClick={() => { Tessting() }}
+            >
+              {items?.account_name}ggggg
+            </span>
+            {/* <ComponentCell1
+              id={items?.c_id}
+              getNameList={getNameList}
+              listallaccountchildren={listallaccountchildren}
+            /> */}
+          </>
+
+        )
+      })
+    }
+  </>)
+}
+function ComponentCell1({ listallaccountchildren, id, getNameList }) {
+  const [active, setActive] = useState('')
+  const filter = listallaccountchildren.filter((el) => el.parents == id);
+  return (<>
+    {
+      filter.map((items, index) => {
+        return (
+          <>
+            <span
+              key={index}
+              style={{
+                cursor: "pointer",
+                paddingLeft: 50,
+                fontWeight: active === items?.account_name ? "bold" : "",
+              }}
+              onClick={() => { getNameList(items?.c_id) }}
+              onMouseOver={() => setActive(items?.account_name)}
+              onMouseLeave={() => setActive(null)}
+            >
+              {items?.account_name}
+            </span>
+            <ComponentCell2
+              id={items?.c_id}
+              getNameList1={getNameList}
+              listallaccountchildren={listallaccountchildren}
+            />
+
+          </>
+
+        )
+      })
+    }
+  </>)
+}
+function ComponentCell2({ listallaccountchildren, id, getNameList }) {
+  const [active, setActive] = useState('')
+  const filter = listallaccountchildren.filter((el) => el.parents == id);
+  return (<>
+    {
+      filter.map((items, index) => {
+        return (
+          <>
+            <span
+              key={index}
+              style={{
+                cursor: "pointer",
+                paddingLeft: 70,
+                fontWeight: active === items?.account_name ? "bold" : "",
+              }}
+              onClick={() => { getNameList(items?.c_id) }}
+              onMouseOver={() => setActive(items?.account_name)}
+              onMouseLeave={() => setActive(null)}
+            >
+              {items?.account_name}
+            </span>
+            <ComponentCell3
+              id={items?.c_id}
+              getNameList={getNameList}
+              listallaccountchildren={listallaccountchildren}
+            />
+
+          </>
+
+        )
+      })
+    }
+  </>)
+}
+function ComponentCell3({ listallaccountchildren, id, getNameList }) {
+  const [active, setActive] = useState('')
+  const filter = listallaccountchildren.filter((el) => el.parents == id);
+  return (<>
+    {
+      filter.map((items, index) => {
+        return (
+          <>
+            <span
+              key={index}
+              style={{
+                cursor: "pointer",
+                paddingLeft: 90,
+                fontWeight: active === items?.account_name ? "bold" : "",
+              }}
+              onClick={() => { getNameList(items?.c_id) }}
+              onMouseOver={() => setActive(items?.account_name)}
+              onMouseLeave={() => setActive(null)}
+            >
+              {items?.account_name}
+            </span>
+            <ComponentCell4
+              id={items?.c_id}
+              getNameList={getNameList}
+              listallaccountchildren={listallaccountchildren}
+            />
+
+          </>
+
+        )
+      })
+    }
+  </>)
+}
+function ComponentCell4({ listallaccountchildren, id, getNameList }) {
+  const [active, setActive] = useState('')
+  const filter = listallaccountchildren.filter((el) => el.parents == id);
+  return (<>
+    {
+      filter.map((items, index) => {
+        return (
+          <>
+            <span
+              key={index}
+              style={{
+                cursor: "pointer",
+                paddingLeft: 105,
+                fontWeight: active === items?.account_name ? "bold" : "",
+              }}
+              onClick={() => { getNameList(items?.c_id) }}
+              onMouseOver={() => setActive(items?.account_name)}
+              onMouseLeave={() => setActive(null)}
+            >
+              {items?.account_name}
+            </span>
+            <ComponentCell5
+              id={items?.c_id}
+              getNameList={getNameList}
+              listallaccountchildren={listallaccountchildren}
+            />
+
+          </>
+
+        )
+      })
+    }
+  </>)
+}
+function ComponentCell5({ listallaccountchildren, id, getNameList }) {
+  const [active, setActive] = useState('')
+  const filter = listallaccountchildren.filter((el) => el.parents == id);
+  return (<>
+    {
+      filter.map((items, index) => {
+        return (
+          <>
+            <span
+              key={index}
+              style={{
+                cursor: "pointer",
+                paddingLeft: 120,
+                fontWeight: active === items?.account_name ? "bold" : "",
+              }}
+              onClick={() => { getNameList(items?.c_id) }}
+              onMouseOver={() => setActive(items?.account_name)}
+              onMouseLeave={() => setActive(null)}
+            >
+              {items?.account_name}
+            </span>
+            <ComponentCell6
+              id={items?.c_id}
+              getNameList={getNameList}
+              listallaccountchildren={listallaccountchildren}
+            />
+
+          </>
+
+        )
+      })
+    }
+  </>)
+}
+function ComponentCell6({ listallaccountchildren, id, getNameList }) {
+  const [active, setActive] = useState('')
+  const filter = listallaccountchildren.filter((el) => el.parents == id);
+  return (<>
+    {
+      filter.map((items, index) => {
+        return (
+          <>
+            <span
+              key={index}
+              style={{
+                cursor: "pointer",
+                paddingLeft: 120,
+                fontWeight: active === items?.account_name ? "bold" : "",
+              }}
+              onClick={() => { getNameList(items?.c_id) }}
+              onMouseOver={() => setActive(items?.account_name)}
+              onMouseLeave={() => setActive(null)}
+            >
+              {items?.account_name}
+            </span>
+            <ComponentCell5
+              id={items?.c_id}
+              getNameList={getNameList}
+              listallaccountchildren={listallaccountchildren}
+            />
+          </>
+
+        )
+      })
+    }
+  </>)
 }
