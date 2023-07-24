@@ -135,6 +135,7 @@ export default function Home(props) {
     OnloadBalancesheet,
     OnloadResetCondition,
     listTransactions,
+    onloadtransaction
   } = useContext(LoginContext);
   const handleShow = () => {
     setShow(true)
@@ -196,9 +197,7 @@ export default function Home(props) {
       {
         showfullscreen == true ? (
           <>
-            <Journal
-  
-            />
+            <Journal/>
           </>
         ) : (showEditJournal == true) ? (<>
           <EditComponentJournal
