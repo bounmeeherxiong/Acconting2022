@@ -39,7 +39,7 @@ export default function ReportallGL() {
     navigate("/ChartAccount");
   }
 
- 
+
   const classes = useStyles();
   const [getvalues, setGetvalues] = useState([]);
   const [start_date, setStart_date] = useState("");
@@ -99,22 +99,22 @@ export default function ReportallGL() {
     setShow(false);
 
   };
-  const OnResetConditions=()=>{
-    axios.get('/accounting/api/profit-loss/reset-condition').then((data)=>{
-    }).catch((err)=>{
-        console.log(err)
+  const OnResetConditions = () => {
+    axios.get('/accounting/api/profit-loss/reset-condition').then((data) => {
+    }).catch((err) => {
+      console.log(err)
     })
-}
+  }
   const handleShow = () => {
     setShow(true)
   };
   const OnloadResetCondition = () => {
-  axios.get('/accounting/api/report/ConditionResetGL').then((data) => {
-    setListcondition([...data?.data?.results][0].counts)
-  }).catch((err) => {
-    console.log(err)
-  })
-}
+    axios.get('/accounting/api/report/ConditionResetGL').then((data) => {
+      setListcondition([...data?.data?.results][0].counts)
+    }).catch((err) => {
+      console.log(err)
+    })
+  }
   const ReportExchange = () => {
     axios.get('/accounting/api/report/report_Exchange').then((data) => {
       onloadreportGl();
@@ -199,8 +199,8 @@ export default function ReportallGL() {
     if (e == "custom") {
       setAccount(false)
       setAlldates(false)
-      
-      
+
+
     } else if (e == "all") {
       setAlldates(true)
     } else if (e == "today") {
@@ -297,7 +297,7 @@ export default function ReportallGL() {
         end
       }
       axios.post("/accounting/api/report/reportGlbydate", data).then((data) => {
-
+        console.log("successully")
         setListgl({ ...data?.data })
         setLoading(false)
       }).catch((err) => {
@@ -321,7 +321,7 @@ export default function ReportallGL() {
     axios.get('/accounting/api/report/createResetExchange_gl').then((data) => {
       onloadreportGl()
       OnloadResetCondition()
- 
+
     }).catch((err) => {
       console.log(err)
     })
@@ -586,6 +586,25 @@ export default function ReportallGL() {
             )
           }
 
+
+
+          <button
+            style={{
+              backgroundColor: "#3f51b5",
+              border: "none",
+              height: 30,
+              borderRadius: 2,
+              paddingLeft: 10,
+              paddingRight: 10,
+              color: "white",
+              alignItems: "center",
+              marginLeft: 10,
+            }}
+            onClick={() => { ReportExchange() }}
+          >
+            <AddIcon />
+            Report Exchange
+          </button>
           <ReactToPrint
             trigger={() => <button
               style={{
@@ -605,24 +624,6 @@ export default function ReportallGL() {
             content={() => componentRef}
             style={{ marginRight: 10 }}
           />
-
-          <button
-            style={{
-              backgroundColor: "#3f51b5",
-              border: "none",
-              height: 30,
-              borderRadius: 2,
-              paddingLeft: 10,
-              paddingRight: 10,
-              color: "white",
-              alignItems: "center",
-              marginLeft: 10,
-            }}
-            onClick={() => { ReportExchange() }}
-          >
-            <AddIcon />
-            Report Exchange
-          </button>
         </div>
         <div>
           <button
@@ -1040,7 +1041,30 @@ export default function ReportallGL() {
     </>
   )
 }
-function GLRowComponent({ name_eng, id, second, childrenFirstFloor, childrenSecondFloor, onGotoEditjournal, OnEditJournal, defaultValue, defaultValue1, getvalues, ch_id, showcredit, showdebit, foreigndebit, foreigncredit, foreignamount, foreignbalance, rate, exchangerate, gain_Loss, currentbalance, OnShowAatumaticTransaction }) {
+function GLRowComponent({
+  name_eng,
+  id,
+  second,
+  childrenFirstFloor,
+  childrenSecondFloor,
+  onGotoEditjournal,
+  OnEditJournal,
+  defaultValue,
+  defaultValue1,
+  getvalues,
+  ch_id,
+  showcredit,
+  showdebit,
+  foreigndebit,
+  foreigncredit,
+  foreignamount,
+  foreignbalance,
+  rate,
+  exchangerate,
+  gain_Loss,
+  currentbalance,
+  OnShowAatumaticTransaction
+}) {
   const [open, setOpen] = useState(true);
   const [netTotal1, setNetTotal1] = useState([])
   let total1 = 0;
@@ -1404,7 +1428,7 @@ function RowComponent({ id, name_eng, OnEditJournal, total1, childrenFirstFloor,
                               {
                                 data?.money_rate
                               }
-                              </TableCell>
+                            </TableCell>
                           </>
                         ) : (
                           <>
@@ -1421,11 +1445,11 @@ function RowComponent({ id, name_eng, OnEditJournal, total1, childrenFirstFloor,
                           <>
                             <TableCell align="right" style={{ cursor: "pointer", color: 'green' }} >
                               {
-                                 data?.money_rate
+                                data?.money_rate
                               }
-           
-                              
-                              </TableCell>
+
+
+                            </TableCell>
                           </>
                         ) : (
                           <>
@@ -1905,13 +1929,13 @@ function SecondRowComponent({ id, name_eng, level, OnEditJournal, childrenSecond
                         data?.foreign_code === 'USD' || data?.foreign_code === 'THB' ? (
                           <>
                             <TableCell align="right" style={{ cursor: "pointer", color: '#0d6efd' }} >
-                            
+
 
                               {
                                 data?.money_rate
                               }
-                              
-                              </TableCell>
+
+                            </TableCell>
                           </>
                         ) : (
                           <>
@@ -1927,12 +1951,12 @@ function SecondRowComponent({ id, name_eng, level, OnEditJournal, childrenSecond
                         data?.foreign_code === 'USD' || data?.foreign_code === 'THB' ? (
                           <>
                             <TableCell align="right" style={{ cursor: "pointer", color: 'green' }} >
-                      
+
                               {
                                 data?.money_rate
                               }
-                              
-                              </TableCell>
+
+                            </TableCell>
                           </>
                         ) : (
                           <>

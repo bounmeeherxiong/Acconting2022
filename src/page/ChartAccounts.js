@@ -980,7 +980,6 @@ export default function ChartAccounts() {
       console.log(err)
     })
     axios.get(`/accounting/api/chartofaccounts/getsublevels/${ac_type}`).then((data) => {
-
       setSublevels_one([...data?.data?.sub_one])
       setSublevels_two([...data?.data?.sub_two])
       setsublevels_three([...data?.data?.sub_three])
@@ -1170,7 +1169,7 @@ export default function ChartAccounts() {
                 <Form.Label style={{ fontSize: 20 }}>Account Type</Form.Label>
                 <Form.Select
                   aria-label="Default select example"
-                  onChange={(e) => _onsearchaccountid(e.target.value)}
+                  onChange={(e) =>{_onsearchaccountid(e.target.value)}}
                   value={ac_type}
                 >
                   {showUpdate ? (
@@ -3641,7 +3640,7 @@ function RowComponent({ children, id, _ongetBanckvalues, level, handleShowDelele
               }}>
                 {data?.account_name}
               </TableCell>
-              <TableCell align="left">{data?.accounttype_name}Second</TableCell>
+              <TableCell align="left">{data?.accounttype_name}</TableCell>
               <TableCell align="left">{data?.currencesname}</TableCell>
               <TableCell align="left">{data?.c_desc}</TableCell>
               <TableCell align="right">{getFormatNumber(data.c_balance)}</TableCell>

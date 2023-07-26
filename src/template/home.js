@@ -915,6 +915,7 @@ function EditComponentJournal({ id, CloseShoFullScrreen,onloadtransaction,onload
       setIsLoading(false);
       setSomething(true)
     } else {
+      console.log("update=",journaldata)
       axios.put("/accounting/api/journal-entries/update", journaldata).then((data) => {
         setDefaultValue('')
         setShowToast(true);

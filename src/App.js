@@ -74,6 +74,8 @@ function App() {
     axios
       .get("/accounting/api/accounts")
       .then((data) => {
+        console.log("accounts=",data)
+
         setListaccount([...data?.data.result]);
       })
       .catch((err) => {
@@ -88,25 +90,25 @@ function App() {
     axios
       .get("/accounting/api/accounts-type")
       .then((data) => {
+        console.log("accounts-type=",data)
         setListaccountType([...data?.data.result]);
       })
       .catch((err) => {
         console.log(err);
       });
   };
-  const onloadaccountdetailType = () => {
-    axios
-      .get("/accounting/api/detail-type")
-      .then((data) => {
-        setListaccountdetailType([...data?.data.result]);
-      })
-      .catch((err) => {
-        console.log(err);
-      });
-  };
+  // const onloadaccountdetailType = () => {
+  //   axios
+  //     .get("/accounting/api/detail-type")
+  //     .then((data) => {
+  //       setListaccountdetailType([...data?.data.result]);
+  //     })
+  //     .catch((err) => {
+  //       console.log(err);
+  //     });
+  // };
   const onloadallaccount = () => {
     axios.get("/accounting/api/chartofaccounts/all/accountname").then((data) => {
-      
       setListallaccount([...data?.data?.message])
       setListallaccountchildren([...data?.data?.children])
     }).catch((err) => {
@@ -120,9 +122,15 @@ function App() {
       console.log(err)
     })
   }
+  const onloadreportGl = () => {
+    axios.get("/accounting/api/report/reportGl").then((data) => {
+      console.log("reportGl=",data)
+      setListgl({ ...data?.data })
+    })
+  }
   const onloadaccountlistname = () => {
     axios.get("/accounting/api/chartofaccounts").then((data) => {
-      
+      console.log("chartofaccounts=",data)
       setListaccountname([...data?.data.result])
     }).catch((err) => {
       console.log(err)
@@ -130,20 +138,13 @@ function App() {
   }
   const onloadtransaction = () => {
     axios.get("/accounting/api/journal-entries/selectAllTransaction").then((data) => {
-      console.log("onlaodtarnsactions=",data)
       setListTransactions([...data?.data?.result])
       setList([...data?.data.result])
     }).catch((err) => {
         console.log(err)
     })
 }
-// const onLoadExchangeRates = () => {
-//   axios.get('/accounting/api/loss-gain/getrate').then((data) => {
-//     setData([...data?.data.result])
-//   }).catch((err) => {
-//     console.log(err)
-//   })
-// }
+
 const OnloadgainAndLoss = () => {
   axios
     .get("/accounting/api/loss-gain/getgainAndLoss")
@@ -157,7 +158,6 @@ const OnloadgainAndLoss = () => {
 };
 const OnLoadgainandlossTransaction = () => {
   axios.get('/accounting/api/loss-gain/transaction').then((data) => {
-   
     setListgain([...data?.data?.result])
   }).catch((err) => {
     console.log(err)
@@ -176,11 +176,7 @@ const onLoadrate = () => {
     console.log(err)
   })
 }
-const onloadreportGl = () => {
-  axios.get("/accounting/api/report/reportGl").then((data) => {
-    setListgl({ ...data?.data })
-  })
-}
+
 const onloadChecktrue_and_false=()=>{
   // axios.get('/accounting/api/balance-sheet/onloadcheck/').then((data)=>{
   //     setTra_balance([...data?.data?.onloadChecktrue_and_false][0].conditions_check)
@@ -222,7 +218,6 @@ const onloadLevelforchartofaccount=()=>{
     // } 
     onloadaccount();
     onloadaccountType();
-    onloadaccountdetailType();
     onloadaccountlistname();
     onloadreportjournalentries();
 
@@ -260,8 +255,7 @@ const onloadLevelforchartofaccount=()=>{
           listaccount,
           listaccountType,
           onloadaccountType,
-          listaccountdetailType,
-          onloadaccountdetailType,
+    
           listaccountname,
           listReport,
           onloadreportjournalentries,

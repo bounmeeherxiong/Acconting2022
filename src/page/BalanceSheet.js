@@ -813,10 +813,10 @@ function ComponentOwner({ childrenFirst, tra_balance,GotoProfitandloss,GotoProfi
                     {
                         tra_balance == true ? (
                             <>
-                                <TableCell align="right" >{getFormatNumber(parseFloat(totalliabTotal) + parseFloat(transactions_balance))}₭</TableCell>
+                                <TableCell align="right" style={{fontWeight: "bold"}}>{getFormatNumber(parseFloat(totalliabTotal) + parseFloat(transactions_balance))}₭</TableCell>
                             </>) : (
                             <>
-                                <TableCell align="right" >{getFormatNumber(parseFloat(totalliabTotal) + parseFloat(balancesheetandloss))}₭</TableCell>
+                                <TableCell align="right" style={{fontWeight: "bold"}}>{getFormatNumber(parseFloat(totalliabTotal) + parseFloat(balancesheetandloss))}₭</TableCell>
 
 
                             </>)
@@ -916,7 +916,7 @@ function ComponetOwnerFirstChild({ data, id, tra_balance, transactions_balance, 
                                 <TableCell component="th" scope="row" style={{ paddingLeft: 65, fontWeight: "bold" }} >
                                     Total: {data?.name_eng}
                                 </TableCell>
-                                <TableCell align="right" >
+                                <TableCell align="right" style={{fontWeight: "bold"}}>
                                     {getFormatNumber(filter[0].balances)}₭
                                 </TableCell>
                             </TableRow>
@@ -1016,7 +1016,7 @@ function TableCellComponentOwner({ data, childrenSecond, id, TotaldrenFirstFloor
                                 <TableCell component="th" scope="row" style={{ paddingLeft: 80, fontWeight: "bold" }} >
                                     Total: {data?.name_eng}
                                 </TableCell>
-                                <TableCell align="right" >
+                                <TableCell align="right" style={{fontWeight: "bold"}}>
                                     {getFormatNumber(filter[0].balances)}₭
                                 </TableCell>
                             </TableRow>
@@ -1110,7 +1110,7 @@ function TableCellComponentOwner2({ data, childrenSecond, id, TotaldrenFirstFloo
                                 <TableCell component="th" scope="row" style={{ paddingLeft: 90, fontWeight: "bold" }} >
                                     Total: {data?.name_eng}
                                 </TableCell>
-                                <TableCell align="right">
+                                <TableCell align="right" style={{fontWeight: "bold"}}>
                                     {getFormatNumber(filter[0].balances)}₭
                                 </TableCell>
                             </TableRow>
@@ -1205,7 +1205,7 @@ function TableCellComponentOwner4({ data, childrenSecond, id, TotaldrenFirstFloo
                                 <TableCell component="th" scope="row" style={{ paddingLeft: 100, fontWeight: "bold" }} >
                                     Total: {data?.name_eng}
                                 </TableCell>
-                                <TableCell align="right"  >
+                                <TableCell align="right" style={{fontWeight: "bold"}} >
                                     {getFormatNumber(filter[0].balances)}₭
                                 </TableCell>
                             </TableRow>
@@ -1299,7 +1299,7 @@ function TableCellComponentOwner6({ data, childrenSecond, id, TotaldrenFirstFloo
                                 <TableCell component="th" scope="row" style={{ paddingLeft: 110, fontWeight: "bold" }} >
                                     Total: {data?.name_eng}
                                 </TableCell>
-                                <TableCell align="right" >
+                                <TableCell align="right" style={{fontWeight: "bold"}}>
                                     {getFormatNumber(filter[0].balances)}₭
                                 </TableCell>
                             </TableRow>
@@ -1395,7 +1395,7 @@ function TableCellComponentOwner8({ data, childrenSecond, id, TotaldrenFirstFloo
                                 <TableCell component="th" scope="row" style={{ paddingLeft: 120, fontWeight: "bold" }} >
                                     Total: {data?.name_eng}
                                 </TableCell>
-                                <TableCell align="right"  >
+                                <TableCell align="right"  style={{fontWeight: "bold"}}>
                                     {getFormatNumber(filter[0].balances)}₭
                                 </TableCell>
                             </TableRow>
@@ -1492,7 +1492,7 @@ function TableCellComponentOwner10({ data, childrenSecond, id, TotaldrenFirstFlo
                                 <TableCell component="th" scope="row" style={{ paddingLeft: 130, fontWeight: "bold" }} >
                                     Total: {data?.name_eng}
                                 </TableCell>
-                                <TableCell align="right" >
+                                <TableCell align="right" style={{fontWeight: "bold"}}>
                                     {getFormatNumber(filter[0].balances)}₭
                                 </TableCell>
                             </TableRow>
@@ -1581,7 +1581,7 @@ function TableCellComponentOwner12({ data, id, childrenSecond, Gotodetailaccount
                                 <TableCell component="th" scope="row" style={{ paddingLeft: 140, fontWeight: "bold" }} >
                                     Total: {data?.name_eng}
                                 </TableCell>
-                                <TableCell align="right"  >
+                                <TableCell align="right"  style={{fontWeight: "bold"}}>
                                     {getFormatNumber(filter[0].balances)}₭
                                 </TableCell>
                             </TableRow>
@@ -1724,10 +1724,10 @@ function Componentsub({ id, childrenFirst, tra_balance, TotaldrenFirstFloor, chi
                 {
                     tra_balance == true ? (
                         <>
-                            <TableCell align="right"> {getFormatNumber(TotalFilter[0].transact_balance)}₭</TableCell>
+                            <TableCell align="right" style={{fontWeight: "bold"}}> {getFormatNumber(TotalFilter[0].transact_balance)}₭</TableCell>
                         </>) : (
                         <>
-                            <TableCell align="right"> {getFormatNumber(TotalFilter[0].amout)}₭</TableCell>
+                            <TableCell align="right" style={{fontWeight: "bold"}}> {getFormatNumber(TotalFilter[0].amout)}₭</TableCell>
                         </>)
                 }
 
@@ -1804,12 +1804,12 @@ function Componetfirst({ data, id, childrenSecond, tra_balance, TotaldrenFirstFl
                                     {
                                         tra_balance == true ? (
                                             <>
-                                                <TableCell align="right">
+                                                <TableCell align="right" style={{fontWeight:'bold'}}>
                                                     {getFormatNumber(filter[0].transact_balance)}₭
                                                 </TableCell>
 
                                             </>) : (<>
-                                                <TableCell align="right">
+                                                <TableCell align="right" style={{fontWeight:'bold'}}>
                                                     {getFormatNumber(filter[0].balances)}₭
                                                 </TableCell>
 
@@ -1923,7 +1923,7 @@ function TableCellComponent({ data, childrenSecond, tra_balance, id, TotaldrenFi
                                 <TableCell component="th" scope="row" style={{ paddingLeft: 50, fontWeight: "bold" }} >
                                     Total:  {data?.name_eng}
                                 </TableCell>
-                                <TableCell align="right">
+                                <TableCell align="right" style={{fontWeight:'bold'}}>
                                     {getFormatNumber(filter[0].balances)}₭
                                 </TableCell>
                             </TableRow>
@@ -2036,7 +2036,7 @@ function TableCellComponent2({ id, childrenSecond, data, tra_balance, TotaldrenF
                                 <TableCell component="th" scope="row" style={{ paddingLeft: 70, fontWeight: "bold" }} >
                                     Total:  {data?.name_eng}
                                 </TableCell>
-                                <TableCell align="right" >
+                                <TableCell align="right" style={{fontWeight:'bold'}}>
                                     {getFormatNumber(filter[0].balances)}₭
                                 </TableCell>
                             </TableRow>
@@ -2144,7 +2144,7 @@ function TableCellComponent4({ data, childrenSecond, tra_balance, id, TotaldrenF
                                 <TableCell component="th" scope="row" style={{ paddingLeft: 80, fontWeight: "bold" }} >
                                     Total:  {data?.name_eng}
                                 </TableCell>
-                                <TableCell align="right">
+                                <TableCell align="right" style={{fontWeight:'bold'}}>
                                     {getFormatNumber(filter[0].balances)}₭
                                 </TableCell>
                             </TableRow>
@@ -2250,7 +2250,7 @@ function TableCellComponent6({ data, childrenSecond, tra_balance, TotaldrenFirst
                                 <TableCell component="th" scope="row" style={{ paddingLeft: 90, fontWeight: "bold" }} >
                                     Total:  {data?.name_eng}
                                 </TableCell>
-                                <TableCell align="right" >
+                                <TableCell align="right" style={{fontWeight: "bold"}}>
                                     {getFormatNumber(filter[0].balances)}₭
                                 </TableCell>
                             </TableRow>
@@ -2356,7 +2356,7 @@ function TableCellComponent8({ data, childrenSecond, tra_balance, TotaldrenFirst
                                 <TableCell component="th" scope="row" style={{ paddingLeft: 110, fontWeight: "bold" }} >
                                     Total:  {data?.name_eng}
                                 </TableCell>
-                                <TableCell align="right">
+                                <TableCell align="right" style={{fontWeight: "bold"}}>
                                     {getFormatNumber(filter[0].balances)}₭
                                 </TableCell>
                             </TableRow>
@@ -2462,7 +2462,7 @@ function TableCellComponent10({ data, childrenSecond, tra_balance, TotaldrenFirs
                                 <TableCell component="th" scope="row" style={{ paddingLeft: 110, fontWeight: "bold" }} >
                                     Total:  {data?.name_eng}
                                 </TableCell>
-                                <TableCell align="right" >
+                                <TableCell align="right" style={{fontWeight: "bold"}}>
                                     {getFormatNumber(filter[0].balances)}₭
                                 </TableCell>
                             </TableRow>
@@ -2566,9 +2566,9 @@ function Component2({ item, size, id, childrenFirst, tra_balance, childrenSecond
                         </TableCell>
                         {
                             tra_balance == true ? (<>
-                                <TableCell align="right"> {getFormatNumber(filter[0].transact_balance)}₭</TableCell>
+                                <TableCell align="right" style={{fontWeight: "bold"}}> {getFormatNumber(filter[0].transact_balance)}₭</TableCell>
                             </>) : (<>
-                                <TableCell align="right"> {getFormatNumber(filter[0].amout)}₭</TableCell>
+                                <TableCell align="right" style={{fontWeight: "bold"}}> {getFormatNumber(filter[0].amout)}₭</TableCell>
                             </>)
                         }
 
@@ -2681,12 +2681,12 @@ function TableCellComponentFirstLiability({ data, childrenSecond, tra_balance, T
                                 </TableCell>
                                 {
                                     tra_balance == true ? (<>
-                                        <TableCell align="right" >
+                                        <TableCell align="right" style={{fontWeight: "bold"}}>
                                             {getFormatNumber(filter[0].transact_balance)}₭
                                         </TableCell>
 
                                     </>) : (<>
-                                        <TableCell align="right" >
+                                        <TableCell align="right" style={{fontWeight: "bold"}}>
                                             {getFormatNumber(filter[0].balances)}₭
                                         </TableCell>
 
@@ -2806,12 +2806,12 @@ function TableCellComponentLiability({ data, childrenSecond, tra_balance, id, To
                                 </TableCell>
                                 {
                                     tra_balance == true ? (<>
-                                        <TableCell align="right" >
+                                        <TableCell align="right" style={{fontWeight: "bold"}}>
                                             {getFormatNumber(filter[0].transact_balance)}₭
                                         </TableCell>
 
                                     </>) : (<>
-                                        <TableCell align="right" >
+                                        <TableCell align="right" style={{fontWeight: "bold"}}>
                                             {getFormatNumber(filter[0].balances)}₭
                                         </TableCell>
 
@@ -2927,7 +2927,7 @@ function TableCellComponentLiability2({ data, childrenSecond, tra_balance, id, T
                                 <TableCell component="th" scope="row" style={{ paddingLeft: 70, fontWeight: "bold" }} >
                                     Total:{data?.name_eng}
                                 </TableCell>
-                                <TableCell align="right"  >
+                                <TableCell align="right"  style={{fontWeight: "bold"}}>
                                     {getFormatNumber(filter[0].balances)}₭
                                 </TableCell>
                             </TableRow>
@@ -3041,7 +3041,7 @@ function TableCellComponentLiability4({ data, childrenSecond, id, tra_balance, T
                                 <TableCell component="th" scope="row" style={{ paddingLeft: 70, fontWeight: "bold" }} >
                                     Total:{data?.name_eng}
                                 </TableCell>
-                                <TableCell align="right"  >
+                                <TableCell align="right"  style={{fontWeight: "bold"}}>
                                     {getFormatNumber(filter[0].balances)}₭
                                 </TableCell>
                             </TableRow>
@@ -3154,7 +3154,7 @@ function TableCellComponentLiability6({ data, childrenSecond, tra_balance, id, T
                                 <TableCell component="th" scope="row" style={{ paddingLeft: 70, fontWeight: "bold" }} >
                                     Total:{data?.name_eng}
                                 </TableCell>
-                                <TableCell align="right"  >
+                                <TableCell align="right" style={{fontWeight: "bold"}} >
                                     {getFormatNumber(filter[0].balances)}₭
                                 </TableCell>
                             </TableRow></>)
@@ -3270,7 +3270,7 @@ function TableCellComponentLiability8({ data, childrenSecond, tra_balance, id, T
                                 <TableCell component="th" scope="row" style={{ paddingLeft: 70, fontWeight: "bold" }} >
                                     Total:{data?.name_eng}
                                 </TableCell>
-                                <TableCell align="right"  >
+                                <TableCell align="right"  style={{fontWeight: "bold"}}>
                                     {getFormatNumber(filter[0].balances)}₭
                                 </TableCell>
                             </TableRow>
@@ -3387,7 +3387,7 @@ function TableCellComponentLiability10({ data, childrenSecond, tra_balance, id, 
                                 <TableCell component="th" scope="row" style={{ paddingLeft: 70, fontWeight: "bold" }} >
                                     Total:{data?.name_eng}
                                 </TableCell>
-                                <TableCell align="right" >
+                                <TableCell align="right" style={{fontWeight: "bold"}}>
                                     {getFormatNumber(filter[0].balances)}₭
                                 </TableCell>
                             </TableRow>
@@ -3498,7 +3498,7 @@ function TableCellComponentLiability12({ data, childrenSecond, tra_balance, id, 
                         <TableCell component="th" scope="row" style={{ paddingLeft: 70, fontWeight: "bold" }} >
                             Total:{data?.name_eng}
                         </TableCell>
-                        <TableCell align="right"  >
+                        <TableCell align="right"  style={{fontWeight: "bold"}}>
                             {getFormatNumber(filter[0].balances)}₭
                         </TableCell>
                     </TableRow>
