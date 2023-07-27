@@ -296,8 +296,9 @@ export default function ReportallGL() {
         start,
         end
       }
-      axios.post("/accounting/api/report/reportGlbydate", data).then((data) => {
+      axios.post("/accounting/api/report/reportGlbydatetwo", data).then((data) => {
         console.log("successully")
+        console.log("Search=",data)
         setListgl({ ...data?.data })
         setLoading(false)
       }).catch((err) => {
@@ -1001,8 +1002,8 @@ export default function ReportallGL() {
                     return (
                       <>
                         < GLRowComponent
-                          name_eng={item.name_eng}
-                          id={item.c_id}
+                          name_eng={item?.name_eng}
+                          id={item?.c_id}
                           index={index}
                           second={listgl && listgl.SecondFloor}
                           childrenFirstFloor={listgl && listgl.childrenFirstFloor}

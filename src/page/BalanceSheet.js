@@ -141,8 +141,9 @@ export default function BalanceSheet() {
     }
     const Onloadreset1 = () => {
         axios.get('/accounting/api/report/createResetExchange_gl').then((data) => {
-            OnloadBalancesheet();
             OnloadResetCondition();
+            OnloadBalancesheet();
+          
         }).catch((err) => {
             console.log(err)
         })
@@ -217,8 +218,9 @@ export default function BalanceSheet() {
       };
     const ReportExchange = () => {
         axios.get('/accounting/api/report/report_Exchange').then((data) => {
-            OnloadBalancesheet();
             OnloadResetCondition()
+            OnloadBalancesheet();
+           
         }).catch((err) => {
             console.log(err)
         })
