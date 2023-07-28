@@ -12,11 +12,11 @@ import ExpandMore from '@material-ui/icons/ExpandMore';
 import Box from '@material-ui/core/Box';
 import Collapse from '@material-ui/core/Collapse';
 import { getFormatNumber } from "../constants/functions"
-import Breadcrumbs from "@material-ui/core/Breadcrumbs";
+
 import ArrowBackIcon from "@material-ui/icons/ArrowBack";
-import AddIcon from "@material-ui/icons/Add";
+
 import axios from "axios";
-import { Button } from "@material-ui/core";
+
 import { useNavigate } from "react-router-dom";
 import SettingsIcon from "@material-ui/icons/Settings";
 import { useParams } from "react-router-dom";
@@ -55,7 +55,8 @@ export default function ViewUnrealisedgain_or_loss() {
     const [searchtotal,setSearchtotal]=useState([])
     const OnloadListData = () => {
         axios.get('/accounting/api/listLossAndGain/getList').then((data) => {
-            console.log("Listdata=",data)
+            console.log("ListData=",data)
+         
             setListTotal([...data?.data?.totalGainAndLoss])
             setList({ ...data?.data })
         }).catch((err) => {
@@ -383,8 +384,7 @@ function TableCellComponent({ data, gain_losses, secondList, balances, currentba
 
                             </>) : (
                             <>
-                                <TableCell align="right">
-
+                                <TableCell align="right" style={{fontWeight:'bold'}}>
                                     {getFormatNumber(data?.gain_loss)}₭
                                 </TableCell>
 
@@ -405,6 +405,9 @@ function TableCellComponent({ data, gain_losses, secondList, balances, currentba
                                             <TableCell>Account</TableCell>
                                             <TableCell align="right">Debit</TableCell>
                                             <TableCell align="right">Credit</TableCell>
+                        
+                                            <TableCell align="right">Foreign Balance</TableCell>
+                                            <TableCell align="right">Exchange Rate</TableCell>
                                             {/* <TableCell align="right">Foreign Balance</TableCell>
                                             <TableCell align="right">Exchange Rate</TableCell> */}
                                             {/* {
@@ -439,8 +442,44 @@ function TableCellComponent({ data, gain_losses, secondList, balances, currentba
                                                                 {moment(data?.created_at).format("DD-MM-YYYY")}
                                                             </TableCell>
                                                             <TableCell>{data?.name_eng}</TableCell>
-                                                            <TableCell align="right">{getFormatNumber(data?.debit)} ₭</TableCell>
-                                                            <TableCell align="right">{getFormatNumber(data?.credit)} ₭</TableCell>
+                                                            {
+                                                                data?.debit == '0.00' ? (
+                                                                    <TableCell align="right"></TableCell>
+                                                                ):(
+                                                                    <TableCell align="right">{getFormatNumber(data?.debit)}₭</TableCell>
+                                                                )
+                                                            }
+                                                            {
+                                                                data?.credit == '0.00' ? (
+                                                                    <TableCell align="right"></TableCell>
+                                                                ):(
+                                                                    <TableCell align="right">{getFormatNumber(data?.credit)}₭</TableCell>
+                                                                )
+                                                            }
+                                                            {
+                                                                data?.foreign_balances == null ? (
+                                                                <TableCell align="right">
+                                                                    
+                                                                 </TableCell>
+                                                                ):(
+                                                                <TableCell align="right">
+                                                                    {getFormatNumber(data?.foreign_balances)}
+                                                                    {
+                                                                    data?.foreign_code == 'USD' ? (<>$</>):(<>฿</>)
+                                                                    }
+                                                                 </TableCell>
+                                                                )
+                                                            }
+                                                            {
+                                                                data?.money_rate == '0' ? (
+                                                                    <TableCell align="right"></TableCell>
+                                                                ):(
+                                                                    <TableCell align="right">
+                                                                            {getFormatNumber(data?.money_rate)}
+                                                                    </TableCell>
+                                                                )
+                                                            }
+                                                         
                                                             {/* <TableCell align="right">{getFormatNumber(data?.foreign_balances)}$</TableCell>
                                                             <TableCell align="right">{getFormatNumber(data?.money_rate)}</TableCell> */}
                                                             {/* {
@@ -455,7 +494,7 @@ function TableCellComponent({ data, gain_losses, secondList, balances, currentba
                                                                 data?.statu_auto_GainAndLoss === 1 || data?.statu_auto_GainAndLoss === 2 ?
                                                                     (
                                                                         <>
-                                                                            <TableCell align="right">{getFormatNumber(data?.amout)} ₭</TableCell>
+                                                                            <TableCell align="right" style={{fontWeight:'bold'}}>{getFormatNumber(data?.amout)}₭</TableCell>
                                                                         </>
                                                                     ) :
                                                                     (
