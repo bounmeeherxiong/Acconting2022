@@ -76,7 +76,7 @@ export default function BalanceSheet() {
     const [loading, setLoading] = useState(false);
     const [showSetting, setShowSetting] = useState(false)
     const [isDisabled, setIsDisabled] = useState(false);
-    const [isChecked,setIsChecked]=useState(true)
+    const [isChecked, setIsChecked] = useState(true)
     const [id, setid] = useState([])
     const classes = useStyles();
     const [listcondition, setListcondition] = useState([])
@@ -91,15 +91,16 @@ export default function BalanceSheet() {
     const Gotodetailaccount = (id) => {
         navigate(`/DetailBalancSheet/${id}`);
     }
-    const GotoProfitandloss=()=>{
+    const GotoProfitandloss = () => {
         navigate('/Profitandloss/2');
     }
-    const GotoProfitandlossofconditions=(e)=>{
+    const GotoProfitandlossofconditions = (e) => {
         navigate(`/Profitandloss/${e}`)
     }
     const OnloadBalancesheet = () => {
         axios.get('/accounting/api/balance-sheet/reports').then((data) => {
-            console.log("datassssssss=",data)
+            console.log("balancesheetdata=", data)
+
             setHeading({ ...data?.data })
             setNetTotal([...data?.data?.sumAsset])
             setid([...data?.data?.Ownersequity][0].bs_id)
@@ -166,56 +167,56 @@ export default function BalanceSheet() {
             setTra_balance(true)
             setIsChecked(false)
 
-        //     let infdata={
-        //         data:'true'
-        //     }
-        //    axios.post('/accounting/api/balance-sheet/checkdata',infdata).then((data)=>{
-        //         onloadChecktrue_and_false()
-        //     }).catch((err)=>{
-        //         console.log(err)
-        //     })
-        // } else {
-        //     setTra_balance(false)
-        //     let infdata={
-        //         data:'false'
-        //     }
-        //    axios.post('/accounting/api/balance-sheet/checkdata',infdata).then((data)=>{
-        //         onloadChecktrue_and_false()
-        //     }).catch((err)=>{
-        //         console.log(err)
-        //     })
-    
+            //     let infdata={
+            //         data:'true'
+            //     }
+            //    axios.post('/accounting/api/balance-sheet/checkdata',infdata).then((data)=>{
+            //         onloadChecktrue_and_false()
+            //     }).catch((err)=>{
+            //         console.log(err)
+            //     })
+            // } else {
+            //     setTra_balance(false)
+            //     let infdata={
+            //         data:'false'
+            //     }
+            //    axios.post('/accounting/api/balance-sheet/checkdata',infdata).then((data)=>{
+            //         onloadChecktrue_and_false()
+            //     }).catch((err)=>{
+            //         console.log(err)
+            //     })
+
         }
 
-      };
-      const handleChange1 = event => {
+    };
+    const handleChange1 = event => {
         if (event.target.checked) {
             setTra_balance(false)
             setIsDisabled(false)
 
 
-        //     let infdata={
-        //         data:'true'
-        //     }
-        //    axios.post('/accounting/api/balance-sheet/checkdata',infdata).then((data)=>{
-        //         onloadChecktrue_and_false()
-        //     }).catch((err)=>{
-        //         console.log(err)
-        //     })
-        // } else {
-        //     setTra_balance(false)
-        //     let infdata={
-        //         data:'false'
-        //     }
-        //    axios.post('/accounting/api/balance-sheet/checkdata',infdata).then((data)=>{
-        //         onloadChecktrue_and_false()
-        //     }).catch((err)=>{
-        //         console.log(err)
-        //     })
-    
+            //     let infdata={
+            //         data:'true'
+            //     }
+            //    axios.post('/accounting/api/balance-sheet/checkdata',infdata).then((data)=>{
+            //         onloadChecktrue_and_false()
+            //     }).catch((err)=>{
+            //         console.log(err)
+            //     })
+            // } else {
+            //     setTra_balance(false)
+            //     let infdata={
+            //         data:'false'
+            //     }
+            //    axios.post('/accounting/api/balance-sheet/checkdata',infdata).then((data)=>{
+            //         onloadChecktrue_and_false()
+            //     }).catch((err)=>{
+            //         console.log(err)
+            //     })
+
         }
 
-      };
+    };
     const ReportExchange = () => {
         axios.get('/accounting/api/report/report_Exchange').then((data) => {
             OnloadResetCondition()
@@ -225,9 +226,9 @@ export default function BalanceSheet() {
             console.log(err)
         })
     }
-    const OnResetConditions=()=>{
-        axios.get('/accounting/api/profit-loss/reset-condition').then((data)=>{
-        }).catch((err)=>{
+    const OnResetConditions = () => {
+        axios.get('/accounting/api/profit-loss/reset-condition').then((data) => {
+        }).catch((err) => {
             console.log(err)
         })
     }
@@ -241,7 +242,7 @@ export default function BalanceSheet() {
             }
             axios.post('/accounting/api/balance-sheet/report/allreports', data).then((data) => {
                 setHeading({ ...data?.data })
-                console.log("Search=",data)
+                console.log("Search=", data)
                 setid([...data?.data?.Ownersequity][0].bs_id)
                 setNetTotal([...data?.data?.sumAsset])
                 setNetTotalLiabilities([...data?.data?.sumliabilitiesAndOwnerequity])
@@ -360,7 +361,6 @@ export default function BalanceSheet() {
                     >
                         Run report
                     </Button>
-
                     {
                         listcondition == 1 ? (
                             <>
@@ -472,22 +472,22 @@ export default function BalanceSheet() {
                                 <div style={{ height: 10 }}></div>
                                 <div style={{ display: 'flex', flexDirection: 'column', cursor: 'pointer' }}>
                                     <div style={{ marginLeft: 20, display: 'flex', flexDirection: 'row' }}>
-                                    <input type="checkbox"
-                                        checked={isChecked}
-                                        onChange={handleChange1}
-                                        onClick={() => {
-                                            setIsChecked(!isChecked);
-                                          }}
-                                    />
+                                        <input type="checkbox"
+                                            checked={isChecked}
+                                            onChange={handleChange1}
+                                            onClick={() => {
+                                                setIsChecked(!isChecked);
+                                            }}
+                                        />
                                         <small style={{ marginLeft: 5, marginTop: 2 }}>Current Balances</small>
                                     </div>
                                     <div style={{ display: 'flex', flexDirection: 'row', marginTop: 20, marginLeft: 20 }}>
                                         <input type="checkbox"
-                                          checked={isDisabled}
+                                            checked={isDisabled}
                                             onChange={handleChange}
                                             onClick={() => {
                                                 setIsDisabled(!isDisabled);
-                                              }}
+                                            }}
                                         />
                                         <small style={{ marginLeft: 5, marginTop: 2 }}>Transaction Balanace</small>
                                     </div>
@@ -525,7 +525,7 @@ export default function BalanceSheet() {
                                                         Totalsubject={heading?.subjecttotal}
                                                         childrenFirst={heading?.childrenFirst}
                                                         childrenSecond={heading?.childrenSecond}
-                                                        TotaldrenFirstFloor={heading?.firsttotal}
+                                                        // TotaldrenFirstFloor={heading?.firsttotal}
                                                         TotalSumAsset={netTotal}
                                                         Gotodetailaccount={Gotodetailaccount}
                                                         tra_balance={tra_balance}
@@ -548,13 +548,13 @@ export default function BalanceSheet() {
                                                     <GLRowComponent2
                                                         key={index}
                                                         id={data?.bs_id}
-                                                        name={data?.bs_name}x
+                                                        name={data?.bs_name} x
                                                         id_Owner={id}
                                                         subject={heading?.subject}
                                                         Totalsubject={heading?.subjecttotal}
                                                         childrenFirst={heading?.childrenFirst}
                                                         childrenSecond={heading?.childrenSecond}
-                                                        TotaldrenFirstFloor={heading?.firsttotal}
+                                                        // TotaldrenFirstFloor={heading?.firsttotal}
                                                         netTotalLiabilities={netTotalLiabilities}
                                                         balancesheetandloss={balancesheetandloss}
                                                         transactions_balance={transactions_balance}
@@ -583,7 +583,7 @@ export default function BalanceSheet() {
         </>
     );
 }
-function GLRowComponent({ name, id, subject, tra_balance, index, Totalsubject, TotalSumAsset, childrenFirst, TotaldrenFirstFloor, childrenSecond, Gotodetailaccount }) {
+function GLRowComponent({ name, id, subject, tra_balance, index, Totalsubject, TotalSumAsset, childrenFirst, childrenSecond, Gotodetailaccount }) {
 
     let SumAsset = 0;
     let transact_balance = 0;
@@ -620,7 +620,7 @@ function GLRowComponent({ name, id, subject, tra_balance, index, Totalsubject, T
                         subject={subject}
                         childrenFirst={childrenFirst}
                         childrenSecond={childrenSecond}
-                        TotaldrenFirstFloor={TotaldrenFirstFloor}
+                        // TotaldrenFirstFloor={TotaldrenFirstFloor}
                         Totalsubject={Totalsubject}
                         Gotodetailaccount={Gotodetailaccount}
                         tra_balance={tra_balance}
@@ -647,7 +647,7 @@ function GLRowComponent({ name, id, subject, tra_balance, index, Totalsubject, T
         </>
     )
 }
-function GLRowComponent2({ name, id, subject,GotoProfitandloss,GotoProfitandlossofconditions, tra_balance, transactions_balance, childrenFirst, childrenSecond, netTotalLiabilities, TotaldrenFirstFloor, id_Owner, Totalsubject, balancesheetandloss, Gotodetailaccount }) {
+function GLRowComponent2({ name, id, subject, GotoProfitandloss, GotoProfitandlossofconditions, tra_balance, transactions_balance, childrenFirst, childrenSecond, netTotalLiabilities, id_Owner, Totalsubject, balancesheetandloss, Gotodetailaccount }) {
 
     let totalliabTotal;
     let allbalance;
@@ -704,7 +704,7 @@ function GLRowComponent2({ name, id, subject,GotoProfitandloss,GotoProfitandloss
                         id_Owner={id_Owner}
                         childrenFirst={childrenFirst}
                         childrenSecond={childrenSecond}
-                        TotaldrenFirstFloor={TotaldrenFirstFloor}
+                        // TotaldrenFirstFloor={TotaldrenFirstFloor}
                         Totalsubject={Totalsubject}
                         Gotodetailaccount={Gotodetailaccount}
                         tra_balance={tra_balance}
@@ -714,7 +714,7 @@ function GLRowComponent2({ name, id, subject,GotoProfitandloss,GotoProfitandloss
                         childrenSecond={childrenSecond}
                         id_Owner={id_Owner}
                         Totalsubject={Totalsubject}
-                        TotaldrenFirstFloor={TotaldrenFirstFloor}
+                        // TotaldrenFirstFloor={TotaldrenFirstFloor}
                         id={id}
                         size={30}
                         balancesheetandloss={balancesheetandloss}
@@ -744,7 +744,7 @@ function GLRowComponent2({ name, id, subject,GotoProfitandloss,GotoProfitandloss
         </>
     )
 }
-function ComponentOwner({ childrenFirst, tra_balance,GotoProfitandloss,GotoProfitandlossofconditions, transactions_balance, childrenSecond, id_Owner, Totalsubject, TotaldrenFirstFloor, id, size, balancesheetandloss, Gotodetailaccount }) {
+function ComponentOwner({ childrenFirst, tra_balance, GotoProfitandloss, GotoProfitandlossofconditions, transactions_balance, childrenSecond, id_Owner, Totalsubject, id, size, balancesheetandloss, Gotodetailaccount }) {
     const [open, setOpen] = useState(true);
     let totalliabTotal;
     const handleClick = () => {
@@ -789,10 +789,10 @@ function ComponentOwner({ childrenFirst, tra_balance,GotoProfitandloss,GotoProfi
                     </TableCell>
                     {
                         tra_balance == true ? (<>
-                            <TableCell align="right" style={{ cursor: 'pointer', color: 'red' }} onClick={()=>{GotoProfitandlossofconditions(1)}}>{getFormatNumber(transactions_balance)}₭</TableCell>
+                            <TableCell align="right" style={{ cursor: 'pointer', color: 'red' }} onClick={() => { GotoProfitandlossofconditions(1) }}>{getFormatNumber(transactions_balance)}₭</TableCell>
 
                         </>) : (<>
-                            <TableCell align="right" style={{ cursor: 'pointer', color: 'red' }} onClick={()=>{GotoProfitandloss()}}>{getFormatNumber(balancesheetandloss)}₭</TableCell>
+                            <TableCell align="right" style={{ cursor: 'pointer', color: 'red' }} onClick={() => { GotoProfitandloss() }}>{getFormatNumber(balancesheetandloss)}₭</TableCell>
 
                         </>)
                     }
@@ -802,7 +802,7 @@ function ComponentOwner({ childrenFirst, tra_balance,GotoProfitandloss,GotoProfi
                     childrenSecond={childrenSecond}
                     id_Owner={id_Owner}
                     Totalsubject={Totalsubject}
-                    TotaldrenFirstFloor={TotaldrenFirstFloor}
+                    // TotaldrenFirstFloor={TotaldrenFirstFloor}
                     id={id}
                     Gotodetailaccount={Gotodetailaccount}
                     transactions_balance={transactions_balance}
@@ -815,10 +815,10 @@ function ComponentOwner({ childrenFirst, tra_balance,GotoProfitandloss,GotoProfi
                     {
                         tra_balance == true ? (
                             <>
-                                <TableCell align="right" style={{fontWeight: "bold"}}>{getFormatNumber(parseFloat(totalliabTotal) + parseFloat(transactions_balance))}₭</TableCell>
+                                <TableCell align="right" style={{ fontWeight: "bold" }}>{getFormatNumber(parseFloat(totalliabTotal) + parseFloat(transactions_balance))}₭</TableCell>
                             </>) : (
                             <>
-                                <TableCell align="right" style={{fontWeight: "bold"}}>{getFormatNumber(parseFloat(totalliabTotal) + parseFloat(balancesheetandloss))}₭</TableCell>
+                                <TableCell align="right" style={{ fontWeight: "bold" }}>{getFormatNumber(parseFloat(totalliabTotal) + parseFloat(balancesheetandloss))}₭</TableCell>
 
 
                             </>)
@@ -829,7 +829,7 @@ function ComponentOwner({ childrenFirst, tra_balance,GotoProfitandloss,GotoProfi
         }
     </>)
 }
-function ComponetOwner({ childrenFirst, tra_balance, transactions_balance, id_Owner, childrenSecond, TotaldrenFirstFloor, Gotodetailaccount }) {
+function ComponetOwner({ childrenFirst, tra_balance, transactions_balance, id_Owner, childrenSecond, Gotodetailaccount }) {
     if (childrenFirst === null) return <></>
     const filter = childrenFirst.filter((el) => el.bs_id == id_Owner);
     if (filter.length === 0) return <></>;
@@ -844,7 +844,7 @@ function ComponetOwner({ childrenFirst, tra_balance, transactions_balance, id_Ow
                                 data={data}
                                 id={data?.c_id}
                                 childrenSecond={childrenSecond}
-                                TotaldrenFirstFloor={TotaldrenFirstFloor}
+                                // TotaldrenFirstFloor={TotaldrenFirstFloor}
                                 Gotodetailaccount={Gotodetailaccount}
                                 transactions_balance={transactions_balance}
                                 tra_balance={tra_balance}
@@ -863,14 +863,14 @@ function ComponetOwner({ childrenFirst, tra_balance, transactions_balance, id_Ow
         </>
     )
 }
-function ComponetOwnerFirstChild({ data, id, tra_balance, transactions_balance, childrenSecond, TotaldrenFirstFloor, Gotodetailaccount }) {
+function ComponetOwnerFirstChild({ data, id, tra_balance, transactions_balance, childrenSecond, Gotodetailaccount }) {
 
     const [checkvalues, setCheckvalues] = useState(0)
     const [open, setOpen] = useState(true);
     const [netTotal, setNetTotal] = useState(0)
-    if (TotaldrenFirstFloor === null) return <></>
-    const filter = TotaldrenFirstFloor.filter((el) => el.id === id);
-    if (filter.length === 0) return <></>;
+    // if (TotaldrenFirstFloor === null) return <></>
+    // const filter = TotaldrenFirstFloor.filter((el) => el.id === id);
+    // if (filter.length === 0) return <></>;
     const handleClick = () => {
         setOpen(!open);
     };
@@ -909,7 +909,7 @@ function ComponetOwnerFirstChild({ data, id, tra_balance, transactions_balance, 
                         id={id}
                         childrenSecond={childrenSecond}
                         setCheckvalues={setCheckvalues}
-                        TotaldrenFirstFloor={TotaldrenFirstFloor}
+                        // TotaldrenFirstFloor={TotaldrenFirstFloor}
                         Gotodetailaccount={Gotodetailaccount}
                     />
                     {
@@ -918,9 +918,9 @@ function ComponetOwnerFirstChild({ data, id, tra_balance, transactions_balance, 
                                 <TableCell component="th" scope="row" style={{ paddingLeft: 65, fontWeight: "bold" }} >
                                     Total: {data?.name_eng}
                                 </TableCell>
-                                <TableCell align="right" style={{fontWeight: "bold"}}>
+                                {/* <TableCell align="right" style={{ fontWeight: "bold" }}>
                                     {getFormatNumber(filter[0].balances)}₭
-                                </TableCell>
+                                </TableCell> */}
                             </TableRow>
                         </>)
                     }
@@ -933,7 +933,7 @@ function ComponetOwnerFirstChild({ data, id, tra_balance, transactions_balance, 
         </>
     )
 }
-function ComponetOwnerSecondChild({ id, childrenSecond, TotaldrenFirstFloor, setCheckvalues, Gotodetailaccount }) {
+function ComponetOwnerSecondChild({ id, childrenSecond,setCheckvalues, Gotodetailaccount }) {
     if (childrenSecond === null) return <></>
     const filter = childrenSecond.filter((el) => el.parents == id);
     if (filter.length === 0) return <></>;
@@ -952,7 +952,7 @@ function ComponetOwnerSecondChild({ id, childrenSecond, TotaldrenFirstFloor, set
                         data={data}
                         id={data?.c_id}
                         childrenSecond={childrenSecond}
-                        TotaldrenFirstFloor={TotaldrenFirstFloor}
+                  
                         Gotodetailaccount={Gotodetailaccount}
                     />
                 </>)
@@ -960,14 +960,14 @@ function ComponetOwnerSecondChild({ id, childrenSecond, TotaldrenFirstFloor, set
         }
     </>)
 }
-function TableCellComponentOwner({ data, childrenSecond, id, TotaldrenFirstFloor, Gotodetailaccount }) {
+function TableCellComponentOwner({ data, childrenSecond, id, Gotodetailaccount }) {
 
     const [checkvalues, setCheckvalues] = useState(0)
     const [open, setOpen] = useState(true);
     const [netTotal, setNetTotal] = useState(0)
-    if (TotaldrenFirstFloor === null) return <></>
-    const filter = TotaldrenFirstFloor.filter((el) => el.id === id);
-    if (filter.length === 0) return <></>;
+    // if (TotaldrenFirstFloor === null) return <></>
+    // const filter = TotaldrenFirstFloor.filter((el) => el.id === id);
+    // if (filter.length === 0) return <></>;
     const handleClick = () => {
         setOpen(!open);
     };
@@ -1006,7 +1006,7 @@ function TableCellComponentOwner({ data, childrenSecond, id, TotaldrenFirstFloor
                 open ? (<>
                     <TableCellComponentOwner1
                         childrenSecond={childrenSecond}
-                        TotaldrenFirstFloor={TotaldrenFirstFloor}
+
                         id={id}
                         setCheckvalues={setCheckvalues}
                         Gotodetailaccount={Gotodetailaccount}
@@ -1018,9 +1018,12 @@ function TableCellComponentOwner({ data, childrenSecond, id, TotaldrenFirstFloor
                                 <TableCell component="th" scope="row" style={{ paddingLeft: 80, fontWeight: "bold" }} >
                                     Total: {data?.name_eng}
                                 </TableCell>
-                                <TableCell align="right" style={{fontWeight: "bold"}}>
+                                {/* <TableCell align="right" style={{ fontWeight: "bold" }}>
                                     {getFormatNumber(filter[0].balances)}₭
-                                </TableCell>
+                                </TableCell> */}
+                                                         <TableCell align="right" style={{ fontWeight: 'bold' }}>
+                                            {getFormatNumber(data?.net_total)}₭
+                                        </TableCell>
                             </TableRow>
                         </>)
                     }
@@ -1032,7 +1035,7 @@ function TableCellComponentOwner({ data, childrenSecond, id, TotaldrenFirstFloor
         </>
     )
 }
-function TableCellComponentOwner1({ childrenSecond, id, TotaldrenFirstFloor, setCheckvalues, Gotodetailaccount }) {
+function TableCellComponentOwner1({ childrenSecond, id, setCheckvalues, Gotodetailaccount }) {
     if (childrenSecond === null) return <></>
     const filter = childrenSecond.filter((el) => el.parents == id);
     if (filter.length === 0) return <></>;
@@ -1050,7 +1053,7 @@ function TableCellComponentOwner1({ childrenSecond, id, TotaldrenFirstFloor, set
                         data={data}
                         id={data?.c_id}
                         childrenSecond={childrenSecond}
-                        TotaldrenFirstFloor={TotaldrenFirstFloor}
+                        // TotaldrenFirstFloor={TotaldrenFirstFloor}
                         Gotodetailaccount={Gotodetailaccount}
                     />
                 </>)
@@ -1058,13 +1061,13 @@ function TableCellComponentOwner1({ childrenSecond, id, TotaldrenFirstFloor, set
         }
     </>)
 }
-function TableCellComponentOwner2({ data, childrenSecond, id, TotaldrenFirstFloor, Gotodetailaccount }) {
+function TableCellComponentOwner2({ data, childrenSecond, id, Gotodetailaccount }) {
     const [checkvalues, setCheckvalues] = useState(0)
     const [open, setOpen] = useState(true);
     const [netTotal, setNetTotal] = useState(0)
-    if (TotaldrenFirstFloor === null) return <></>
-    const filter = TotaldrenFirstFloor.filter((el) => el.id === id);
-    if (filter.length === 0) return <></>;
+    // if (TotaldrenFirstFloor === null) return <></>
+    // const filter = TotaldrenFirstFloor.filter((el) => el.id === id);
+    // if (filter.length === 0) return <></>;
     const handleClick = () => {
         setOpen(!open);
     };
@@ -1102,7 +1105,7 @@ function TableCellComponentOwner2({ data, childrenSecond, id, TotaldrenFirstFloo
                     <TableCellComponentOwner3
                         setCheckvalues={setCheckvalues}
                         childrenSecond={childrenSecond}
-                        TotaldrenFirstFloor={TotaldrenFirstFloor}
+                  
                         id={id}
                         Gotodetailaccount={Gotodetailaccount}
                     />
@@ -1112,9 +1115,12 @@ function TableCellComponentOwner2({ data, childrenSecond, id, TotaldrenFirstFloo
                                 <TableCell component="th" scope="row" style={{ paddingLeft: 90, fontWeight: "bold" }} >
                                     Total: {data?.name_eng}
                                 </TableCell>
-                                <TableCell align="right" style={{fontWeight: "bold"}}>
+                                {/* <TableCell align="right" style={{ fontWeight: "bold" }}>
                                     {getFormatNumber(filter[0].balances)}₭
-                                </TableCell>
+                                </TableCell> */}
+                                                         <TableCell align="right" style={{ fontWeight: 'bold' }}>
+                                            {getFormatNumber(data?.net_total)}₭
+                                        </TableCell>
                             </TableRow>
                         </>)
                     }
@@ -1124,7 +1130,7 @@ function TableCellComponentOwner2({ data, childrenSecond, id, TotaldrenFirstFloo
         </>
     )
 }
-function TableCellComponentOwner3({ childrenSecond, id, TotaldrenFirstFloor, setCheckvalues, Gotodetailaccount }) {
+function TableCellComponentOwner3({ childrenSecond, id, setCheckvalues, Gotodetailaccount }) {
     if (childrenSecond === null) return <></>
     const filter = childrenSecond.filter((el) => el.parents == id);
     if (filter.length === 0) return <></>;
@@ -1142,7 +1148,7 @@ function TableCellComponentOwner3({ childrenSecond, id, TotaldrenFirstFloor, set
                         data={data}
                         id={data?.c_id}
                         childrenSecond={childrenSecond}
-                        TotaldrenFirstFloor={TotaldrenFirstFloor}
+                        // TotaldrenFirstFloor={TotaldrenFirstFloor}
                         Gotodetailaccount={Gotodetailaccount}
                     />
                 </>)
@@ -1150,13 +1156,13 @@ function TableCellComponentOwner3({ childrenSecond, id, TotaldrenFirstFloor, set
         }
     </>)
 }
-function TableCellComponentOwner4({ data, childrenSecond, id, TotaldrenFirstFloor, Gotodetailaccount }) {
+function TableCellComponentOwner4({ data, childrenSecond, id, Gotodetailaccount }) {
     const [checkvalues, setCheckvalues] = useState(0)
     const [open, setOpen] = useState(true);
     const [netTotal, setNetTotal] = useState(0)
-    if (TotaldrenFirstFloor === null) return <></>
-    const filter = TotaldrenFirstFloor.filter((el) => el.id === id);
-    if (filter.length === 0) return <></>;
+    // if (TotaldrenFirstFloor === null) return <></>
+    // const filter = TotaldrenFirstFloor.filter((el) => el.id === id);
+    // if (filter.length === 0) return <></>;
     const handleClick = () => {
         setOpen(!open);
     };
@@ -1197,7 +1203,7 @@ function TableCellComponentOwner4({ data, childrenSecond, id, TotaldrenFirstFloo
                     <TableCellComponentOwner5
                         setCheckvalues={setCheckvalues}
                         childrenSecond={childrenSecond}
-                        TotaldrenFirstFloor={TotaldrenFirstFloor}
+                        // TotaldrenFirstFloor={TotaldrenFirstFloor}
                         id={id}
                         Gotodetailaccount={Gotodetailaccount}
                     />
@@ -1207,9 +1213,12 @@ function TableCellComponentOwner4({ data, childrenSecond, id, TotaldrenFirstFloo
                                 <TableCell component="th" scope="row" style={{ paddingLeft: 100, fontWeight: "bold" }} >
                                     Total: {data?.name_eng}
                                 </TableCell>
-                                <TableCell align="right" style={{fontWeight: "bold"}} >
+                                {/* <TableCell align="right" style={{ fontWeight: "bold" }} >
                                     {getFormatNumber(filter[0].balances)}₭
-                                </TableCell>
+                                </TableCell> */}
+                                                         <TableCell align="right" style={{ fontWeight: 'bold' }}>
+                                            {getFormatNumber(data?.net_total)}₭
+                                        </TableCell>
                             </TableRow>
                         </>)
                     }
@@ -1219,7 +1228,7 @@ function TableCellComponentOwner4({ data, childrenSecond, id, TotaldrenFirstFloo
         </>
     )
 }
-function TableCellComponentOwner5({ childrenSecond, id, TotaldrenFirstFloor, setCheckvalues, Gotodetailaccount }) {
+function TableCellComponentOwner5({ childrenSecond, id, setCheckvalues, Gotodetailaccount }) {
     if (childrenSecond === null) return <></>
     const filter = childrenSecond.filter((el) => el.parents == id);
     if (filter.length === 0) return <></>;
@@ -1237,7 +1246,7 @@ function TableCellComponentOwner5({ childrenSecond, id, TotaldrenFirstFloor, set
                         data={data}
                         id={data?.c_id}
                         childrenSecond={childrenSecond}
-                        TotaldrenFirstFloor={TotaldrenFirstFloor}
+                        // TotaldrenFirstFloor={TotaldrenFirstFloor}
                         Gotodetailaccount={Gotodetailaccount}
                     />
                 </>)
@@ -1245,13 +1254,13 @@ function TableCellComponentOwner5({ childrenSecond, id, TotaldrenFirstFloor, set
         }
     </>)
 }
-function TableCellComponentOwner6({ data, childrenSecond, id, TotaldrenFirstFloor, Gotodetailaccount }) {
+function TableCellComponentOwner6({ data, childrenSecond, id, Gotodetailaccount }) {
     const [checkvalues, setCheckvalues] = useState(0)
     const [open, setOpen] = useState(true);
     const [netTotal, setNetTotal] = useState(0)
-    if (TotaldrenFirstFloor === null) return <></>
-    const filter = TotaldrenFirstFloor.filter((el) => el.id === id);
-    if (filter.length === 0) return <></>;
+    // if (TotaldrenFirstFloor === null) return <></>
+    // const filter = TotaldrenFirstFloor.filter((el) => el.id === id);
+    // if (filter.length === 0) return <></>;
     const handleClick = () => {
         setOpen(!open);
     };
@@ -1291,7 +1300,7 @@ function TableCellComponentOwner6({ data, childrenSecond, id, TotaldrenFirstFloo
                     <TableCellComponentOwner7
                         setCheckvalues={setCheckvalues}
                         childrenSecond={childrenSecond}
-                        TotaldrenFirstFloor={TotaldrenFirstFloor}
+                        // TotaldrenFirstFloor={TotaldrenFirstFloor}
                         id={id}
                         Gotodetailaccount={Gotodetailaccount}
                     />
@@ -1301,9 +1310,12 @@ function TableCellComponentOwner6({ data, childrenSecond, id, TotaldrenFirstFloo
                                 <TableCell component="th" scope="row" style={{ paddingLeft: 110, fontWeight: "bold" }} >
                                     Total: {data?.name_eng}
                                 </TableCell>
-                                <TableCell align="right" style={{fontWeight: "bold"}}>
+                                {/* <TableCell align="right" style={{ fontWeight: "bold" }}>
                                     {getFormatNumber(filter[0].balances)}₭
-                                </TableCell>
+                                </TableCell> */}
+                                                         <TableCell align="right" style={{ fontWeight: 'bold' }}>
+                                            {getFormatNumber(data?.net_total)}₭
+                                        </TableCell>
                             </TableRow>
                         </>)
                     }
@@ -1315,7 +1327,7 @@ function TableCellComponentOwner6({ data, childrenSecond, id, TotaldrenFirstFloo
         </>
     )
 }
-function TableCellComponentOwner7({ childrenSecond, id, TotaldrenFirstFloor, setCheckvalues, Gotodetailaccount }) {
+function TableCellComponentOwner7({ childrenSecond, id, setCheckvalues, Gotodetailaccount }) {
     if (childrenSecond === null) return <></>
     const filter = childrenSecond.filter((el) => el.parents == id);
     if (filter.length === 0) return <></>;
@@ -1333,7 +1345,7 @@ function TableCellComponentOwner7({ childrenSecond, id, TotaldrenFirstFloor, set
                         data={data}
                         id={data?.c_id}
                         childrenSecond={childrenSecond}
-                        TotaldrenFirstFloor={TotaldrenFirstFloor}
+                        // TotaldrenFirstFloor={TotaldrenFirstFloor}
                         Gotodetailaccount={Gotodetailaccount}
                     />
                 </>)
@@ -1341,13 +1353,13 @@ function TableCellComponentOwner7({ childrenSecond, id, TotaldrenFirstFloor, set
         }
     </>)
 }
-function TableCellComponentOwner8({ data, childrenSecond, id, TotaldrenFirstFloor, Gotodetailaccount }) {
+function TableCellComponentOwner8({ data, childrenSecond, id, Gotodetailaccount }) {
     const [checkvalues, setCheckvalues] = useState(0)
     const [open, setOpen] = useState(true);
     const [netTotal, setNetTotal] = useState(0)
-    if (TotaldrenFirstFloor === null) return <></>
-    const filter = TotaldrenFirstFloor.filter((el) => el.id === id);
-    if (filter.length === 0) return <></>;
+    // if (TotaldrenFirstFloor === null) return <></>
+    // const filter = TotaldrenFirstFloor.filter((el) => el.id === id);
+    // if (filter.length === 0) return <></>;
     const handleClick = () => {
         setOpen(!open);
     };
@@ -1387,7 +1399,7 @@ function TableCellComponentOwner8({ data, childrenSecond, id, TotaldrenFirstFloo
                     <TableCellComponentOwner9
                         setCheckvalues={setCheckvalues}
                         childrenSecond={childrenSecond}
-                        TotaldrenFirstFloor={TotaldrenFirstFloor}
+                        // TotaldrenFirstFloor={TotaldrenFirstFloor}
                         id={id}
                         Gotodetailaccount={Gotodetailaccount}
                     />
@@ -1397,9 +1409,12 @@ function TableCellComponentOwner8({ data, childrenSecond, id, TotaldrenFirstFloo
                                 <TableCell component="th" scope="row" style={{ paddingLeft: 120, fontWeight: "bold" }} >
                                     Total: {data?.name_eng}
                                 </TableCell>
-                                <TableCell align="right"  style={{fontWeight: "bold"}}>
+                                {/* <TableCell align="right" style={{ fontWeight: "bold" }}>
                                     {getFormatNumber(filter[0].balances)}₭
-                                </TableCell>
+                                </TableCell> */}
+                                                         <TableCell align="right" style={{ fontWeight: 'bold' }}>
+                                            {getFormatNumber(data?.net_total)}₭
+                                        </TableCell>
                             </TableRow>
                         </>)
                     }
@@ -1411,7 +1426,7 @@ function TableCellComponentOwner8({ data, childrenSecond, id, TotaldrenFirstFloo
         </>
     )
 }
-function TableCellComponentOwner9({ childrenSecond, id, TotaldrenFirstFloor, setCheckvalues, Gotodetailaccount }) {
+function TableCellComponentOwner9({ childrenSecond, id, setCheckvalues, Gotodetailaccount }) {
     if (childrenSecond === null) return <></>
     const filter = childrenSecond.filter((el) => el.parents == id);
     if (filter.length === 0) return <></>;
@@ -1429,7 +1444,7 @@ function TableCellComponentOwner9({ childrenSecond, id, TotaldrenFirstFloor, set
                         data={data}
                         id={data?.c_id}
                         childrenSecond={childrenSecond}
-                        TotaldrenFirstFloor={TotaldrenFirstFloor}
+                        // TotaldrenFirstFloor={TotaldrenFirstFloor}
                         Gotodetailaccount={Gotodetailaccount}
                     />
                 </>)
@@ -1437,13 +1452,13 @@ function TableCellComponentOwner9({ childrenSecond, id, TotaldrenFirstFloor, set
         }
     </>)
 }
-function TableCellComponentOwner10({ data, childrenSecond, id, TotaldrenFirstFloor, Gotodetailaccount }) {
+function TableCellComponentOwner10({ data, childrenSecond, id, Gotodetailaccount }) {
     const [checkvalues, setCheckvalues] = useState(0)
     const [open, setOpen] = useState(true);
     const [netTotal, setNetTotal] = useState(0)
-    if (TotaldrenFirstFloor === null) return <></>
-    const filter = TotaldrenFirstFloor.filter((el) => el.id === id);
-    if (filter.length === 0) return <></>;
+    // if (TotaldrenFirstFloor === null) return <></>
+    // const filter = TotaldrenFirstFloor.filter((el) => el.id === id);
+    // if (filter.length === 0) return <></>;
     const handleClick = () => {
         setOpen(!open);
     };
@@ -1484,7 +1499,7 @@ function TableCellComponentOwner10({ data, childrenSecond, id, TotaldrenFirstFlo
                     <TableCellComponentOwner11
                         setCheckvalues={setCheckvalues}
                         childrenSecond={childrenSecond}
-                        TotaldrenFirstFloor={TotaldrenFirstFloor}
+                        // TotaldrenFirstFloor={TotaldrenFirstFloor}
                         id={id}
                         Gotodetailaccount={Gotodetailaccount}
                     />
@@ -1494,8 +1509,11 @@ function TableCellComponentOwner10({ data, childrenSecond, id, TotaldrenFirstFlo
                                 <TableCell component="th" scope="row" style={{ paddingLeft: 130, fontWeight: "bold" }} >
                                     Total: {data?.name_eng}
                                 </TableCell>
-                                <TableCell align="right" style={{fontWeight: "bold"}}>
+                                {/* <TableCell align="right" style={{ fontWeight: "bold" }}>
                                     {getFormatNumber(filter[0].balances)}₭
+                                </TableCell> */}
+                                <TableCell align="right" style={{ fontWeight: 'bold' }}>
+                                            {getFormatNumber(data?.net_total)}₭
                                 </TableCell>
                             </TableRow>
                         </>)
@@ -1583,9 +1601,10 @@ function TableCellComponentOwner12({ data, id, childrenSecond, Gotodetailaccount
                                 <TableCell component="th" scope="row" style={{ paddingLeft: 140, fontWeight: "bold" }} >
                                     Total: {data?.name_eng}
                                 </TableCell>
-                                <TableCell align="right"  style={{fontWeight: "bold"}}>
+                                <TableCell align="right" style={{ fontWeight: "bold" }}>
                                     {getFormatNumber(filter[0].balances)}₭
                                 </TableCell>
+                          
                             </TableRow>
                         </>)
                     }
@@ -1597,7 +1616,7 @@ function TableCellComponentOwner12({ data, id, childrenSecond, Gotodetailaccount
         </>
     )
 }
-function Componentchild({ id, size, subject, Totalsubject, tra_balance, childrenFirst, childrenSecond, TotaldrenFirstFloor, Gotodetailaccount }) {
+function Componentchild({ id, size, subject, Totalsubject, tra_balance, childrenFirst, childrenSecond, Gotodetailaccount }) {
     const filter = subject.filter((el) => el.bs_status == id);
     if (filter.length === 0) return <></>;
     return (
@@ -1614,7 +1633,7 @@ function Componentchild({ id, size, subject, Totalsubject, tra_balance, children
                                 Totalsubject={Totalsubject}
                                 childrenFirst={childrenFirst}
                                 childrenSecond={childrenSecond}
-                                TotaldrenFirstFloor={TotaldrenFirstFloor}
+                                // TotaldrenFirstFloor={TotaldrenFirstFloor}
                                 Gotodetailaccount={Gotodetailaccount}
                                 tra_balance={tra_balance}
                             />
@@ -1625,7 +1644,7 @@ function Componentchild({ id, size, subject, Totalsubject, tra_balance, children
         </>
     )
 }
-function Componentchild2({ id, size, subject, tra_balance, childrenFirst, childrenSecond, Totalsubject, TotaldrenFirstFloor, Gotodetailaccount }) {
+function Componentchild2({ id, size, subject, tra_balance, childrenFirst, childrenSecond, Totalsubject, Gotodetailaccount }) {
     const filter = subject.filter((el) => el.bs_status == id);
     if (filter.length === 0) return <></>;
     return (
@@ -1642,7 +1661,7 @@ function Componentchild2({ id, size, subject, tra_balance, childrenFirst, childr
                                 childrenFirst={childrenFirst}
                                 childrenSecond={childrenSecond}
                                 Totalsubject={Totalsubject}
-                                TotaldrenFirstFloor={TotaldrenFirstFloor}
+                                // TotaldrenFirstFloor={TotaldrenFirstFloor}
                                 Gotodetailaccount={Gotodetailaccount}
                                 tra_balance={tra_balance}
                             />
@@ -1653,7 +1672,7 @@ function Componentchild2({ id, size, subject, tra_balance, childrenFirst, childr
         </>
     )
 }
-function Component({ item, size, index, id, tra_balance, Totalsubject, childrenFirst, TotaldrenFirstFloor, childrenSecond, Gotodetailaccount }) {
+function Component({ item, size, index, id, tra_balance, Totalsubject, childrenFirst, childrenSecond, Gotodetailaccount }) {
     const [open, setOpen] = useState(true);
     const handleClick = () => {
         setOpen(!open);
@@ -1680,7 +1699,7 @@ function Component({ item, size, index, id, tra_balance, Totalsubject, childrenF
                         id={id}
                         childrenFirst={childrenFirst}
                         childrenSecond={childrenSecond}
-                        TotaldrenFirstFloor={TotaldrenFirstFloor}
+                        // TotaldrenFirstFloor={TotaldrenFirstFloor}
                         Totalsubject={Totalsubject}
                         subject_name={item?.bs_name}
                         Gotodetailaccount={Gotodetailaccount}
@@ -1695,7 +1714,7 @@ function Component({ item, size, index, id, tra_balance, Totalsubject, childrenF
     )
 }
 
-function Componentsub({ id, childrenFirst, tra_balance, TotaldrenFirstFloor, childrenSecond, Totalsubject, subject_name, Gotodetailaccount }) {
+function Componentsub({ id, childrenFirst, tra_balance, childrenSecond, Totalsubject, subject_name, Gotodetailaccount }) {
 
     if (childrenFirst === null) return <></>
     const filter = childrenFirst.filter((el) => el.bs_id == id);
@@ -1712,7 +1731,7 @@ function Componentsub({ id, childrenFirst, tra_balance, TotaldrenFirstFloor, chi
                             key={index}
                             id={data?.c_id}
                             childrenSecond={childrenSecond}
-                            TotaldrenFirstFloor={TotaldrenFirstFloor}
+                            // TotaldrenFirstFloor={TotaldrenFirstFloor}
                             Gotodetailaccount={Gotodetailaccount}
                             tra_balance={tra_balance}
                         />
@@ -1726,10 +1745,10 @@ function Componentsub({ id, childrenFirst, tra_balance, TotaldrenFirstFloor, chi
                 {
                     tra_balance == true ? (
                         <>
-                            <TableCell align="right" style={{fontWeight: "bold"}}> {getFormatNumber(TotalFilter[0].transact_balance)}₭</TableCell>
+                            <TableCell align="right" style={{ fontWeight: "bold" }}> {getFormatNumber(TotalFilter[0].transact_balance)}₭</TableCell>
                         </>) : (
                         <>
-                            <TableCell align="right" style={{fontWeight: "bold"}}> {getFormatNumber(TotalFilter[0].amout)}₭</TableCell>
+                            <TableCell align="right" style={{ fontWeight: "bold" }}> {getFormatNumber(TotalFilter[0].amout)}₭</TableCell>
                         </>)
                 }
 
@@ -1737,13 +1756,13 @@ function Componentsub({ id, childrenFirst, tra_balance, TotaldrenFirstFloor, chi
         </>
     )
 }
-function Componetfirst({ data, id, childrenSecond, tra_balance, TotaldrenFirstFloor, Gotodetailaccount }) {
+function Componetfirst({ data, id, childrenSecond, tra_balance, Gotodetailaccount }) {
     const [checkvalues, setCheckvalues] = useState('')
     const [open, setOpen] = useState(true);
     const [netTotal, setNetTotal] = useState([])
-    if (TotaldrenFirstFloor === null) return <></>
-    const filter = TotaldrenFirstFloor.filter((el) => el.id === data?.c_id);
-    if (filter.length === 0) return <></>;
+    // if (TotaldrenFirstFloor === null) return <></>
+    // const filter = TotaldrenFirstFloor.filter((el) => el.id === data?.c_id);
+    // if (filter.length === 0) return <></>;
     const handleClick = () => {
         setOpen(!open);
     };
@@ -1788,7 +1807,7 @@ function Componetfirst({ data, id, childrenSecond, tra_balance, TotaldrenFirstFl
                 open ? (<>
                     < Componetsecond
                         childrenSecond={childrenSecond}
-                        TotaldrenFirstFloor={TotaldrenFirstFloor}
+                        // TotaldrenFirstFloor={TotaldrenFirstFloor}
                         id={id}
                         setCheckvalues={setCheckvalues}
                         Gotodetailaccount={Gotodetailaccount}
@@ -1803,7 +1822,7 @@ function Componetfirst({ data, id, childrenSecond, tra_balance, TotaldrenFirstFl
                                     <TableCell component="th" scope="row" style={{ paddingLeft: 35, fontWeight: "bold" }} >
                                         Total:{data?.name_eng}
                                     </TableCell>
-                                    {
+                                    {/* {
                                         tra_balance == true ? (
                                             <>
                                                 <TableCell align="right" style={{fontWeight:'bold'}}>
@@ -1817,6 +1836,12 @@ function Componetfirst({ data, id, childrenSecond, tra_balance, TotaldrenFirstFl
 
                                             </>)
 
+                                    } */}
+                                    {
+                                        <TableCell align="right" style={{ fontWeight: 'bold' }}>
+                                            {getFormatNumber(data?.net_total)}₭
+                                        </TableCell>
+
                                     }
                                 </TableRow>
                             </>)
@@ -1825,7 +1850,7 @@ function Componetfirst({ data, id, childrenSecond, tra_balance, TotaldrenFirstFl
             }
         </>)
 }
-function Componetsecond({ childrenSecond, id, tra_balance, setCheckvalues, TotaldrenFirstFloor, Gotodetailaccount }) {
+function Componetsecond({ childrenSecond, id, tra_balance, setCheckvalues, Gotodetailaccount }) {
     if (childrenSecond === null) return <></>
     const filter = childrenSecond.filter((el) => el.parents == id);
     if (filter.length === 0) {
@@ -1845,7 +1870,7 @@ function Componetsecond({ childrenSecond, id, tra_balance, setCheckvalues, Total
                                 id={data?.c_id}
                                 key={index}
                                 childrenSecond={childrenSecond}
-                                TotaldrenFirstFloor={TotaldrenFirstFloor}
+                                // TotaldrenFirstFloor={TotaldrenFirstFloor}
                                 Gotodetailaccount={Gotodetailaccount}
                                 tra_balance={tra_balance}
 
@@ -1857,7 +1882,7 @@ function Componetsecond({ childrenSecond, id, tra_balance, setCheckvalues, Total
         </>
     )
 }
-function TableCellComponent({ data, childrenSecond, tra_balance, id, TotaldrenFirstFloor, Gotodetailaccount }) {
+function TableCellComponent({ data, childrenSecond, tra_balance, id, Gotodetailaccount }) {
     const [checkvalues, setCheckvalues] = useState(0)
     const [netTotal, setNetTotal] = useState(0)
 
@@ -1876,9 +1901,9 @@ function TableCellComponent({ data, childrenSecond, tra_balance, id, TotaldrenFi
             console.log(err)
         })
     }
-    if (TotaldrenFirstFloor === null) return <></>
-    const filter = TotaldrenFirstFloor.filter((el) => el.id === id);
-    if (filter.length === 0) return <></>;
+    // if (TotaldrenFirstFloor === null) return <></>
+    // const filter = TotaldrenFirstFloor.filter((el) => el.id === id);
+    // if (filter.length === 0) return <></>;
     return (
         <>
             <TableRow>
@@ -1914,7 +1939,7 @@ function TableCellComponent({ data, childrenSecond, tra_balance, id, TotaldrenFi
                         childrenSecond={childrenSecond}
                         id={data?.c_id}
                         setCheckvalues={setCheckvalues}
-                        TotaldrenFirstFloor={TotaldrenFirstFloor}
+                        // TotaldrenFirstFloor={TotaldrenFirstFloor}
                         Gotodetailaccount={Gotodetailaccount}
                         tra_balance={tra_balance}
 
@@ -1925,8 +1950,11 @@ function TableCellComponent({ data, childrenSecond, tra_balance, id, TotaldrenFi
                                 <TableCell component="th" scope="row" style={{ paddingLeft: 50, fontWeight: "bold" }} >
                                     Total:  {data?.name_eng}
                                 </TableCell>
-                                <TableCell align="right" style={{fontWeight:'bold'}}>
+                                {/* <TableCell align="right" style={{ fontWeight: 'bold' }}>
                                     {getFormatNumber(filter[0].balances)}₭
+                                </TableCell> */}
+                                <TableCell align="right" style={{ fontWeight: 'bold' }}>
+                                    {getFormatNumber(data?.net_total)}₭
                                 </TableCell>
                             </TableRow>
                         </>)
@@ -1936,7 +1964,7 @@ function TableCellComponent({ data, childrenSecond, tra_balance, id, TotaldrenFi
         </>
     )
 }
-function TableCellComponent1({ id, childrenSecond, tra_balance, setCheckvalues, TotaldrenFirstFloor, Gotodetailaccount }) {
+function TableCellComponent1({ id, childrenSecond, tra_balance, setCheckvalues, Gotodetailaccount }) {
     const filter = childrenSecond.filter((el) => el.parents == id);
 
     if (filter.length === 0) {
@@ -1956,7 +1984,7 @@ function TableCellComponent1({ id, childrenSecond, tra_balance, setCheckvalues, 
                                 data={data}
                                 id={data?.c_id}
                                 childrenSecond={childrenSecond}
-                                TotaldrenFirstFloor={TotaldrenFirstFloor}
+                                // TotaldrenFirstFloor={TotaldrenFirstFloor}
                                 Gotodetailaccount={Gotodetailaccount}
                                 tra_balance={tra_balance}
                             />
@@ -1967,7 +1995,7 @@ function TableCellComponent1({ id, childrenSecond, tra_balance, setCheckvalues, 
         </>
     )
 }
-function TableCellComponent2({ id, childrenSecond, data, tra_balance, TotaldrenFirstFloor, Gotodetailaccount }) {
+function TableCellComponent2({ id, childrenSecond, data, tra_balance, Gotodetailaccount }) {
     const [checkvalues, setCheckvalues] = useState(0)
     const [netTotal, setNetTotal] = useState(0)
     const [open, setOpen] = useState(true);
@@ -1984,7 +2012,7 @@ function TableCellComponent2({ id, childrenSecond, data, tra_balance, TotaldrenF
             console.log(err)
         })
     }
-    const filter = TotaldrenFirstFloor.filter((el) => el.id === id);
+    // const filter = TotaldrenFirstFloor.filter((el) => el.id === id);
     return (
         <>
             <TableRow>
@@ -2028,7 +2056,7 @@ function TableCellComponent2({ id, childrenSecond, data, tra_balance, TotaldrenF
                         id={id}
                         childrenSecond={childrenSecond}
                         setCheckvalues={setCheckvalues}
-                        TotaldrenFirstFloor={TotaldrenFirstFloor}
+                        // TotaldrenFirstFloor={TotaldrenFirstFloor}
                         Gotodetailaccount={Gotodetailaccount}
                         tra_balance={tra_balance}
                     />
@@ -2038,8 +2066,11 @@ function TableCellComponent2({ id, childrenSecond, data, tra_balance, TotaldrenF
                                 <TableCell component="th" scope="row" style={{ paddingLeft: 70, fontWeight: "bold" }} >
                                     Total:  {data?.name_eng}
                                 </TableCell>
-                                <TableCell align="right" style={{fontWeight:'bold'}}>
+                                {/* <TableCell align="right" style={{ fontWeight: 'bold' }}>
                                     {getFormatNumber(filter[0].balances)}₭
+                                </TableCell> */}
+                                <TableCell align="right" style={{ fontWeight: 'bold' }}>
+                                    {getFormatNumber(data?.net_total)}₭
                                 </TableCell>
                             </TableRow>
 
@@ -2050,7 +2081,7 @@ function TableCellComponent2({ id, childrenSecond, data, tra_balance, TotaldrenF
         </>
     )
 }
-function TableCellComponent3({ id, childrenSecond, tra_balance, setCheckvalues, TotaldrenFirstFloor, Gotodetailaccount }) {
+function TableCellComponent3({ id, childrenSecond, tra_balance, setCheckvalues, Gotodetailaccount }) {
     const filter = childrenSecond.filter((el) => el.parents == id);
 
     if (filter.length === 0) {
@@ -2070,7 +2101,7 @@ function TableCellComponent3({ id, childrenSecond, tra_balance, setCheckvalues, 
                                 data={data}
                                 id={data?.c_id}
                                 childrenSecond={childrenSecond}
-                                TotaldrenFirstFloor={TotaldrenFirstFloor}
+                                // TotaldrenFirstFloor={TotaldrenFirstFloor}
                                 Gotodetailaccount={Gotodetailaccount}
                                 tra_balance={tra_balance}
                             />
@@ -2081,7 +2112,7 @@ function TableCellComponent3({ id, childrenSecond, tra_balance, setCheckvalues, 
         </>
     )
 }
-function TableCellComponent4({ data, childrenSecond, tra_balance, id, TotaldrenFirstFloor, Gotodetailaccount }) {
+function TableCellComponent4({ data, childrenSecond, tra_balance, id, Gotodetailaccount }) {
     const [checkvalues, setCheckvalues] = useState(0)
     const [open, setOpen] = useState(true);
     const [netTotal, setNetTotal] = useState(0)
@@ -2098,8 +2129,8 @@ function TableCellComponent4({ data, childrenSecond, tra_balance, id, TotaldrenF
             console.log(err)
         })
     }
-    const filter = TotaldrenFirstFloor.filter((el) => el.id == id);
-    if (filter.length === 0) return <></>;
+    // const filter = TotaldrenFirstFloor.filter((el) => el.id == id);
+    // if (filter.length === 0) return <></>;
     return (
         <>
             <TableRow>
@@ -2136,7 +2167,7 @@ function TableCellComponent4({ data, childrenSecond, tra_balance, id, TotaldrenF
                         id={data?.c_id}
                         childrenSecond={childrenSecond}
                         setCheckvalues={setCheckvalues}
-                        TotaldrenFirstFloor={TotaldrenFirstFloor}
+                        // TotaldrenFirstFloor={TotaldrenFirstFloor}
                         Gotodetailaccount={Gotodetailaccount}
                         tra_balance={tra_balance}
                     />
@@ -2146,8 +2177,11 @@ function TableCellComponent4({ data, childrenSecond, tra_balance, id, TotaldrenF
                                 <TableCell component="th" scope="row" style={{ paddingLeft: 80, fontWeight: "bold" }} >
                                     Total:  {data?.name_eng}
                                 </TableCell>
-                                <TableCell align="right" style={{fontWeight:'bold'}}>
+                                {/* <TableCell align="right" style={{ fontWeight: 'bold' }}>
                                     {getFormatNumber(filter[0].balances)}₭
+                                </TableCell> */}
+                                <TableCell align="right" style={{ fontWeight: 'bold' }}>
+                                    {getFormatNumber(data?.net_total)}₭
                                 </TableCell>
                             </TableRow>
 
@@ -2158,7 +2192,7 @@ function TableCellComponent4({ data, childrenSecond, tra_balance, id, TotaldrenF
         </>
     )
 }
-function TableCellComponent5({ id, childrenSecond, tra_balance, setCheckvalues, TotaldrenFirstFloor, Gotodetailaccount }) {
+function TableCellComponent5({ id, childrenSecond, tra_balance, setCheckvalues, Gotodetailaccount }) {
     const filter = childrenSecond.filter((el) => el.parents == id);
     if (filter.length === 0) {
         setCheckvalues(0)
@@ -2176,7 +2210,7 @@ function TableCellComponent5({ id, childrenSecond, tra_balance, setCheckvalues, 
                                 data={data}
                                 key={index}
                                 childrenSecond={childrenSecond}
-                                TotaldrenFirstFloor={TotaldrenFirstFloor}
+                                // TotaldrenFirstFloor={TotaldrenFirstFloor}
                                 id={data?.c_id}
                                 Gotodetailaccount={Gotodetailaccount}
                                 tra_balance={tra_balance}
@@ -2189,7 +2223,7 @@ function TableCellComponent5({ id, childrenSecond, tra_balance, setCheckvalues, 
         </>
     )
 }
-function TableCellComponent6({ data, childrenSecond, tra_balance, TotaldrenFirstFloor, id, Gotodetailaccount }) {
+function TableCellComponent6({ data, childrenSecond, tra_balance, id, Gotodetailaccount }) {
     const [checkvalues, setCheckvalues] = useState(0)
     const [open, setOpen] = useState(true);
     const [netTotal, setNetTotal] = useState(0)
@@ -2206,8 +2240,8 @@ function TableCellComponent6({ data, childrenSecond, tra_balance, TotaldrenFirst
             console.log(err)
         })
     }
-    const filter = TotaldrenFirstFloor.filter((el) => el.id == id);
-    if (filter.length === 0) return <></>;
+    // const filter = TotaldrenFirstFloor.filter((el) => el.id == id);
+    // if (filter.length === 0) return <></>;
     return (
         <>
             <TableRow>
@@ -2242,7 +2276,7 @@ function TableCellComponent6({ data, childrenSecond, tra_balance, TotaldrenFirst
                         id={data?.c_id}
                         childrenSecond={childrenSecond}
                         setCheckvalues={setCheckvalues}
-                        TotaldrenFirstFloor={TotaldrenFirstFloor}
+                        // TotaldrenFirstFloor={TotaldrenFirstFloor}
                         Gotodetailaccount={Gotodetailaccount}
                         tra_balance={tra_balance}
                     />
@@ -2252,11 +2286,13 @@ function TableCellComponent6({ data, childrenSecond, tra_balance, TotaldrenFirst
                                 <TableCell component="th" scope="row" style={{ paddingLeft: 90, fontWeight: "bold" }} >
                                     Total:  {data?.name_eng}
                                 </TableCell>
-                                <TableCell align="right" style={{fontWeight: "bold"}}>
+                                {/* <TableCell align="right" style={{ fontWeight: "bold" }}>
                                     {getFormatNumber(filter[0].balances)}₭
+                                </TableCell> */}
+                                <TableCell align="right" style={{ fontWeight: 'bold' }}>
+                                    {getFormatNumber(data?.net_total)}₭
                                 </TableCell>
                             </TableRow>
-
                         </>)
                     }
                 </>) : null
@@ -2264,7 +2300,7 @@ function TableCellComponent6({ data, childrenSecond, tra_balance, TotaldrenFirst
         </>
     )
 }
-function TableCellComponent7({ id, childrenSecond, tra_balance, setCheckvalues, TotaldrenFirstFloor, Gotodetailaccount }) {
+function TableCellComponent7({ id, childrenSecond, tra_balance, setCheckvalues, Gotodetailaccount }) {
     const filter = childrenSecond.filter((el) => el.parents == id);
     if (filter.length === 0) {
         setCheckvalues(0)
@@ -2282,7 +2318,7 @@ function TableCellComponent7({ id, childrenSecond, tra_balance, setCheckvalues, 
                                 key={index}
                                 data={data}
                                 childrenSecond={childrenSecond}
-                                TotaldrenFirstFloor={TotaldrenFirstFloor}
+                                // TotaldrenFirstFloor={TotaldrenFirstFloor}
                                 id={data?.c_id}
                                 Gotodetailaccount={Gotodetailaccount}
                                 tra_balance={tra_balance}
@@ -2294,7 +2330,7 @@ function TableCellComponent7({ id, childrenSecond, tra_balance, setCheckvalues, 
         </>
     )
 }
-function TableCellComponent8({ data, childrenSecond, tra_balance, TotaldrenFirstFloor, id, Gotodetailaccount }) {
+function TableCellComponent8({ data, childrenSecond, tra_balance, id, Gotodetailaccount }) {
 
     const [checkvalues, setCheckvalues] = useState(0)
     const [open, setOpen] = useState(true);
@@ -2312,8 +2348,8 @@ function TableCellComponent8({ data, childrenSecond, tra_balance, TotaldrenFirst
             console.log(err)
         })
     }
-    const filter = TotaldrenFirstFloor.filter((el) => el.id == id);
-    if (filter.length === 0) return <></>;
+    // const filter = TotaldrenFirstFloor.filter((el) => el.id == id);
+    // if (filter.length === 0) return <></>;
     return (
         <>
             <TableRow>
@@ -2347,7 +2383,7 @@ function TableCellComponent8({ data, childrenSecond, tra_balance, TotaldrenFirst
                     <TableCellComponent9
                         id={data?.c_id}
                         childrenSecond={childrenSecond}
-                        TotaldrenFirstFloor={TotaldrenFirstFloor}
+                        // TotaldrenFirstFloor={TotaldrenFirstFloor}
                         setCheckvalues={setCheckvalues}
                         Gotodetailaccount={Gotodetailaccount}
                         tra_balance={tra_balance}
@@ -2358,8 +2394,11 @@ function TableCellComponent8({ data, childrenSecond, tra_balance, TotaldrenFirst
                                 <TableCell component="th" scope="row" style={{ paddingLeft: 110, fontWeight: "bold" }} >
                                     Total:  {data?.name_eng}
                                 </TableCell>
-                                <TableCell align="right" style={{fontWeight: "bold"}}>
+                                {/* <TableCell align="right" style={{ fontWeight: "bold" }}>
                                     {getFormatNumber(filter[0].balances)}₭
+                                </TableCell> */}
+                                <TableCell align="right" style={{ fontWeight: 'bold' }}>
+                                    {getFormatNumber(data?.net_total)}₭
                                 </TableCell>
                             </TableRow>
 
@@ -2370,7 +2409,7 @@ function TableCellComponent8({ data, childrenSecond, tra_balance, TotaldrenFirst
         </>
     )
 }
-function TableCellComponent9({ id, childrenSecond, tra_balance, setCheckvalues, TotaldrenFirstFloor, Gotodetailaccount }) {
+function TableCellComponent9({ id, childrenSecond, tra_balance, setCheckvalues, Gotodetailaccount }) {
     const filter = childrenSecond.filter((el) => el.parents == id);
     if (filter.length === 0) {
         setCheckvalues(0)
@@ -2389,7 +2428,7 @@ function TableCellComponent9({ id, childrenSecond, tra_balance, setCheckvalues, 
                                 key={index}
                                 id={data?.c_id}
                                 childrenSecond={childrenSecond}
-                                TotaldrenFirstFloor={TotaldrenFirstFloor}
+                                // TotaldrenFirstFloor={TotaldrenFirstFloor}
                                 Gotodetailaccount={Gotodetailaccount}
                                 tra_balance={tra_balance}
                             />
@@ -2400,7 +2439,7 @@ function TableCellComponent9({ id, childrenSecond, tra_balance, setCheckvalues, 
         </>
     )
 }
-function TableCellComponent10({ data, childrenSecond, tra_balance, TotaldrenFirstFloor, id, Gotodetailaccount }) {
+function TableCellComponent10({ data, childrenSecond, tra_balance, id, Gotodetailaccount }) {
     const [checkvalues, setCheckvalues] = useState(0)
     const [open, setOpen] = useState(true);
     const [netTotal, setNetTotal] = useState(0)
@@ -2417,8 +2456,9 @@ function TableCellComponent10({ data, childrenSecond, tra_balance, TotaldrenFirs
             console.log(err)
         })
     }
-    const filter = TotaldrenFirstFloor.filter((el) => el.id == id);
-    if (filter.length === 0) return <></>;
+    // const filter = TotaldrenFirstFloor.filter((el) => el.id == id);
+    // if (filter.length === 0) return <></>;
+   
     return (
         <>
             <TableRow>
@@ -2453,7 +2493,7 @@ function TableCellComponent10({ data, childrenSecond, tra_balance, TotaldrenFirs
                     <TableCellComponent11
                         id={data?.c_id}
                         childrenSecond={childrenSecond}
-                        TotaldrenFirstFloor={TotaldrenFirstFloor}
+                        // TotaldrenFirstFloor={TotaldrenFirstFloor}
                         setCheckvalues={setCheckvalues}
                         Gotodetailaccount={Gotodetailaccount}
                         tra_balance={tra_balance}
@@ -2464,9 +2504,13 @@ function TableCellComponent10({ data, childrenSecond, tra_balance, TotaldrenFirs
                                 <TableCell component="th" scope="row" style={{ paddingLeft: 110, fontWeight: "bold" }} >
                                     Total:  {data?.name_eng}
                                 </TableCell>
-                                <TableCell align="right" style={{fontWeight: "bold"}}>
+                                {/* <TableCell align="right" style={{ fontWeight: "bold" }}>
                                     {getFormatNumber(filter[0].balances)}₭
-                                </TableCell>
+                                </TableCell> */}
+
+                            <TableCell align="right" style={{ fontWeight: 'bold' }}>
+                                {getFormatNumber(data?.net_total)}₭
+                            </TableCell>
                             </TableRow>
 
                         </>)
@@ -2476,7 +2520,7 @@ function TableCellComponent10({ data, childrenSecond, tra_balance, TotaldrenFirs
         </>
     )
 }
-function TableCellComponent11({ id, childrenSecond, tra_balance, TotaldrenFirstFloor, setCheckvalues, Gotodetailaccount }) {
+function TableCellComponent11({ id, childrenSecond, tra_balance, setCheckvalues, Gotodetailaccount }) {
     const filter = childrenSecond.filter((el) => el.parents == id);
     if (filter.length === 0) {
         setCheckvalues(0)
@@ -2494,7 +2538,7 @@ function TableCellComponent11({ id, childrenSecond, tra_balance, TotaldrenFirstF
                             data={data}
                             key={index}
                             id={data?.c_id}
-                            TotaldrenFirstFloor={TotaldrenFirstFloor}
+                            // TotaldrenFirstFloor={TotaldrenFirstFloor}
                             Gotodetailaccount={Gotodetailaccount}
                             tra_balance={tra_balance}
                         />
@@ -2520,7 +2564,7 @@ function TableCellComponent12({ data }) {
         </>
     )
 }
-function Component2({ item, size, id, childrenFirst, tra_balance, childrenSecond, Totalsubject, TotaldrenFirstFloor, Gotodetailaccount }) {
+function Component2({ item, size, id, childrenFirst, tra_balance, childrenSecond, Totalsubject, Gotodetailaccount }) {
     const [open, setOpen] = useState(true);
     const handleClick = () => {
         setOpen(!open);
@@ -2557,7 +2601,7 @@ function Component2({ item, size, id, childrenFirst, tra_balance, childrenSecond
                         id={id}
                         childrenFirst={childrenFirst}
                         childrenSecond={childrenSecond}
-                        TotaldrenFirstFloor={TotaldrenFirstFloor}
+                        // TotaldrenFirstFloor={TotaldrenFirstFloor}
                         Gotodetailaccount={Gotodetailaccount}
                         tra_balance={tra_balance}
                     />
@@ -2568,9 +2612,9 @@ function Component2({ item, size, id, childrenFirst, tra_balance, childrenSecond
                         </TableCell>
                         {
                             tra_balance == true ? (<>
-                                <TableCell align="right" style={{fontWeight: "bold"}}> {getFormatNumber(filter[0].transact_balance)}₭</TableCell>
+                                <TableCell align="right" style={{ fontWeight: "bold" }}> {getFormatNumber(filter[0].transact_balance)}₭</TableCell>
                             </>) : (<>
-                                <TableCell align="right" style={{fontWeight: "bold"}}> {getFormatNumber(filter[0].amout)}₭</TableCell>
+                                <TableCell align="right" style={{ fontWeight: "bold" }}> {getFormatNumber(filter[0].amout)}₭</TableCell>
                             </>)
                         }
 
@@ -2587,7 +2631,7 @@ function Component2({ item, size, id, childrenFirst, tra_balance, childrenSecond
 
 
 }
-function ComponetfirstLiability({ id, childrenFirst, tra_balance, childrenSecond, TotaldrenFirstFloor, Gotodetailaccount }) {
+function ComponetfirstLiability({ id, childrenFirst, tra_balance, childrenSecond, Gotodetailaccount }) {
     if (childrenFirst === null) return <></>
     const filter = childrenFirst.filter((el) => el.bs_status == id);
     if (filter.length === 0) return <></>;
@@ -2600,7 +2644,7 @@ function ComponetfirstLiability({ id, childrenFirst, tra_balance, childrenSecond
                         data={data}
                         id={data?.c_id}
                         childrenSecond={childrenSecond}
-                        TotaldrenFirstFloor={TotaldrenFirstFloor}
+                        // TotaldrenFirstFloor={TotaldrenFirstFloor}
                         Gotodetailaccount={Gotodetailaccount}
                         tra_balance={tra_balance}
 
@@ -2611,7 +2655,7 @@ function ComponetfirstLiability({ id, childrenFirst, tra_balance, childrenSecond
         }
     </>)
 }
-function TableCellComponentFirstLiability({ data, childrenSecond, tra_balance, TotaldrenFirstFloor, id, Gotodetailaccount }) {
+function TableCellComponentFirstLiability({ data, childrenSecond, tra_balance, id, Gotodetailaccount }) {
     const [open, setOpen] = useState(true);
     const [checkvalues, setCheckvalues] = useState(0)
     const [netTotal, setNetTotal] = useState(0)
@@ -2629,8 +2673,8 @@ function TableCellComponentFirstLiability({ data, childrenSecond, tra_balance, T
         })
     }
 
-    const filter = TotaldrenFirstFloor.filter((el) => el.id == id);
-    if (filter.length === 0) return <></>;
+    // const filter = TotaldrenFirstFloor.filter((el) => el.id == id);
+    // if (filter.length === 0) return <></>;
     return (
         <>
             <TableRow>
@@ -2670,7 +2714,7 @@ function TableCellComponentFirstLiability({ data, childrenSecond, tra_balance, T
                         id={data?.c_id}
                         childrenSecond={childrenSecond}
                         setCheckvalues={setCheckvalues}
-                        TotaldrenFirstFloor={TotaldrenFirstFloor}
+                        // TotaldrenFirstFloor={TotaldrenFirstFloor}
                         Gotodetailaccount={Gotodetailaccount}
                         tra_balance={tra_balance}
                     />
@@ -2681,19 +2725,24 @@ function TableCellComponentFirstLiability({ data, childrenSecond, tra_balance, T
                                 <TableCell component="th" scope="row" style={{ paddingLeft: 45, fontWeight: "bold" }} >
                                     Total:{data?.name_eng}
                                 </TableCell>
-                                {
+                                {/* {
                                     tra_balance == true ? (<>
-                                        <TableCell align="right" style={{fontWeight: "bold"}}>
+                                        <TableCell align="right" style={{ fontWeight: "bold" }}>
                                             {getFormatNumber(filter[0].transact_balance)}₭
                                         </TableCell>
 
                                     </>) : (<>
-                                        <TableCell align="right" style={{fontWeight: "bold"}}>
+                                        <TableCell align="right" style={{ fontWeight: "bold" }}>
                                             {getFormatNumber(filter[0].balances)}₭
                                         </TableCell>
 
                                     </>)
-                                }
+                                    
+                                } */}
+                                    <TableCell align="right" style={{ fontWeight: "bold" }}>
+                                        {getFormatNumber(data?.net_total)}₭
+                                    </TableCell>
+
 
                             </TableRow>
                         </>)
@@ -2708,7 +2757,7 @@ function TableCellComponentFirstLiability({ data, childrenSecond, tra_balance, T
 
 
 }
-function ComponetSecondLiability({ id, childrenSecond, tra_balance, setCheckvalues, TotaldrenFirstFloor, Gotodetailaccount }) {
+function ComponetSecondLiability({ id, childrenSecond, tra_balance, setCheckvalues, Gotodetailaccount }) {
     if (childrenSecond === null) return <></>
     const filter = childrenSecond.filter((el) => el.parents == id);
     if (filter.length === 0) return <></>;
@@ -2727,7 +2776,7 @@ function ComponetSecondLiability({ id, childrenSecond, tra_balance, setCheckvalu
                             data={data}
                             id={data?.c_id}
                             childrenSecond={childrenSecond}
-                            TotaldrenFirstFloor={TotaldrenFirstFloor}
+                            // TotaldrenFirstFloor={TotaldrenFirstFloor}
                             Gotodetailaccount={Gotodetailaccount}
                             tra_balance={tra_balance}
                         />
@@ -2737,7 +2786,7 @@ function ComponetSecondLiability({ id, childrenSecond, tra_balance, setCheckvalu
         </>
     )
 }
-function TableCellComponentLiability({ data, childrenSecond, tra_balance, id, TotaldrenFirstFloor, Gotodetailaccount }) {
+function TableCellComponentLiability({ data, childrenSecond, tra_balance, id, Gotodetailaccount }) {
     const [open, setOpen] = useState(true);
     const [checkvalues, setCheckvalues] = useState(0)
     const [netTotal, setNetTotal] = useState(0)
@@ -2756,8 +2805,8 @@ function TableCellComponentLiability({ data, childrenSecond, tra_balance, id, To
         })
     }
 
-    const filter = TotaldrenFirstFloor.filter((el) => el.id == id);
-    if (filter.length === 0) return <></>;
+    // const filter = TotaldrenFirstFloor.filter((el) => el.id == id);
+    // if (filter.length === 0) return <></>;
     return (
         <>
             <TableRow>
@@ -2791,7 +2840,7 @@ function TableCellComponentLiability({ data, childrenSecond, tra_balance, id, To
                 open ? (<>
                     <TableCellComponentLiability1
                         childrenSecond={childrenSecond}
-                        TotaldrenFirstFloor={TotaldrenFirstFloor}
+                        // TotaldrenFirstFloor={TotaldrenFirstFloor}
                         setCheckvalues={setCheckvalues}
                         id={id}
                         Gotodetailaccount={Gotodetailaccount}
@@ -2806,19 +2855,22 @@ function TableCellComponentLiability({ data, childrenSecond, tra_balance, id, To
                                 <TableCell component="th" scope="row" style={{ paddingLeft: 60, fontWeight: "bold" }} >
                                     Total:{data?.name_eng}
                                 </TableCell>
-                                {
+                                {/* {
                                     tra_balance == true ? (<>
-                                        <TableCell align="right" style={{fontWeight: "bold"}}>
+                                        <TableCell align="right" style={{ fontWeight: "bold" }}>
                                             {getFormatNumber(filter[0].transact_balance)}₭
                                         </TableCell>
 
                                     </>) : (<>
-                                        <TableCell align="right" style={{fontWeight: "bold"}}>
+                                        <TableCell align="right" style={{ fontWeight: "bold" }}>
                                             {getFormatNumber(filter[0].balances)}₭
                                         </TableCell>
 
                                     </>)
-                                }
+                                } */}
+                                <TableCell align="right" style={{ fontWeight: "bold" }}>
+                                        {getFormatNumber(data?.net_total)}₭
+                                </TableCell>
 
                             </TableRow>
                         </>)
@@ -2833,7 +2885,7 @@ function TableCellComponentLiability({ data, childrenSecond, tra_balance, id, To
 
 
 }
-function TableCellComponentLiability1({ childrenSecond, id, tra_balance, TotaldrenFirstFloor, setCheckvalues, Gotodetailaccount }) {
+function TableCellComponentLiability1({ childrenSecond, id, tra_balance, setCheckvalues, Gotodetailaccount }) {
     if (childrenSecond === null) return <></>
     const filter = childrenSecond.filter((el) => el.parents == id);
     if (filter.length === 0) return <></>;
@@ -2853,7 +2905,7 @@ function TableCellComponentLiability1({ childrenSecond, id, tra_balance, Totaldr
                             index={index}
                             id={data?.c_id}
                             childrenSecond={childrenSecond}
-                            TotaldrenFirstFloor={TotaldrenFirstFloor}
+                            // TotaldrenFirstFloor={TotaldrenFirstFloor}
                             Gotodetailaccount={Gotodetailaccount}
                             tra_balance={tra_balance}
                         />
@@ -2863,7 +2915,7 @@ function TableCellComponentLiability1({ childrenSecond, id, tra_balance, Totaldr
         </>
     )
 }
-function TableCellComponentLiability2({ data, childrenSecond, tra_balance, id, TotaldrenFirstFloor, Gotodetailaccount }) {
+function TableCellComponentLiability2({ data, childrenSecond, tra_balance, id, Gotodetailaccount }) {
     const [open, setOpen] = useState(true);
     const [checkvalues, setCheckvalues] = useState(0)
     const [netTotal, setNetTotal] = useState(0)
@@ -2881,8 +2933,8 @@ function TableCellComponentLiability2({ data, childrenSecond, tra_balance, id, T
             console.log(err)
         })
     }
-    const filter = TotaldrenFirstFloor.filter((el) => el.id == id);
-    if (filter.length === 0) return <></>;
+    // const filter = TotaldrenFirstFloor.filter((el) => el.id == id);
+    // if (filter.length === 0) return <></>;
     return (
         <>
             <TableRow>
@@ -2917,7 +2969,7 @@ function TableCellComponentLiability2({ data, childrenSecond, tra_balance, id, T
                     <TableCellComponentLiability3
                         childrenSecond={childrenSecond}
                         id={id}
-                        TotaldrenFirstFloor={TotaldrenFirstFloor}
+                        // TotaldrenFirstFloor={TotaldrenFirstFloor}
                         setCheckvalues={setCheckvalues}
                         Gotodetailaccount={Gotodetailaccount}
                         tra_balance={tra_balance}
@@ -2929,8 +2981,11 @@ function TableCellComponentLiability2({ data, childrenSecond, tra_balance, id, T
                                 <TableCell component="th" scope="row" style={{ paddingLeft: 70, fontWeight: "bold" }} >
                                     Total:{data?.name_eng}
                                 </TableCell>
-                                <TableCell align="right"  style={{fontWeight: "bold"}}>
+                                {/* <TableCell align="right" style={{ fontWeight: "bold" }}>
                                     {getFormatNumber(filter[0].balances)}₭
+                                </TableCell> */}
+                                <TableCell align="right" style={{ fontWeight: "bold" }}>
+                                        {getFormatNumber(data?.net_total)}₭
                                 </TableCell>
                             </TableRow>
                         </>)
@@ -2942,7 +2997,7 @@ function TableCellComponentLiability2({ data, childrenSecond, tra_balance, id, T
         </>
     )
 }
-function TableCellComponentLiability3({ childrenSecond, tra_balance, id, TotaldrenFirstFloor, setCheckvalues, Gotodetailaccount }) {
+function TableCellComponentLiability3({ childrenSecond, tra_balance, id, setCheckvalues, Gotodetailaccount }) {
     if (childrenSecond === null) return <></>
     const filter = childrenSecond.filter((el) => el.parents == id);
     if (filter.length === 0) return <></>;
@@ -2959,7 +3014,7 @@ function TableCellComponentLiability3({ childrenSecond, tra_balance, id, Totaldr
                         < TableCellComponentLiability4
                             data={data}
                             key={index}
-                            TotaldrenFirstFloor={TotaldrenFirstFloor}
+                            // TotaldrenFirstFloor={TotaldrenFirstFloor}
                             childrenSecond={childrenSecond}
                             id={data?.c_id}
                             Gotodetailaccount={Gotodetailaccount}
@@ -2972,7 +3027,7 @@ function TableCellComponentLiability3({ childrenSecond, tra_balance, id, Totaldr
         </>
     )
 }
-function TableCellComponentLiability4({ data, childrenSecond, id, tra_balance, TotaldrenFirstFloor, Gotodetailaccount }) {
+function TableCellComponentLiability4({ data, childrenSecond, id, tra_balance, Gotodetailaccount }) {
     const [open, setOpen] = useState(true);
     const [checkvalues, setCheckvalues] = useState(0)
     const [netTotal, setNetTotal] = useState(0)
@@ -2991,8 +3046,8 @@ function TableCellComponentLiability4({ data, childrenSecond, id, tra_balance, T
             console.log(err)
         })
     }
-    const filter = TotaldrenFirstFloor.filter((el) => el.id == id);
-    if (filter.length === 0) return <></>;
+    // const filter = TotaldrenFirstFloor.filter((el) => el.id == id);
+    // if (filter.length === 0) return <></>;
     return (
         <>
             <TableRow>
@@ -3007,7 +3062,8 @@ function TableCellComponentLiability4({ data, childrenSecond, id, tra_balance, T
                     {data?.name_eng}
                 </TableCell>
                 {
-                    open ? (<>
+                    open ? (
+                    <>
                         {
                             tra_balance == true ? (<>
                                 <TableCell align="right" style={{ cursor: 'pointer' }} onClick={() => { Gotodetailaccount(data?.c_uid) }}>{getFormatNumber(data?.transact_balance)}₭</TableCell>
@@ -3030,7 +3086,7 @@ function TableCellComponentLiability4({ data, childrenSecond, id, tra_balance, T
                     < TableCellComponentLiability5
                         childrenSecond={childrenSecond}
                         id={id}
-                        TotaldrenFirstFloor={TotaldrenFirstFloor}
+                        // TotaldrenFirstFloor={TotaldrenFirstFloor}
                         setCheckvalues={setCheckvalues}
                         Gotodetailaccount={Gotodetailaccount}
                         tra_balance={tra_balance}
@@ -3043,9 +3099,9 @@ function TableCellComponentLiability4({ data, childrenSecond, id, tra_balance, T
                                 <TableCell component="th" scope="row" style={{ paddingLeft: 70, fontWeight: "bold" }} >
                                     Total:{data?.name_eng}
                                 </TableCell>
-                                <TableCell align="right"  style={{fontWeight: "bold"}}>
-                                    {getFormatNumber(filter[0].balances)}₭
-                                </TableCell>
+                                <TableCell align="right" style={{ fontWeight: "bold" }}>
+                                        {getFormatNumber(data?.net_total)}₭
+                                    </TableCell>
                             </TableRow>
                         </>)
                     }
@@ -3056,7 +3112,7 @@ function TableCellComponentLiability4({ data, childrenSecond, id, tra_balance, T
         </>
     )
 }
-function TableCellComponentLiability5({ childrenSecond, tra_balance, id, TotaldrenFirstFloor, setCheckvalues, Gotodetailaccount }) {
+function TableCellComponentLiability5({ childrenSecond, tra_balance, id, setCheckvalues, Gotodetailaccount }) {
     if (childrenSecond === null) return <></>
     const filter = childrenSecond.filter((el) => el.parents == id);
     if (filter.length === 0) return <></>;
@@ -3075,7 +3131,7 @@ function TableCellComponentLiability5({ childrenSecond, tra_balance, id, Totaldr
                                 data={data}
                                 key={index}
                                 childrenSecond={childrenSecond}
-                                TotaldrenFirstFloor={TotaldrenFirstFloor}
+                                // TotaldrenFirstFloor={TotaldrenFirstFloor}
                                 id={data?.c_id}
                                 Gotodetailaccount={Gotodetailaccount}
                                 tra_balance={tra_balance}
@@ -3090,7 +3146,7 @@ function TableCellComponentLiability5({ childrenSecond, tra_balance, id, Totaldr
         </>
     )
 }
-function TableCellComponentLiability6({ data, childrenSecond, tra_balance, id, TotaldrenFirstFloor, Gotodetailaccount }) {
+function TableCellComponentLiability6({ data, childrenSecond, tra_balance, id, Gotodetailaccount }) {
     const [open, setOpen] = useState(true);
     const [checkvalues, setCheckvalues] = useState(0)
     const [netTotal, setNetTotal] = useState(0)
@@ -3107,8 +3163,8 @@ function TableCellComponentLiability6({ data, childrenSecond, tra_balance, id, T
             console.log(err)
         })
     }
-    const filter = TotaldrenFirstFloor.filter((el) => el.id == id);
-    if (filter.length === 0) return <></>;
+    // const filter = TotaldrenFirstFloor.filter((el) => el.id == id);
+    // if (filter.length === 0) return <></>;
     return (
         <>
             <TableRow>
@@ -3145,7 +3201,7 @@ function TableCellComponentLiability6({ data, childrenSecond, tra_balance, id, T
                     <TableCellComponentLiability7
                         childrenSecond={childrenSecond}
                         id={id}
-                        TotaldrenFirstFloor={TotaldrenFirstFloor}
+                        // TotaldrenFirstFloor={TotaldrenFirstFloor}
                         setCheckvalues={setCheckvalues}
                         Gotodetailaccount={Gotodetailaccount}
                         tra_balance={tra_balance}
@@ -3156,9 +3212,9 @@ function TableCellComponentLiability6({ data, childrenSecond, tra_balance, id, T
                                 <TableCell component="th" scope="row" style={{ paddingLeft: 70, fontWeight: "bold" }} >
                                     Total:{data?.name_eng}
                                 </TableCell>
-                                <TableCell align="right" style={{fontWeight: "bold"}} >
-                                    {getFormatNumber(filter[0].balances)}₭
-                                </TableCell>
+                                    <TableCell align="right" style={{ fontWeight: "bold" }}>
+                                        {getFormatNumber(data?.net_total)}₭
+                                    </TableCell>
                             </TableRow></>)
                     }
 
@@ -3169,7 +3225,7 @@ function TableCellComponentLiability6({ data, childrenSecond, tra_balance, id, T
         </>
     )
 }
-function TableCellComponentLiability7({ childrenSecond, tra_balance, id, TotaldrenFirstFloor, setCheckvalues, Gotodetailaccount }) {
+function TableCellComponentLiability7({ childrenSecond, tra_balance, id, setCheckvalues, Gotodetailaccount }) {
     if (childrenSecond === null) return <></>
     const filter = childrenSecond.filter((el) => el.parents == id);
     if (filter.length === 0) return <></>;
@@ -3188,7 +3244,7 @@ function TableCellComponentLiability7({ childrenSecond, tra_balance, id, Totaldr
                                 data={data}
                                 key={index}
                                 childrenSecond={childrenSecond}
-                                TotaldrenFirstFloor={TotaldrenFirstFloor}
+                                // TotaldrenFirstFloor={TotaldrenFirstFloor}
                                 id={data?.c_id}
                                 Gotodetailaccount={Gotodetailaccount}
                                 tra_balance={tra_balance}
@@ -3203,7 +3259,7 @@ function TableCellComponentLiability7({ childrenSecond, tra_balance, id, Totaldr
         </>
     )
 }
-function TableCellComponentLiability8({ data, childrenSecond, tra_balance, id, TotaldrenFirstFloor, Gotodetailaccount }) {
+function TableCellComponentLiability8({ data, childrenSecond, tra_balance, id, Gotodetailaccount }) {
     const [open, setOpen] = useState(true);
     const [checkvalues, setCheckvalues] = useState(0)
     const [netTotal, setNetTotal] = useState(0)
@@ -3221,8 +3277,8 @@ function TableCellComponentLiability8({ data, childrenSecond, tra_balance, id, T
             console.log(err)
         })
     }
-    const filter = TotaldrenFirstFloor.filter((el) => el.id == id);
-    if (filter.length === 0) return <></>;
+    // const filter = TotaldrenFirstFloor.filter((el) => el.id == id);
+    // if (filter.length === 0) return <></>;
     return (
         <>
             <TableRow>
@@ -3260,7 +3316,7 @@ function TableCellComponentLiability8({ data, childrenSecond, tra_balance, id, T
                     <TableCellComponentLiability9
                         childrenSecond={childrenSecond}
                         id={id}
-                        TotaldrenFirstFloor={TotaldrenFirstFloor}
+                        // TotaldrenFirstFloor={TotaldrenFirstFloor}
                         setCheckvalues={setCheckvalues}
                         Gotodetailaccount={Gotodetailaccount}
                         tra_balance={tra_balance}
@@ -3272,9 +3328,12 @@ function TableCellComponentLiability8({ data, childrenSecond, tra_balance, id, T
                                 <TableCell component="th" scope="row" style={{ paddingLeft: 70, fontWeight: "bold" }} >
                                     Total:{data?.name_eng}
                                 </TableCell>
-                                <TableCell align="right"  style={{fontWeight: "bold"}}>
+                                {/* <TableCell align="right" style={{ fontWeight: "bold" }}>
                                     {getFormatNumber(filter[0].balances)}₭
-                                </TableCell>
+                                </TableCell> */}
+                                    <TableCell align="right" style={{ fontWeight: "bold" }}>
+                                        {getFormatNumber(data?.net_total)}₭
+                                    </TableCell>
                             </TableRow>
 
                         </>)
@@ -3286,7 +3345,7 @@ function TableCellComponentLiability8({ data, childrenSecond, tra_balance, id, T
         </>
     )
 }
-function TableCellComponentLiability9({ childrenSecond, tra_balance, id, TotaldrenFirstFloor, setCheckvalues, Gotodetailaccount }) {
+function TableCellComponentLiability9({ childrenSecond, tra_balance, id, setCheckvalues, Gotodetailaccount }) {
     if (childrenSecond === null) return <></>
     const filter = childrenSecond.filter((el) => el.parents == id);
     if (filter.length === 0) return <></>;
@@ -3305,7 +3364,7 @@ function TableCellComponentLiability9({ childrenSecond, tra_balance, id, Totaldr
                                 data={data}
                                 key={index}
                                 childrenSecond={childrenSecond}
-                                TotaldrenFirstFloor={TotaldrenFirstFloor}
+                                // TotaldrenFirstFloor={TotaldrenFirstFloor}
                                 id={data?.c_id}
                                 Gotodetailaccount={Gotodetailaccount}
                                 tra_balance={tra_balance}
@@ -3320,7 +3379,7 @@ function TableCellComponentLiability9({ childrenSecond, tra_balance, id, Totaldr
         </>
     )
 }
-function TableCellComponentLiability10({ data, childrenSecond, tra_balance, id, TotaldrenFirstFloor, Gotodetailaccount }) {
+function TableCellComponentLiability10({ data, childrenSecond, tra_balance, id, Gotodetailaccount }) {
     const [open, setOpen] = useState(true);
     const [checkvalues, setCheckvalues] = useState(0)
     const [netTotal, setNetTotal] = useState(0)
@@ -3338,8 +3397,8 @@ function TableCellComponentLiability10({ data, childrenSecond, tra_balance, id, 
             console.log(err)
         })
     }
-    const filter = TotaldrenFirstFloor.filter((el) => el.id == id);
-    if (filter.length === 0) return <></>;
+    // const filter = TotaldrenFirstFloor.filter((el) => el.id == id);
+    // if (filter.length === 0) return <></>;
     return (
         <>
             <TableRow>
@@ -3377,7 +3436,7 @@ function TableCellComponentLiability10({ data, childrenSecond, tra_balance, id, 
                     <TableCellComponentLiability11
                         childrenSecond={childrenSecond}
                         id={id}
-                        TotaldrenFirstFloor={TotaldrenFirstFloor}
+                        // TotaldrenFirstFloor={TotaldrenFirstFloor}
                         setCheckvalues={setCheckvalues}
                         Gotodetailaccount={Gotodetailaccount}
                         tra_balance={tra_balance}
@@ -3389,8 +3448,11 @@ function TableCellComponentLiability10({ data, childrenSecond, tra_balance, id, 
                                 <TableCell component="th" scope="row" style={{ paddingLeft: 70, fontWeight: "bold" }} >
                                     Total:{data?.name_eng}
                                 </TableCell>
-                                <TableCell align="right" style={{fontWeight: "bold"}}>
+                                {/* <TableCell align="right" style={{ fontWeight: "bold" }}>
                                     {getFormatNumber(filter[0].balances)}₭
+                                </TableCell> */}
+                                <TableCell align="right" style={{ fontWeight: "bold" }}>
+                                        {getFormatNumber(data?.net_total)}₭
                                 </TableCell>
                             </TableRow>
 
@@ -3403,7 +3465,7 @@ function TableCellComponentLiability10({ data, childrenSecond, tra_balance, id, 
         </>
     )
 }
-function TableCellComponentLiability11({ childrenSecond, tra_balance, id, TotaldrenFirstFloor, setCheckvalues, Gotodetailaccount }) {
+function TableCellComponentLiability11({ childrenSecond, tra_balance, id, setCheckvalues, Gotodetailaccount }) {
     if (childrenSecond === null) return <></>
     const filter = childrenSecond.filter((el) => el.parents == id);
     if (filter.length === 0) return <></>;
@@ -3422,7 +3484,7 @@ function TableCellComponentLiability11({ childrenSecond, tra_balance, id, Totald
                                 data={data}
                                 key={index}
                                 childrenSecond={childrenSecond}
-                                TotaldrenFirstFloor={TotaldrenFirstFloor}
+                                // TotaldrenFirstFloor={TotaldrenFirstFloor}
                                 id={data?.c_id}
                                 Gotodetailaccount={Gotodetailaccount}
                                 tra_balance={tra_balance}
@@ -3437,7 +3499,7 @@ function TableCellComponentLiability11({ childrenSecond, tra_balance, id, Totald
         </>
     )
 }
-function TableCellComponentLiability12({ data, childrenSecond, tra_balance, id, TotaldrenFirstFloor, Gotodetailaccount }) {
+function TableCellComponentLiability12({ data, childrenSecond, tra_balance, id, Gotodetailaccount }) {
     const [open, setOpen] = useState(true);
     const [checkvalues, setCheckvalues] = useState(0)
     const [netTotal, setNetTotal] = useState(0)
@@ -3455,8 +3517,8 @@ function TableCellComponentLiability12({ data, childrenSecond, tra_balance, id, 
             console.log(err)
         })
     }
-    const filter = TotaldrenFirstFloor.filter((el) => el.id == id);
-    if (filter.length === 0) return <></>;
+    // const filter = TotaldrenFirstFloor.filter((el) => el.id == id);
+    // if (filter.length === 0) return <></>;
     return (
         <>
             <TableRow>
@@ -3490,7 +3552,7 @@ function TableCellComponentLiability12({ data, childrenSecond, tra_balance, id, 
             <TableCellComponentLiability11
                 childrenSecond={childrenSecond}
                 id={id}
-                TotaldrenFirstFloor={TotaldrenFirstFloor}
+                // TotaldrenFirstFloor={TotaldrenFirstFloor}
                 setCheckvalues={setCheckvalues}
                 tra_balance={tra_balance}
             />
@@ -3500,9 +3562,12 @@ function TableCellComponentLiability12({ data, childrenSecond, tra_balance, id, 
                         <TableCell component="th" scope="row" style={{ paddingLeft: 70, fontWeight: "bold" }} >
                             Total:{data?.name_eng}
                         </TableCell>
-                        <TableCell align="right"  style={{fontWeight: "bold"}}>
+                        {/* <TableCell align="right" style={{ fontWeight: "bold" }}>
                             {getFormatNumber(filter[0].balances)}₭
-                        </TableCell>
+                        </TableCell> */}
+                                   <TableCell align="right" style={{ fontWeight: "bold" }}>
+                                        {getFormatNumber(data?.net_total)}₭
+                                    </TableCell>
                     </TableRow>
                 </>)
             }

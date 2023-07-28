@@ -51,7 +51,7 @@ function App() {
   const [list, setList] = useState([])
   const [listgandl,setListgandl]=useState([])
   const [listgain,setListgain]=useState([])
-  const [listgl, setListgl] = useState({})
+ 
   const [totalgain,setTotalgain]=useState([])
   const [rate,setRate]=useState([])
   const [loading, setLoading] = useState(false);
@@ -122,12 +122,12 @@ function App() {
       console.log(err)
     })
   }
-  const onloadreportGl = () => {
-    axios.get("/accounting/api/report/reportGl").then((data) => {
-      console.log("reportGl=",data)
-      setListgl({ ...data?.data })
-    })
-  }
+  // const onloadreportGl = () => {
+  //   axios.get("/accounting/api/report/reportGl").then((data) => {
+  
+  //     setListgl({ ...data?.data })
+  //   })
+  // }
   const onloadaccountlistname = () => {
     axios.get("/accounting/api/chartofaccounts").then((data) => {
       console.log("chartofaccounts=",data)
@@ -225,7 +225,6 @@ const onloadLevelforchartofaccount=()=>{
     OnLoadgainandlossTransaction()
     OnLoadTotalgainAndLoss();
     onLoadrate();
-    onloadreportGl();
     onloadChecktrue_and_false();
     onloadLevelforchartofaccount();
     onloadtransaction();
@@ -283,9 +282,9 @@ const onloadLevelforchartofaccount=()=>{
           OnLoadTotalgainAndLoss,
           totalgain,
           rate,
-          listgl,
-          setListgl,
-          onloadreportGl,
+          // listgl,
+          // setListgl,
+          // onloadreportGl,
           onLoadrate,
           setid,
           loading,

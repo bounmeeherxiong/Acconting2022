@@ -60,7 +60,6 @@ export default function Profitandloss() {
     const [condition, setCondition] = useState(1)
     const OnloadHeading = () => {
         axios.get('/accounting/api/profit-loss/heading').then((data) => {
-            console.log("data=", data)
             setHeadingprofi({ ...data?.data })
             setProfitandloss([...data?.data?.sumBalanceSheet][0].balances)
             setTransact_balance([...data?.data?.sumBalanceSheet][0].transact_balance)
@@ -449,7 +448,7 @@ export default function Profitandloss() {
                                                                             key={index}
                                                                             childrenFirstFloor={headingprofi?.childrenFirst}
                                                                             childrenSecondFloor={headingprofi?.childrenSecond}
-                                                                            TotaldrenFirstFloor={headingprofi?.firsttotal}
+                                                                            // TotaldrenFirstFloor={headingprofi?.firsttotal}
                                                                             Gotodetailaccount={Gotodetailaccount}
                                                                         />
                                                                     </>
@@ -488,7 +487,7 @@ export default function Profitandloss() {
                                                                             key={index}
                                                                             childrenFirstFloor={headingprofi?.childrenFirst}
                                                                             childrenSecondFloor={headingprofi?.childrenSecond}
-                                                                            TotaldrenFirstFloor={headingprofi?.firsttotal}
+                                                                            // TotaldrenFirstFloor={headingprofi?.firsttotal}
                                                                             totalgain={totalgain}
                                                                             exchangegainloss={headingprofi?.ExchangeTotalGainAndLosses}
                                                                             Gotodetailaccount={Gotodetailaccount}
@@ -610,7 +609,7 @@ function ComponentHeadingIncomeShow() {
         </>
     )
 }
-function ComponentHeadingIn({ data, childrenFirstFloor, childrenSecondFloor, TotaldrenFirstFloor, Gotodetailaccount }) {
+function ComponentHeadingIn({ data, childrenFirstFloor, childrenSecondFloor, Gotodetailaccount }) {
     const [open, setOpen] = useState(true);
     const handleClick = () => {
         setOpen(!open);
@@ -635,7 +634,7 @@ function ComponentHeadingIn({ data, childrenFirstFloor, childrenSecondFloor, Tot
                         id={data?.bs_id}
                         childrenFirstFloor={childrenFirstFloor}
                         childrenSecondFloor={childrenSecondFloor}
-                        TotaldrenFirstFloor={TotaldrenFirstFloor}
+                        // TotaldrenFirstFloor={TotaldrenFirstFloor}
                         Gotodetailaccount={Gotodetailaccount}
                     />
                     <TableRow>
@@ -654,7 +653,7 @@ function ComponentHeadingIn({ data, childrenFirstFloor, childrenSecondFloor, Tot
     )
 
 }
-function ComponentIncomeFirst({ id, childrenFirstFloor, childrenSecondFloor, TotaldrenFirstFloor, Gotodetailaccount }) {
+function ComponentIncomeFirst({ id, childrenFirstFloor, childrenSecondFloor, Gotodetailaccount }) {
     if (childrenFirstFloor === null) return <></>
     const filter = childrenFirstFloor.filter((el) => el.bs_status == id);
 
@@ -669,7 +668,7 @@ function ComponentIncomeFirst({ id, childrenFirstFloor, childrenSecondFloor, Tot
                                 data={data}
                                 key={index}
                                 childrenSecondFloor={childrenSecondFloor}
-                                TotaldrenFirstFloor={TotaldrenFirstFloor}
+                                // TotaldrenFirstFloor={TotaldrenFirstFloor}
                                 id={data?.c_id}
                                 Gotodetailaccount={Gotodetailaccount}
 
@@ -681,13 +680,13 @@ function ComponentIncomeFirst({ id, childrenFirstFloor, childrenSecondFloor, Tot
         </>
     )
 }
-function TableCellComponentIncome({ data, childrenSecondFloor, TotaldrenFirstFloor, id, Gotodetailaccount }) {
+function TableCellComponentIncome({ data, childrenSecondFloor, id, Gotodetailaccount }) {
     const [checkvalues, setCheckvalues] = useState(0)
     const [open, setOpen] = useState(true);
     const [netTotal, setNetTotal] = useState(0)
-    if (TotaldrenFirstFloor === null) return <></>
-    const filter = TotaldrenFirstFloor.filter((el) => el.id === id);
-    if (filter.length === 0) return <></>;
+    // if (TotaldrenFirstFloor === null) return <></>
+    // const filter = TotaldrenFirstFloor.filter((el) => el.id === id);
+    // if (filter.length === 0) return <></>;
     const handleClick = () => {
         setOpen(!open);
     };
@@ -726,7 +725,7 @@ function TableCellComponentIncome({ data, childrenSecondFloor, TotaldrenFirstFlo
                         id={data?.c_id}
                         childrenSecondFloor={childrenSecondFloor}
                         setCheckvalues={setCheckvalues}
-                        TotaldrenSecondFloor={TotaldrenFirstFloor}
+                        // TotaldrenSecondFloor={TotaldrenFirstFloor}
                         Gotodetailaccount={Gotodetailaccount}
                     />
                     {
@@ -735,8 +734,12 @@ function TableCellComponentIncome({ data, childrenSecondFloor, TotaldrenFirstFlo
                                 <TableCell component="th" scope="row" onClick={() => { handleClick() }} style={{ cursor: 'pointer', fontWeight: 'bold', paddingLeft: 30 }}>
                                     Total: {data?.name_eng}
                                 </TableCell>
-                                <TableCell align="right" >
+                                {/* <TableCell align="right" >
                                     {getFormatNumber(filter[0].balances)}₭
+                                </TableCell> */}
+
+                                <TableCell align="right" style={{fontWeight:'bold'}}>
+                                   {getFormatNumber(data?.net_total)}
                                 </TableCell>
 
                             </TableRow>
@@ -806,8 +809,8 @@ function TableCellComponentIncome2({ data, childrenSecondFloor, TotaldrenSecondF
         })
     }
     if (TotaldrenSecondFloor === null) return <></>
-    const filter = TotaldrenSecondFloor.filter((el) => el.id === id);
-    if (filter.length === 0) return <></>;
+    // const filter = TotaldrenSecondFloor.filter((el) => el.id === id);
+    // if (filter.length === 0) return <></>;
     return (
         <>
             <TableRow>
@@ -844,8 +847,11 @@ function TableCellComponentIncome2({ data, childrenSecondFloor, TotaldrenSecondF
                                 <TableCell component="th" scope="row" style={{ paddingLeft: 40, fontWeight: "bold" }} >
                                     Total:  {data?.name_eng}
                                 </TableCell>
-                                <TableCell align="right">
+                                {/* <TableCell align="right">
                                     {getFormatNumber(filter[0].balances)}₭
+                                </TableCell> */}
+                                <TableCell align="right" style={{fontWeight:'bold'}}>
+                                   {getFormatNumber(data?.net_total)}
                                 </TableCell>
                             </TableRow>
                         </>)
@@ -906,9 +912,9 @@ function TableCellComponentIncome4({ data, childrenSecondFloor, TotaldrenSecondF
             console.log(err)
         })
     }
-    if (TotaldrenSecondFloor === null) return <></>
-    const filter = TotaldrenSecondFloor.filter((el) => el.id === id);
-    if (filter.length === 0) return <></>;
+    // if (TotaldrenSecondFloor === null) return <></>
+    // const filter = TotaldrenSecondFloor.filter((el) => el.id === id);
+    // if (filter.length === 0) return <></>;
     return (
         <>
             <TableRow>
@@ -948,8 +954,12 @@ function TableCellComponentIncome4({ data, childrenSecondFloor, TotaldrenSecondF
                                 <TableCell component="th" scope="row" style={{ paddingLeft: 50, fontWeight: "bold" }} >
                                     Total:  {data?.name_eng}
                                 </TableCell>
-                                <TableCell align="right">
+                                {/* <TableCell align="right">
                                     {getFormatNumber(filter[0].balances)}₭
+                                </TableCell> */}
+
+                                <TableCell align="right" style={{fontWeight:'bold'}}>
+                                   {getFormatNumber(data?.net_total)}
                                 </TableCell>
                             </TableRow>
                         </>)
@@ -1011,8 +1021,8 @@ function TableCellComponentIncome6({ data, childrenSecondFloor, TotaldrenSecondF
         })
     }
     if (TotaldrenSecondFloor === null) return <></>
-    const filter = TotaldrenSecondFloor.filter((el) => el.id === id);
-    if (filter.length === 0) return <></>;
+    // const filter = TotaldrenSecondFloor.filter((el) => el.id === id);
+    // if (filter.length === 0) return <></>;
     return (
         <>
             <TableRow>
@@ -1052,8 +1062,11 @@ function TableCellComponentIncome6({ data, childrenSecondFloor, TotaldrenSecondF
                                 <TableCell component="th" scope="row" style={{ paddingLeft: 60, fontWeight: "bold" }} >
                                     Total:  {data?.name_eng}
                                 </TableCell>
-                                <TableCell align="right" >
+                                {/* <TableCell align="right" >
                                     {getFormatNumber(filter[0].balances)}₭
+                                </TableCell> */}
+                                <TableCell align="right" style={{fontWeight:'bold'}}>
+                                   {getFormatNumber(data?.net_total)}
                                 </TableCell>
                             </TableRow>
                         </>)
@@ -1114,8 +1127,8 @@ function TableCellComponentIncome8({ data, childrenSecondFloor, TotaldrenSecondF
         })
     }
     if (TotaldrenSecondFloor === null) return <></>
-    const filter = TotaldrenSecondFloor.filter((el) => el.id === id);
-    if (filter.length === 0) return <></>;
+    // const filter = TotaldrenSecondFloor.filter((el) => el.id === id);
+    // if (filter.length === 0) return <></>;
     return (
         <>
             <TableRow>
@@ -1155,8 +1168,11 @@ function TableCellComponentIncome8({ data, childrenSecondFloor, TotaldrenSecondF
                                 <TableCell component="th" scope="row" style={{ paddingLeft: 70, fontWeight: "bold" }} >
                                     Total:  {data?.name_eng}
                                 </TableCell>
-                                <TableCell align="right" >
+                                {/* <TableCell align="right" >
                                     {getFormatNumber(filter[0].balances)}₭
+                                </TableCell> */}
+                                <TableCell align="right" style={{fontWeight:'bold'}}>
+                                   {getFormatNumber(data?.net_total)}
                                 </TableCell>
                             </TableRow>
                         </>)
@@ -1219,9 +1235,9 @@ function TableCellComponentIncome10({ data, childrenSecondFloor, TotaldrenSecond
             console.log(err)
         })
     }
-    if (TotaldrenSecondFloor === null) return <></>
-    const filter = TotaldrenSecondFloor.filter((el) => el.id === id);
-    if (filter.length === 0) return <></>;
+    // if (TotaldrenSecondFloor === null) return <></>
+    // const filter = TotaldrenSecondFloor.filter((el) => el.id === id);
+    // if (filter.length === 0) return <></>;
     return (
         <>
             <TableRow>
@@ -1259,8 +1275,11 @@ function TableCellComponentIncome10({ data, childrenSecondFloor, TotaldrenSecond
                                 <TableCell component="th" scope="row" style={{ paddingLeft: 80, fontWeight: "bold" }} >
                                     Total:  {data?.name_eng}
                                 </TableCell>
-                                <TableCell align="right" >
+                                {/* <TableCell align="right" >
                                     {getFormatNumber(filter[0].balances)}₭
+                                </TableCell> */}
+                                <TableCell align="right" style={{fontWeight:'bold'}}>
+                                   {getFormatNumber(data?.net_total)}
                                 </TableCell>
                             </TableRow>
                         </>)
@@ -1322,9 +1341,9 @@ function TableCellComponentIncome12({ data, childrenSecondFloor, TotaldrenSecond
             console.log(err)
         })
     }
-    if (TotaldrenSecondFloor === null) return <></>
-    const filter = TotaldrenSecondFloor.filter((el) => el.id === id);
-    if (filter.length === 0) return <></>;
+    // if (TotaldrenSecondFloor === null) return <></>
+    // const filter = TotaldrenSecondFloor.filter((el) => el.id === id);
+    // if (filter.length === 0) return <></>;
     return (
         <>
             <TableRow>
@@ -1351,7 +1370,7 @@ function TableCellComponentIncome12({ data, childrenSecondFloor, TotaldrenSecond
         </>
     )
 }
-function ComponentHeading({ data, childrenFirstFloor, conditionsof, childrenSecondFloor, TotaldrenFirstFloor, totalgain, Gotodetailaccount, ViewUnrealised, gain, exchangegainloss, e }) {
+function ComponentHeading({ data, childrenFirstFloor, conditionsof, childrenSecondFloor, totalgain, Gotodetailaccount, ViewUnrealised, gain, exchangegainloss, e }) {
     const [open, setOpen] = useState(true);
     const handleClick = () => {
         setOpen(!open);
@@ -1383,7 +1402,7 @@ function ComponentHeading({ data, childrenFirstFloor, conditionsof, childrenSeco
                         id={data?.bs_id}
                         childrenFirstFloor={childrenFirstFloor}
                         childrenSecondFloor={childrenSecondFloor}
-                        TotaldrenFirstFloor={TotaldrenFirstFloor}
+                        // TotaldrenFirstFloor={TotaldrenFirstFloor}
                         totalgain={totalgain}
                         Gotodetailaccount={Gotodetailaccount}
                         ViewUnrealised={ViewUnrealised}
@@ -1459,7 +1478,7 @@ function UnrealisedGainorLoss({ totalgain }) {
         </TableRow>
     </>)
 }
-function ComponentExpenseFirst({ id, childrenFirstFloor, conditionsof, childrenSecondFloor, TotaldrenFirstFloor, rows, Gotodetailaccount, ViewUnrealised, gain, e }) {
+function ComponentExpenseFirst({ id, childrenFirstFloor, conditionsof, childrenSecondFloor, rows, Gotodetailaccount, ViewUnrealised, gain, e }) {
     if (childrenFirstFloor === null) return <></>
     const filter = childrenFirstFloor.filter((el) => el.bs_id === id);
 
@@ -1521,7 +1540,7 @@ function ComponentExpenseFirst({ id, childrenFirstFloor, conditionsof, childrenS
                                 data={data}
                                 key={index}
                                 childrenSecondFloor={childrenSecondFloor}
-                                TotaldrenFirstFloor={TotaldrenFirstFloor}
+                                // TotaldrenFirstFloor={TotaldrenFirstFloor}
                                 id={data?.c_id}
                                 ViewUnrealised={ViewUnrealised}
                                 Gotodetailaccount={Gotodetailaccount}
@@ -1536,17 +1555,17 @@ function ComponentExpenseFirst({ id, childrenFirstFloor, conditionsof, childrenS
         </>
     )
 }
-function TableCellComponentExpense({ data, childrenSecondFloor, conditionsof, TotaldrenFirstFloor, id, Gotodetailaccount, ViewUnrealised, gain, e }) {
+function TableCellComponentExpense({ data, childrenSecondFloor, conditionsof, id, Gotodetailaccount, ViewUnrealised, gain, e }) {
 
     const [checkvalues, setCheckvalues] = useState(0)
     const [netTotal1, setNetTotal1] = useState(0)
     const [open, setOpen] = useState(true);
-    if (TotaldrenFirstFloor === null) return <></>
-    const filter = TotaldrenFirstFloor.filter((el) => el.id === id);
+    // if (TotaldrenFirstFloor === null) return <></>
+    // const filter = TotaldrenFirstFloor.filter((el) => el.id === id);
 
 
 
-    if (filter.length === 0) return <></>;
+    // if (filter.length === 0) return <></>;
     const handleClick = () => {
         setOpen(!open);
     };
@@ -1666,7 +1685,7 @@ function TableCellComponentExpense({ data, childrenSecondFloor, conditionsof, To
                         id={data?.c_id}
                         childrenSecondFloor={childrenSecondFloor}
                         setCheckvalues={setCheckvalues}
-                        TotaldrenSecondFloor={TotaldrenFirstFloor}
+                        // TotaldrenSecondFloor={TotaldrenFirstFloor}
                         Gotodetailaccount={Gotodetailaccount}
                     />
                     {
@@ -1679,8 +1698,11 @@ function TableCellComponentExpense({ data, childrenSecondFloor, conditionsof, To
                                         <TableCell component="th" scope="row" onClick={() => { handleClick() }} style={{ cursor: 'pointer', fontWeight: 'bold', paddingLeft: 30 }}>
                                             Total: {data?.name_eng}
                                         </TableCell>
-                                        <TableCell align="right"  >
+                                        {/* <TableCell align="right"  >
                                             {getFormatNumber(filter[0].balances)}₭
+                                        </TableCell> */}
+                                        <TableCell align="right" style={{fontWeight:'bold'}}>
+                                        {getFormatNumber(data?.net_total)}
                                         </TableCell>
                                     </TableRow>
 
@@ -1749,9 +1771,9 @@ function TableCellComponentExpense2({ data, childrenSecondFloor, TotaldrenSecond
             console.log(err)
         })
     }
-    if (TotaldrenSecondFloor === null) return <></>
-    const filter = TotaldrenSecondFloor.filter((el) => el.id === id);
-    if (filter.length === 0) return <></>;
+    // if (TotaldrenSecondFloor === null) return <></>
+    // const filter = TotaldrenSecondFloor.filter((el) => el.id === id);
+    // if (filter.length === 0) return <></>;
     return (
         <>
             <TableRow>
@@ -1791,8 +1813,12 @@ function TableCellComponentExpense2({ data, childrenSecondFloor, TotaldrenSecond
                                 <TableCell component="th" scope="row" style={{ paddingLeft: 40, fontWeight: "bold" }} >
                                     Total:  {data?.name_eng}
                                 </TableCell>
-                                <TableCell align="right"  >
+                                {/* <TableCell align="right"  >
                                     {getFormatNumber(filter[0].balances)}₭
+                                </TableCell> */}
+
+                                <TableCell align="right" style={{fontWeight:'bold'}}>
+                                   {getFormatNumber(data?.net_total)}
                                 </TableCell>
                             </TableRow>
                         </>)
@@ -1859,9 +1885,9 @@ function TableCellComponentExpense4({ data, childrenSecondFloor, TotaldrenSecond
             console.log(err)
         })
     }
-    if (TotaldrenSecondFloor === null) return <></>
-    const filter = TotaldrenSecondFloor.filter((el) => el.id === id);
-    if (filter.length === 0) return <></>;
+    // if (TotaldrenSecondFloor === null) return <></>
+    // const filter = TotaldrenSecondFloor.filter((el) => el.id === id);
+    // if (filter.length === 0) return <></>;
     return (
         <>
             <TableRow>
@@ -1899,8 +1925,11 @@ function TableCellComponentExpense4({ data, childrenSecondFloor, TotaldrenSecond
                                 <TableCell component="th" scope="row" style={{ paddingLeft: 50, fontWeight: "bold" }} >
                                     Total:  {data?.name_eng}
                                 </TableCell>
-                                <TableCell align="right"  >
+                                {/* <TableCell align="right"  >
                                     {getFormatNumber(filter[0].balances)}₭
+                                </TableCell> */}
+                                <TableCell align="right" style={{fontWeight:'bold'}}>
+                                   {getFormatNumber(data?.net_total)}
                                 </TableCell>
                             </TableRow>
                         </>)
@@ -1963,9 +1992,9 @@ function TableCellComponentExpense6({ data, childrenSecondFloor, TotaldrenSecond
             console.log(err)
         })
     }
-    if (TotaldrenSecondFloor === null) return <></>
-    const filter = TotaldrenSecondFloor.filter((el) => el.id === id);
-    if (filter.length === 0) return <></>;
+    // if (TotaldrenSecondFloor === null) return <></>
+    // const filter = TotaldrenSecondFloor.filter((el) => el.id === id);
+    // if (filter.length === 0) return <></>;
     return (
         <>
             <TableRow>
@@ -2003,8 +2032,11 @@ function TableCellComponentExpense6({ data, childrenSecondFloor, TotaldrenSecond
                                 <TableCell component="th" scope="row" style={{ paddingLeft: 70, fontWeight: "bold" }} >
                                     Total:  {data?.name_eng}
                                 </TableCell>
-                                <TableCell align="right"  >
+                                {/* <TableCell align="right"  >
                                     {getFormatNumber(filter[0].balances)}₭
+                                </TableCell> */}
+                                <TableCell align="right" style={{fontWeight:'bold'}}>
+                                   {getFormatNumber(data?.net_total)}
                                 </TableCell>
                             </TableRow>
                         </>)
@@ -2068,9 +2100,9 @@ function TableCellComponentExpense8({ data, childrenSecondFloor, TotaldrenSecond
             console.log(err)
         })
     }
-    if (TotaldrenSecondFloor === null) return <></>
-    const filter = TotaldrenSecondFloor.filter((el) => el.id === id);
-    if (filter.length === 0) return <></>;
+    // if (TotaldrenSecondFloor === null) return <></>
+    // const filter = TotaldrenSecondFloor.filter((el) => el.id === id);
+    // if (filter.length === 0) return <></>;
     return (
         <>
             <TableRow>
@@ -2108,8 +2140,11 @@ function TableCellComponentExpense8({ data, childrenSecondFloor, TotaldrenSecond
                                 <TableCell component="th" scope="row" style={{ paddingLeft: 80, fontWeight: "bold" }} >
                                     Total:  {data?.name_eng}
                                 </TableCell>
-                                <TableCell align="right" >
+                                {/* <TableCell align="right" >
                                     {getFormatNumber(filter[0].balances)}₭
+                                </TableCell> */}
+                                <TableCell align="right" style={{fontWeight:'bold'}}>
+                                   {getFormatNumber(data?.net_total)}
                                 </TableCell>
                             </TableRow>
                         </>)
@@ -2173,9 +2208,9 @@ function TableCellComponentExpense10({ data, childrenSecondFloor, TotaldrenSecon
             console.log(err)
         })
     }
-    if (TotaldrenSecondFloor === null) return <></>
-    const filter = TotaldrenSecondFloor.filter((el) => el.id === id);
-    if (filter.length === 0) return <></>;
+    // if (TotaldrenSecondFloor === null) return <></>
+    // const filter = TotaldrenSecondFloor.filter((el) => el.id === id);
+    // if (filter.length === 0) return <></>;
     return (
         <>
             <TableRow>
@@ -2215,8 +2250,11 @@ function TableCellComponentExpense10({ data, childrenSecondFloor, TotaldrenSecon
                                 <TableCell component="th" scope="row" style={{ paddingLeft: 90, fontWeight: "bold" }} >
                                     Total:  {data?.name_eng}
                                 </TableCell>
-                                <TableCell align="right"  >
+                                {/* <TableCell align="right"  >
                                     {getFormatNumber(filter[0].balances)}₭
+                                </TableCell> */}
+                                <TableCell align="right" style={{fontWeight:'bold'}}>
+                                   {getFormatNumber(data?.net_total)}
                                 </TableCell>
                             </TableRow>
                         </>)
@@ -2279,9 +2317,9 @@ function TableCellComponentExpense12({ data, childrenSecondFloor, TotaldrenSecon
             console.log(err)
         })
     }
-    if (TotaldrenSecondFloor === null) return <></>
-    const filter = TotaldrenSecondFloor.filter((el) => el.id === id);
-    if (filter.length === 0) return <></>;
+    // if (TotaldrenSecondFloor === null) return <></>
+    // const filter = TotaldrenSecondFloor.filter((el) => el.id === id);
+    // if (filter.length === 0) return <></>;
     return (
         <>
             <TableRow>
@@ -2319,8 +2357,11 @@ function TableCellComponentExpense12({ data, childrenSecondFloor, TotaldrenSecon
                                 <TableCell component="th" scope="row" style={{ paddingLeft: 100, fontWeight: "bold" }} >
                                     Total:  {data?.name_eng}
                                 </TableCell>
-                                <TableCell align="right"  >
+                                {/* <TableCell align="right"  >
                                     {getFormatNumber(filter[0].balances)}₭
+                                </TableCell> */}
+                                <TableCell align="right" style={{fontWeight:'bold'}}>
+                                   {getFormatNumber(data?.net_total)}
                                 </TableCell>
                             </TableRow>
                         </>)
@@ -2384,9 +2425,9 @@ function TableCellComponentExpense14({ data, childrenSecondFloor, TotaldrenSecon
             console.log(err)
         })
     }
-    if (TotaldrenSecondFloor === null) return <></>
-    const filter = TotaldrenSecondFloor.filter((el) => el.id === id);
-    if (filter.length === 0) return <></>;
+    // if (TotaldrenSecondFloor === null) return <></>
+    // const filter = TotaldrenSecondFloor.filter((el) => el.id === id);
+    // if (filter.length === 0) return <></>;
     return (
         <>
             <TableRow>
@@ -2423,8 +2464,11 @@ function TableCellComponentExpense14({ data, childrenSecondFloor, TotaldrenSecon
                                 <TableCell component="th" scope="row" style={{ paddingLeft: 110, fontWeight: "bold" }} >
                                     Total:  {data?.name_eng}
                                 </TableCell>
-                                <TableCell align="right"  >
+                                {/* <TableCell align="right"  >
                                     {getFormatNumber(filter[0].balances)}₭
+                                </TableCell> */}
+                                <TableCell align="right" style={{fontWeight:'bold'}}>
+                                   {getFormatNumber(data?.net_total)}
                                 </TableCell>
                             </TableRow>
                         </>)

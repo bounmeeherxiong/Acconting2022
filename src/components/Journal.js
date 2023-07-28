@@ -29,7 +29,7 @@ const useStyles = makeStyles((theme) => ({
 export default function Journal() {
   const classes = useStyles();
   const {
-    setShowfullscreen, onloadreportGl,onloadtransaction, OnloadResetCondition, listallaccountchildren
+    setShowfullscreen,onloadtransaction, OnloadResetCondition, listallaccountchildren
   } = useContext(LoginContext);
 
  
@@ -379,9 +379,6 @@ export default function Journal() {
     } else {
       console.log("Insert=",journaldata)
       axios.post("/accounting/api/journal-entries/create", journaldata).then((data) => {
-       
-
-        onloadreportGl();
         onloadAutomaticGl();
         onloadtransaction()
         setErragain('')
@@ -485,7 +482,7 @@ export default function Journal() {
         ClearAllInsert()
         setShowToast(true);
         OnloadResetCondition();
-        onloadreportGl();
+
        
 
       }).catch((err) => {

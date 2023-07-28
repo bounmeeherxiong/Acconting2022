@@ -20,8 +20,6 @@ import { Button } from "@material-ui/core";
 import { useNavigate } from "react-router-dom";
 import SettingsIcon from "@material-ui/icons/Settings";
 import { useParams } from "react-router-dom";
-
-
 import moment from 'moment';
 const useRowStyles = makeStyles({
     root: {
@@ -45,7 +43,6 @@ function createData(name, calories, fat, carbs, protein) {
 export default function ViewUnrealisedgain_or_loss() {
     const navigate = useNavigate();
     const { id } = useParams();
-    
     const [list, setList] = useState({})
     const [listtotal, setListTotal] = useState([])
     const [balances, setBalances] = useState(false)
@@ -58,6 +55,7 @@ export default function ViewUnrealisedgain_or_loss() {
     const [searchtotal,setSearchtotal]=useState([])
     const OnloadListData = () => {
         axios.get('/accounting/api/listLossAndGain/getList').then((data) => {
+            console.log("Listdata=",data)
             setListTotal([...data?.data?.totalGainAndLoss])
             setList({ ...data?.data })
         }).catch((err) => {

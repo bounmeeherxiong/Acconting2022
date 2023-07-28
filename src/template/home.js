@@ -131,7 +131,7 @@ export default function Home(props) {
     showReferent,
     setShowReferent,
     onLoadrate,
-    onloadreportGl,
+    // onloadreportGl,
     OnloadBalancesheet,
     OnloadResetCondition,
     listTransactions,
@@ -201,7 +201,7 @@ export default function Home(props) {
           </>
         ) : (showEditJournal == true) ? (<>
           <EditComponentJournal
-            onloadreportGl={onloadreportGl}
+            // onloadreportGl={onloadreportGl}
             onloadtransaction={onloadtransaction}
             id={id}
             CloseShoFullScrreen={CloseShoFullScrreen}
@@ -359,7 +359,7 @@ export default function Home(props) {
                 show={show}
                 rate={rate}
                 onLoadrate={onLoadrate}
-                onloadreportGl={onloadreportGl}
+                // onloadreportGl={onloadreportGl}
                 OnloadBalancesheet={OnloadBalancesheet}
                 OnloadResetCondition={OnloadResetCondition}
               />
@@ -495,7 +495,7 @@ export default function Home(props) {
 }
 
 
-function EditComponentJournal({ id, CloseShoFullScrreen,onloadtransaction,onloadreportGl }) {
+function EditComponentJournal({ id, CloseShoFullScrreen,onloadtransaction }) {
   const classes = useStyles();
   console.log("edit=",id)
 
@@ -919,7 +919,7 @@ function EditComponentJournal({ id, CloseShoFullScrreen,onloadtransaction,onload
       axios.put("/accounting/api/journal-entries/update", journaldata).then((data) => {
         setDefaultValue('')
         setShowToast(true);
-        onloadreportGl();
+        // onloadreportGl();
         onloadAutomaticGl();
         onloadtransaction();
 
@@ -1833,7 +1833,7 @@ function ToastShow1({ show, setShow, iconNmame }) {
 
   );
 }
-function ComponentBoxGainsAndLosses({ show, handleClose, rate, onLoadrate, onloadreportGl, OnloadBalancesheet, OnloadResetCondition }) {
+function ComponentBoxGainsAndLosses({ show, handleClose, rate, onLoadrate, OnloadBalancesheet, OnloadResetCondition }) {
   const [defaultValue, setDefaultValue] = useState("")
   const [defaultValue1, setDefaultValue1] = useState("")
   const [exchange, setExchange] = useState([])

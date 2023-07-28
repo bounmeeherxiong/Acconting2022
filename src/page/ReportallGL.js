@@ -33,7 +33,8 @@ export default function ReportallGL() {
   let componentRef = useRef(null)
   const navigate = useNavigate();
   const {
-    listaccountname, EditJournal, listgl, setListgl, onloadreportGl
+    listaccountname, EditJournal, 
+    // listgl, setListgl, onloadreportGl
   } = useContext(LoginContext);
   const goback = () => {
     navigate("/ChartAccount");
@@ -77,6 +78,7 @@ export default function ReportallGL() {
   const [isLoading, setIsLoading,] = useState(false);
   const [loading, setLoading] = useState(false);
   const [listcondition, setListcondition] = useState([])
+  const [listgl, setListgl] = useState({})
 
 
   const [data, setData] = useState([
@@ -99,6 +101,14 @@ export default function ReportallGL() {
     setShow(false);
 
   };
+  const onloadreportGl = () => {
+    axios.get("/accounting/api/report/reportGl").then((data) => {
+      setListgl({ ...data?.data })
+      setLoading(true)
+    }).catch((err)=>{
+      console.log(err)
+    })
+  }
   const OnResetConditions = () => {
     axios.get('/accounting/api/profit-loss/reset-condition').then((data) => {
     }).catch((err) => {
@@ -226,7 +236,7 @@ export default function ReportallGL() {
           end
         }
       }
-      axios.post("/accounting/api/report/reportGlbydate", data).then((data) => {
+      axios.post("/accounting/api/report/reportGlbydatetwo", data).then((data) => {
         setListgl({ ...data?.data })
       }).catch((err) => {
         console.log(err)
@@ -271,10 +281,10 @@ export default function ReportallGL() {
     })
   }
   const Search = () => {
-    setLoading(true)
+    setLoading(false)
     if (getvalues == "all") {
       axios.get('/accounting/api/report/reportGlAlldate').then((data) => {
-        console.log("alldatas=", data)
+       
         setListgl({ ...data?.data })
         setLoading(false)
       }).catch((err) => {
@@ -300,7 +310,7 @@ export default function ReportallGL() {
         console.log("successully")
         console.log("Search=",data)
         setListgl({ ...data?.data })
-        setLoading(false)
+        setLoading(true)
       }).catch((err) => {
         console.log(err)
       })
@@ -351,6 +361,8 @@ export default function ReportallGL() {
     }
   };
   useEffect(() => {
+
+    onloadreportGl();
     _onShow();
     OnloadResetCondition()
     OnResetConditions()
@@ -925,15 +937,10 @@ export default function ReportallGL() {
       )}
       <div style={{ height: 20 }}></div>
       {
-        loading == true ? (
+        loading  ? (
           <>
-            <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-              <Spinner animation="border" variant="primary" style={{ width: 100, height: 100, marginTop: 100 }} />
-            </div>
-          </>
-        ) : (
-          <>
-            <TableContainer ref={(el) => (componentRef = el)}>
+
+<TableContainer ref={(el) => (componentRef = el)}>
               <Table className={classes.table} aria-label="sticky table" size="small">
                 <TableHead>
                   <TableRow>
@@ -1033,6 +1040,14 @@ export default function ReportallGL() {
                 </TableBody>
               </Table>
             </TableContainer>
+
+          </>
+        ) : (
+          <>
+            <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+              <Spinner animation="border" variant="primary" style={{ width: 100, height: 100, marginTop: 100 }} />
+            </div>
+ 
 
           </>
         )
