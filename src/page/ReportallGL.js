@@ -118,6 +118,13 @@ export default function ReportallGL() {
   const handleShow = () => {
     setShow(true)
   };
+  const onloadAutomaticGl = () => {
+    axios.get("/accounting/api/report/reportAutoGL").then((data) => {
+      console.log()
+    }).catch((err) => {
+      console.log(err)
+    })
+  }
   const OnloadResetCondition = () => {
     axios.get('/accounting/api/report/ConditionResetGL').then((data) => {
       setListcondition([...data?.data?.results][0].counts)
@@ -125,10 +132,19 @@ export default function ReportallGL() {
       console.log(err)
     })
   }
+  const Onloadreset1 = () => {
+    axios.get('/accounting/api/report/createResetExchange_gl').then((data) => {
+       onloadAutomaticGl();
+      onloadreportGl()
+      OnloadResetCondition()
+    }).catch((err) => {
+      console.log(err)
+    })
+  }
   const ReportExchange = () => {
     axios.get('/accounting/api/report/report_Exchange').then((data) => {
-      onloadreportGl();
       OnloadResetCondition();
+      onloadreportGl();
     }).catch((err) => {
       console.log(err)
     })
@@ -284,9 +300,8 @@ export default function ReportallGL() {
     setLoading(false)
     if (getvalues == "all") {
       axios.get('/accounting/api/report/reportGlAlldate').then((data) => {
-       
         setListgl({ ...data?.data })
-        setLoading(false)
+        setLoading(true)
       }).catch((err) => {
         console.log(err)
       })
@@ -328,15 +343,7 @@ export default function ReportallGL() {
     window.location.reload();
 
   }
-  const Onloadreset1 = () => {
-    axios.get('/accounting/api/report/createResetExchange_gl').then((data) => {
-      onloadreportGl()
-      OnloadResetCondition()
 
-    }).catch((err) => {
-      console.log(err)
-    })
-  }
   const getNameList = (c_id) => {
     axios.get(`/accounting/api/chartofaccounts/all/parents/${c_id}`).then((data) => {
       if (data?.data?.message.length > 0) {
@@ -365,11 +372,12 @@ export default function ReportallGL() {
     onloadreportGl();
     _onShow();
     OnloadResetCondition()
-    OnResetConditions()
+    // OnResetConditions()
     _searchstartdate();
     _searchbydate();
     onLoadExchangeRates();
   }, [])
+  
   // useEffect(() => {
   //   if (listcondition !== 0) {
   //     setTimeout(() => {

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { makeStyles } from '@material-ui/core/styles';
 import Table from '@material-ui/core/Table';
 import TableBody from '@material-ui/core/TableBody';
@@ -12,6 +12,9 @@ import ExpandMore from '@material-ui/icons/ExpandMore';
 import Box from '@material-ui/core/Box';
 import Collapse from '@material-ui/core/Collapse';
 import { getFormatNumber } from "../constants/functions"
+import ReactToPrint from "react-to-print";
+import Button from '@material-ui/core/Button';
+import PrintIcon from '@material-ui/icons/Print';
 
 import ArrowBackIcon from "@material-ui/icons/ArrowBack";
 
@@ -33,14 +36,9 @@ const useStyles = makeStyles({
         minWidth: 650,
     },
 });
-function createData(name, calories, fat, carbs, protein) {
-    return { name, calories, fat, carbs, protein };
-}
-
-
-
 
 export default function ViewUnrealisedgain_or_loss() {
+    let componentRef = useRef(null)
     const navigate = useNavigate();
     const { id } = useParams();
     const [list, setList] = useState({})
@@ -48,36 +46,42 @@ export default function ViewUnrealisedgain_or_loss() {
     const [balances, setBalances] = useState(false)
     const [currentbalances, setCurrentbalances] = useState(false)
     const [rate, setRate] = useState(false)
-    const [foreignBalance, setForeignBalance] = useState(false)
+    const [foreignbalance, setforeignBalance] = useState(false)
     const [gain_Loss, setgain_loss] = useState(false)
     const [showSetting, setShowSetting] = useState(false)
-    const [searchlist,setSeachlist]=useState([])
-    const [searchtotal,setSearchtotal]=useState([])
+    const [searchlist, setSeachlist] = useState([])
+    const [searchtotal, setSearchtotal] = useState([])
     const OnloadListData = () => {
         axios.get('/accounting/api/listLossAndGain/getList').then((data) => {
-            console.log("ListData=",data)
-         
+            console.log("ListData=", data)
+
             setListTotal([...data?.data?.totalGainAndLoss])
             setList({ ...data?.data })
         }).catch((err) => {
             console.log(err)
         })
     }
-    const OnloadSearchListData =()=>{
-        axios.get('/accounting/api/listLossAndGain/callLossAndgain').then((data)=>{
+    const OnloadSearchListData = () => {
+        axios.get('/accounting/api/listLossAndGain/callLossAndgain').then((data) => {
+            console.log("callLossAndgain=",data)
             setSearchtotal([...data?.data?.totalGainAndLoss])
-            setSeachlist({...data?.data})
+            setSeachlist({ ...data?.data })
 
-        }).catch((err)=>{
+        }).catch((err) => {
             console.log(err)
         })
     }
     const Setting = () => {
         setShowSetting(!showSetting)
     }
-    const Balance=()=>{
-        
+    const OnForeignbalance = () => {
+        setforeignBalance(!foreignbalance)
     }
+    const OnRate = () => {
+
+        setRate(!rate)
+    }
+
 
     useEffect(() => {
         OnloadListData()
@@ -114,6 +118,24 @@ export default function ViewUnrealisedgain_or_loss() {
 
                 </div>
                 <div>
+                    <ReactToPrint
+                        trigger={() =>
+                            <Button variant="contained" color="primary" style={{
+                                border: "none",
+                                height: 30,
+                                borderRadius: 2,
+                                paddingLeft: 5,
+                                paddingRight: 5,
+                                color: "white",
+                                alignItems: "center",
+                                marginLeft: 10,
+                            }}>
+                                <PrintIcon />
+                            </Button>
+                        }
+                        content={() => componentRef}
+                        style={{ marginLeft: 10 }}
+                    />
                     <button
                         onClick={() => { Setting() }}
                         // onBlur={() => { onBlurSetting() }}
@@ -168,14 +190,15 @@ export default function ViewUnrealisedgain_or_loss() {
                                     <div style={{ display: "flex", flexDirection: 'row', justifyContent: 'space-between' }}>
                                         <div style={{ display: 'flex', flexDirection: 'row', marginLeft: 20 }}>
                                             <input type="checkbox"
-                                            // onClick={() => { OnRate() }}
+                                                onClick={() => { OnRate() }}
                                             // onMouseLeave={() => { setLeave(null) }}
+
                                             />
                                             <small style={{ marginLeft: 5, marginTop: 2 }}>Rate</small>
                                         </div>
                                         <div style={{ display: 'flex', flexDirection: 'row', marginRight: 26 }}>
                                             <input type="checkbox"
-                                            // onClick={() => { OnExchangerate() }}
+                                                onClick={() => { OnForeignbalance() }}
                                             // onMouseLeave={() => { setLeave(null) }}
 
                                             />
@@ -186,7 +209,7 @@ export default function ViewUnrealisedgain_or_loss() {
                                     <div style={{ display: "flex", flexDirection: 'row', justifyContent: 'space-between' }}>
                                         <div style={{ display: 'flex', flexDirection: 'row', marginLeft: 20 }}>
                                             <input type="checkbox"
-                                            // onClick={() => { OnGain_loss() }}
+                                            // onClick={() => { OnForeignbalance() }}
                                             // onMouseLeave={() => { setLeave(null) }}
                                             />
                                             <small style={{ marginLeft: 5, marginTop: 2 }}>Gain/Loss</small>
@@ -224,136 +247,135 @@ export default function ViewUnrealisedgain_or_loss() {
             ></div>
             {
                 id == 1 ? (
-                <>
-                <TableContainer component={Paper}>
-                <Table aria-label="collapsible table" size='small'>
-                    <TableHead>
-                        <TableRow>
-                            <TableCell style={{ fontWeight: 'bold' }}>Unrealised Gains & Losses</TableCell>
-                            <TableCell></TableCell>
-                            <TableCell align="right"></TableCell>
-                            <TableCell align="right"></TableCell>
-                            <TableCell align="right"></TableCell>
-                            <TableCell align="right"></TableCell>
-                            <TableCell align="right"></TableCell>
-                            <TableCell align="right">gain/loss</TableCell>
-                        </TableRow>
-                    </TableHead>
-                    <TableBody>
-                        {
-                            list.fistList && list.fistList.map((data, index) => {
-                                return (
-                                    <>
-                                        <TableCellComponent
-                                            key={index}
-                                            data={data}
-                                            gain_losses={data.p_and_l_status}
-                                            secondList={list.secondList}
-                                            balances={balances}
-                                            currentbalances={currentbalances}
-                                            rate={rate}
-                                            foreignBalance={foreignBalance}
-                                            gain_Loss={gain_Loss}
-                                        />
-                                    </>
-                                )
-                            })
-                        }
+                    <>
+                        <TableContainer component={Paper} ref={(el) => (componentRef = el)}>
+                            <Table aria-label="collapsible table" size='small'>
+                                <TableHead>
+                                    <TableRow>
+                                        <TableCell style={{ fontWeight: 'bold' }}>Unrealised Gains & Losses</TableCell>
+                                        <TableCell></TableCell>
+                                        <TableCell align="right"></TableCell>
+                                        <TableCell align="right"></TableCell>
+                                        <TableCell align="right"></TableCell>
+                                        <TableCell align="right"></TableCell>
+                                        <TableCell align="right"></TableCell>
+                                        <TableCell align="right">gain/loss</TableCell>
+                                    </TableRow>
+                                </TableHead>
+                                <TableBody>
+                                    {
+                                        list.fistList && list.fistList.map((data, index) => {
+                                            return (
+                                                <>
+                                                    <TableCellComponent
+                                                        key={index}
+                                                        data={data}
+                                                        gain_losses={data.p_and_l_status}
+                                                        secondList={list.secondList}
+                                                        balances={balances}
+                                                        currentbalances={currentbalances}
+                                                        rate={rate}
+                                                        foreignbalance={foreignbalance}
 
-                    </TableBody>
-                    <TableHead>
-                        {
-                            listtotal && listtotal.map((data, index) => {
-                                return (
-                                    <>
-                                        <TableRow key={index}>
-                                            <TableCell>{data?.name_eng}</TableCell>
-                                            <TableCell></TableCell>
-                                            <TableCell align="right"></TableCell>
-                                            <TableCell align="right"></TableCell>
-                                            <TableCell align="right"></TableCell>
-                                            <TableCell align="right"></TableCell>
-                                            <TableCell align="right"></TableCell>
-                                            <TableCell align="right">{getFormatNumber(data?.bs_amount)} ₭ </TableCell>
-                                        </TableRow>
+                                                        gain_Loss={gain_Loss}
+                                                    />
+                                                </>
+                                            )
+                                        })
+                                    }
 
-                                    </>
-                                )
-                            })
-                        }
+                                </TableBody>
+                                <TableHead>
+                                    {
+                                        listtotal && listtotal.map((data, index) => {
+                                            return (
+                                                <>
+                                                    <TableRow key={index}>
+                                                        <TableCell>{data?.name_eng}</TableCell>
+                                                        <TableCell></TableCell>
+                                                        <TableCell align="right"></TableCell>
+                                                        <TableCell align="right"></TableCell>
+                                                        <TableCell align="right"></TableCell>
+                                                        <TableCell align="right"></TableCell>
+                                                        <TableCell align="right"></TableCell>
+                                                        <TableCell align="right">{getFormatNumber(data?.bs_amount)} ₭ </TableCell>
+                                                    </TableRow>
+                                                </>
+                                            )
+                                        })
+                                    }
+                                </TableHead>
+                            </Table>
+                        </TableContainer>
+                    </>) : (<>
+                        <TableContainer component={Paper}>
+                            <Table aria-label="collapsible table" size='small'>
+                                <TableHead>
+                                    <TableRow>
+                                        <TableCell style={{ fontWeight: 'bold' }}>Unrealised Gains & Losses</TableCell>
+                                        <TableCell></TableCell>
+                                        <TableCell align="right"></TableCell>
+                                        <TableCell align="right"></TableCell>
+                                        <TableCell align="right"></TableCell>
+                                        <TableCell align="right"></TableCell>
+                                        <TableCell align="right"></TableCell>
+                                        <TableCell align="right">gain/loss</TableCell>
+                                    </TableRow>
+                                </TableHead>
+                                <TableBody>
+                                    {
+                                        searchlist.fistList && searchlist.fistList.map((data, index) => {
+                                            return (
+                                                <>
+                                                    <TableCellComponent
+                                                        key={index}
+                                                        data={data}
+                                                        gain_losses={data.p_and_l_status}
+                                                        secondList={searchlist.secondList}
+                                                        balances={balances}
+                                                        currentbalances={currentbalances}
+                                                        rate={rate}
 
-                    </TableHead>
-                </Table>
-            </TableContainer>
-                </>):(<>
-                <TableContainer component={Paper}>
-                <Table aria-label="collapsible table" size='small'>
-                    <TableHead>
-                        <TableRow>
-                            <TableCell style={{ fontWeight: 'bold' }}>Unrealised Gains & Losses</TableCell>
-                            <TableCell></TableCell>
-                            <TableCell align="right"></TableCell>
-                            <TableCell align="right"></TableCell>
-                            <TableCell align="right"></TableCell>
-                            <TableCell align="right"></TableCell>
-                            <TableCell align="right"></TableCell>
-                            <TableCell align="right">gain/loss</TableCell>
-                        </TableRow>
-                    </TableHead>
-                    <TableBody>
-                        {
-                            searchlist.fistList && searchlist.fistList.map((data, index) => {
-                                return (
-                                    <>
-                                        <TableCellComponent
-                                            key={index}
-                                            data={data}
-                                            gain_losses={data.p_and_l_status}
-                                            secondList={searchlist.secondList}
-                                            balances={balances}
-                                            currentbalances={currentbalances}
-                                            rate={rate}
-                                            foreignBalance={foreignBalance}
-                                            gain_Loss={gain_Loss}
-                                        />
-                                    </>
-                                )
-                            })
-                        }
+                                                        gain_Loss={gain_Loss}
+                                                    />
+                                                </>
+                                            )
+                                        })
+                                    }
 
-                    </TableBody>
-                    <TableHead>
-                        {
-                            searchtotal && searchtotal.map((data, index) => {
-                                return (
-                                    <>
-                                        <TableRow key={index}>
-                                            <TableCell>{data?.name_eng}</TableCell>
-                                            <TableCell></TableCell>
-                                            <TableCell align="right"></TableCell>
-                                            <TableCell align="right"></TableCell>
-                                            <TableCell align="right"></TableCell>
-                                            <TableCell align="right"></TableCell>
-                                            <TableCell align="right"></TableCell>
-                                            <TableCell align="right">{getFormatNumber(data?.bs_amount)} ₭ </TableCell>
-                                        </TableRow>
+                                </TableBody>
+                                <TableHead>
+                                    {
+                                        searchtotal && searchtotal.map((data, index) => {
+                                            return (
+                                                <>
+                                                    <TableRow key={index}>
+                                                        <TableCell>{data?.name_eng}</TableCell>
+                                                        <TableCell></TableCell>
+                                                        <TableCell align="right"></TableCell>
+                                                        <TableCell align="right"></TableCell>
+                                                        <TableCell align="right"></TableCell>
+                                                        <TableCell align="right"></TableCell>
+                                                        <TableCell align="right"></TableCell>
+                                                        <TableCell align="right">{getFormatNumber(data?.bs_amount)} ₭ </TableCell>
+                                                    </TableRow>
 
-                                    </>
-                                )
-                            })
-                        }
+                                                </>
+                                            )
+                                        })
+                                    }
 
-                    </TableHead>
-                </Table>
-            </TableContainer>
-                
-                </>)
+                                </TableHead>
+                            </Table>
+                        </TableContainer>
+
+                    </>)
             }
 
         </>
     );
 }
-function TableCellComponent({ data, gain_losses, secondList, balances, currentbalances, rate, gain_Loss, foreignBalance }) {
+function TableCellComponent({ data, gain_losses, secondList, balances, currentbalances, rate, gain_Loss, foreignbalance }) {
     const [open, setOpen] = useState(false);
     const classes = useRowStyles();
     const handleClick = () => {
@@ -377,20 +399,16 @@ function TableCellComponent({ data, gain_losses, secondList, balances, currentba
                     {
                         open ? (
                             <>
-                                <TableCell align="right">
-
-
-                                </TableCell>
+                                <TableCell align="right"></TableCell>
 
                             </>) : (
                             <>
-                                <TableCell align="right" style={{fontWeight:'bold'}}>
+                                <TableCell align="right" style={{ fontWeight: 'bold' }}>
                                     {getFormatNumber(data?.gain_loss)}₭
                                 </TableCell>
 
                             </>)
                     }
-
 
                 </TableRow>
                 <TableRow>
@@ -405,18 +423,16 @@ function TableCellComponent({ data, gain_losses, secondList, balances, currentba
                                             <TableCell>Account</TableCell>
                                             <TableCell align="right">Debit</TableCell>
                                             <TableCell align="right">Credit</TableCell>
-                        
-                                            <TableCell align="right">Foreign Balance</TableCell>
-                                            <TableCell align="right">Exchange Rate</TableCell>
-                                            {/* <TableCell align="right">Foreign Balance</TableCell>
-                                            <TableCell align="right">Exchange Rate</TableCell> */}
-                                            {/* {
-                                                balances === true ? (<>
-                                                    <TableCell align="right">Balances</TableCell>
+                                            {
+                                                foreignbalance == true ? (<>
+                                                    <TableCell align="right">foreign_balances</TableCell>
                                                 </>) : null
-                                            } */}
-
-                                            {/* <TableCell align="right">Current Balances</TableCell> */}
+                                            }
+                                            {
+                                                rate == true ? (<>
+                                                    <TableCell align="right">Exchange Rate</TableCell>
+                                                </>) : null
+                                            }
                                             {
                                                 gain_losses === 1 ? (
                                                     <>
@@ -426,10 +442,6 @@ function TableCellComponent({ data, gain_losses, secondList, balances, currentba
                                                     <TableCell align="right">Losses</TableCell>
                                                 </>)
                                             }
-
-
-
-
                                         </TableRow>
                                     </TableHead>
                                     <TableBody>
@@ -445,56 +457,69 @@ function TableCellComponent({ data, gain_losses, secondList, balances, currentba
                                                             {
                                                                 data?.debit == '0.00' ? (
                                                                     <TableCell align="right"></TableCell>
-                                                                ):(
+                                                                ) : (
                                                                     <TableCell align="right">{getFormatNumber(data?.debit)}₭</TableCell>
                                                                 )
                                                             }
                                                             {
                                                                 data?.credit == '0.00' ? (
                                                                     <TableCell align="right"></TableCell>
-                                                                ):(
+                                                                ) : (
                                                                     <TableCell align="right">{getFormatNumber(data?.credit)}₭</TableCell>
                                                                 )
                                                             }
                                                             {
-                                                                data?.foreign_balances == null ? (
-                                                                <TableCell align="right">
-                                                                    
-                                                                 </TableCell>
-                                                                ):(
-                                                                <TableCell align="right">
-                                                                    {getFormatNumber(data?.foreign_balances)}
-                                                                    {
-                                                                    data?.foreign_code == 'USD' ? (<>$</>):(<>฿</>)
-                                                                    }
-                                                                 </TableCell>
-                                                                )
+                                                                foreignbalance == true ? (
+                                                                    <>
+                                                                        {
+                                                                            data?.foreign_balances == null ? (
+                                                                                <>
+                                                                                    <TableCell align="right">
+
+                                                                                    </TableCell>
+
+                                                                                </>) : (<>
+                                                                                    <TableCell align="right">
+                                                                                        {getFormatNumber(data?.foreign_balances)}
+                                                                                        {
+                                                                                            data?.foreign_code == 'USD' ? (<>$</>) : (<>฿</>)
+                                                                                        }
+                                                                                    </TableCell>
+
+                                                                                </>)
+
+                                                                        }
+
+
+                                                                    </>) : null
                                                             }
                                                             {
-                                                                data?.money_rate == '0' ? (
-                                                                    <TableCell align="right"></TableCell>
-                                                                ):(
-                                                                    <TableCell align="right">
-                                                                            {getFormatNumber(data?.money_rate)}
-                                                                    </TableCell>
-                                                                )
-                                                            }
-                                                         
-                                                            {/* <TableCell align="right">{getFormatNumber(data?.foreign_balances)}$</TableCell>
-                                                            <TableCell align="right">{getFormatNumber(data?.money_rate)}</TableCell> */}
-                                                            {/* {
-                                                                balances === true ? (<>
-                                                                    <TableCell align="right">{getFormatNumber(data?.balances)}</TableCell>
-                                                                </>) : null
+                                                                rate == true ? (
+                                                                    <>
+                                                                        {
+                                                                            data?.money_rate == '0' ? (<>
+                                                                                <TableCell align="right">
+                                                                                </TableCell>
+
+                                                                            </>) : (<>
+                                                                                <TableCell align="right">
+                                                                                    {getFormatNumber(data?.money_rate)}
+
+                                                                                </TableCell>
+
+                                                                            </>)
+                                                                        }
+
+
+                                                                    </>) : null
                                                             }
 
-                                                            <TableCell align="right">{getFormatNumber(data?.current_balance)}</TableCell>
-                                                            <TableCell align="right">{getFormatNumber(data?.amout)}</TableCell> */}
+
                                                             {
                                                                 data?.statu_auto_GainAndLoss === 1 || data?.statu_auto_GainAndLoss === 2 ?
                                                                     (
                                                                         <>
-                                                                            <TableCell align="right" style={{fontWeight:'bold'}}>{getFormatNumber(data?.amout)}₭</TableCell>
+                                                                            <TableCell align="right" style={{ fontWeight: 'bold' }}>{getFormatNumber(data?.amout)}₭</TableCell>
                                                                         </>
                                                                     ) :
                                                                     (
@@ -503,8 +528,6 @@ function TableCellComponent({ data, gain_losses, secondList, balances, currentba
                                                                         </>
                                                                     )
                                                             }
-
-
 
                                                         </TableRow>
                                                     </>

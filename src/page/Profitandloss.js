@@ -141,7 +141,6 @@ export default function Profitandloss() {
                 setTransact_balance([...data?.data?.sumBalanceSheet][0].transact_balance)
                 setIncomeandcost([...data?.data?.sumBalanceIncomeAndCostofsale][0].balances)
                 setLoading(true)
-                onloadAutomaticGl();
             }).catch((err) => {
                 console.log(err)
             })

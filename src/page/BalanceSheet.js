@@ -99,8 +99,6 @@ export default function BalanceSheet() {
     }
     const OnloadBalancesheet = () => {
         axios.get('/accounting/api/balance-sheet/reports').then((data) => {
-            console.log("balancesheetdata=", data)
-
             setHeading({ ...data?.data })
             setNetTotal([...data?.data?.sumAsset])
             setid([...data?.data?.Ownersequity][0].bs_id)
@@ -144,7 +142,6 @@ export default function BalanceSheet() {
         axios.get('/accounting/api/report/createResetExchange_gl').then((data) => {
             OnloadResetCondition();
             OnloadBalancesheet();
-          
         }).catch((err) => {
             console.log(err)
         })
@@ -221,7 +218,6 @@ export default function BalanceSheet() {
         axios.get('/accounting/api/report/report_Exchange').then((data) => {
             OnloadResetCondition()
             OnloadBalancesheet();
-           
         }).catch((err) => {
             console.log(err)
         })
@@ -242,7 +238,6 @@ export default function BalanceSheet() {
             }
             axios.post('/accounting/api/balance-sheet/report/allreports', data).then((data) => {
                 setHeading({ ...data?.data })
-                console.log("Search=", data)
                 setid([...data?.data?.Ownersequity][0].bs_id)
                 setNetTotal([...data?.data?.sumAsset])
                 setNetTotalLiabilities([...data?.data?.sumliabilitiesAndOwnerequity])
@@ -253,7 +248,7 @@ export default function BalanceSheet() {
                     setBalancesheetandloss([...data?.data?.sumBalanceSheet][0].balances)
                     setTransactions_balance([...data?.data?.sumBalanceSheet][0].transact_balance)
                 }
-                onloadAutomaticGl()
+                // onloadAutomaticGl()
                 setLoading(true)
                 setSearchcondition(true)
             }).catch((err) => {
