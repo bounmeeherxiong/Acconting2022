@@ -63,10 +63,9 @@ export default function ViewUnrealisedgain_or_loss() {
     }
     const OnloadSearchListData = () => {
         axios.get('/accounting/api/listLossAndGain/callLossAndgain').then((data) => {
-            console.log("callLossAndgain=",data)
+            
             setSearchtotal([...data?.data?.totalGainAndLoss])
             setSeachlist({ ...data?.data })
-
         }).catch((err) => {
             console.log(err)
         })
@@ -81,8 +80,6 @@ export default function ViewUnrealisedgain_or_loss() {
 
         setRate(!rate)
     }
-
-
     useEffect(() => {
         OnloadListData()
         OnloadSearchListData()
@@ -276,7 +273,6 @@ export default function ViewUnrealisedgain_or_loss() {
                                                         currentbalances={currentbalances}
                                                         rate={rate}
                                                         foreignbalance={foreignbalance}
-
                                                         gain_Loss={gain_Loss}
                                                     />
                                                 </>
@@ -334,8 +330,8 @@ export default function ViewUnrealisedgain_or_loss() {
                                                         secondList={searchlist.secondList}
                                                         balances={balances}
                                                         currentbalances={currentbalances}
+                                                        foreignbalance={foreignbalance}
                                                         rate={rate}
-
                                                         gain_Loss={gain_Loss}
                                                     />
                                                 </>
@@ -375,7 +371,7 @@ export default function ViewUnrealisedgain_or_loss() {
         </>
     );
 }
-function TableCellComponent({ data, gain_losses, secondList, balances, currentbalances, rate, gain_Loss, foreignbalance }) {
+function TableCellComponent({ data, gain_losses, secondList, rate, foreignbalance }) {
     const [open, setOpen] = useState(false);
     const classes = useRowStyles();
     const handleClick = () => {
