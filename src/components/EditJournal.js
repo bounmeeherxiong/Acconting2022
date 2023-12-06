@@ -421,7 +421,7 @@ export default function Journal() {
                     width: "100%"
                 }}>
                     <div>
-                        <span>Currency</span><br />
+                        <span>Currencybbbb</span><br />
                         <select
                             style={{
                                 border: '1px solid #ccc',

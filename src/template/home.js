@@ -119,7 +119,6 @@ export default function Home(props) {
   const [hidden, setHidden] = useState(false)
   const [search, setSearch] = useState('')
   const [active, setActive] = useState('')
-
   const {
     rate,
     id,
@@ -141,7 +140,7 @@ export default function Home(props) {
     setShow(true)
   };
   const handleClose = () => {
-   
+
     setShow(false);
   };
   const handleExchangeShow = () => {
@@ -172,14 +171,14 @@ export default function Home(props) {
   const exchangerate = () => {
     setListOpentExchange(!listOpentExchange);
   }
-  const _onSearchList=(e)=>{
-    console.log("e=",e)
+  const _onSearchList = (e) => {
+    console.log("e=", e)
     setSearch(e)
     let searchName = listTransactions.filter((el) => el.journal_no.toLowerCase().includes(e.toLowerCase()));
-    if(!e){
+    if (!e) {
       setSearchResult([])
 
-    }else{
+    } else {
       setSearchResult([...searchName])
     }
   }
@@ -190,14 +189,14 @@ export default function Home(props) {
     setSearchResult('')
     setHidden(false)
     setSearch('')
-    
+
   }
   return (
     <>
       {
         showfullscreen == true ? (
           <>
-            <Journal/>
+            <Journal />
           </>
         ) : (showEditJournal == true) ? (<>
           <EditComponentJournal
@@ -246,7 +245,7 @@ export default function Home(props) {
               <Modal show={show} onHide={handleClose} style={{ paddingTop: 50 }} size="lg" >
                 <Modal.Header closeButton >
                   <Modal.Title>
-              
+
                     <div style={{
                       display: 'flex',
                       flexDirection: 'row',
@@ -265,7 +264,7 @@ export default function Home(props) {
                           fontSize: 12,
                           borderRadius: 5
                         }}
-                        onChange={(e)=>_onSearchList(e.target.value)}
+                        onChange={(e) => _onSearchList(e.target.value)}
                         value={search}
                         onClick={() => setHidden(true)}
 
@@ -293,26 +292,21 @@ export default function Home(props) {
                                     <>
                                       <span key={index}
                                         style={{
-                                          display:'flex',
-                                          flexDirection:'column',
+                                          display: 'flex',
+                                          flexDirection: 'column',
                                           cursor: 'pointer', fontWeight: active === data?.journal_no ? "bold" : "",
 
                                         }}
-                                        onClick={()=>gotoeditjournal(data?.tr_id)}
+                                        onClick={() => gotoeditjournal(data?.tr_id)}
                                         onMouseOver={() => setActive(data?.journal_no)}
                                         onMouseLeave={() => setActive(null)}
                                       >
                                         Journal Entry {data?.journal_no} | {datetime}
-
-
-
                                       </span>
-
                                     </>
                                   )
                                 })
                               }
-
                             </>) : (
                             <>
                               {
@@ -328,7 +322,7 @@ export default function Home(props) {
                                           cursor: 'pointer',
                                           fontWeight: active === data?.journal_no ? 'bold' : '',
                                         }}
-                                        onClick={()=>gotoeditjournal(data?.tr_id)}
+                                        onClick={() => gotoeditjournal(data?.tr_id)}
                                         onMouseOver={() => setActive(data?.journal_no)}
                                         onMouseLeave={() => setActive(null)}
                                       >
@@ -422,7 +416,6 @@ export default function Home(props) {
                   </ListItem>
                   <Collapse in={listOpentExchange} timeout="auto" unmountOnExit>
                     <List component="div" disablePadding>
-
                       <ListItem button className={classes.nested} onClick={() => Navigate(`ExchangeRate/${1}`)}>
                         <ListItemIcon>
                         </ListItemIcon>
@@ -444,11 +437,11 @@ export default function Home(props) {
                     Journal entry
                     <ListItemText />
                   </ListItem>
-                  {/* <ListItem button onClick={() => setShowReferent(true)} >
+                  {/* <ListItem button onClick={() => Navigate("/Test")} >
                     <ListItemIcon>
                       <BarChartIcon />
                     </ListItemIcon>
-                    Referent
+                    Test
                     <ListItemText />
                   </ListItem> */}
                   <ListItem button onClick={() => Navigate("ReportTrialbalances")} >
@@ -495,9 +488,9 @@ export default function Home(props) {
 }
 
 
-function EditComponentJournal({ id, CloseShoFullScrreen,onloadtransaction }) {
+function EditComponentJournal({ id, CloseShoFullScrreen, onloadtransaction }) {
   const classes = useStyles();
-  console.log("edit=",id)
+  console.log("edit=", id)
 
   const [data, setData] = useState([
     { name: '', debit: '', credit: '', description: '', Tax: '', Employee: '' },
@@ -653,6 +646,7 @@ function EditComponentJournal({ id, CloseShoFullScrreen,onloadtransaction }) {
   let agconvertcredit = convertcredit.replaceAll(',', '')
   const _onLoad = () => {
     axios.get(`/accounting/api/journal-entries/selectledger/${id}`).then((data) => {
+      console.log("image=", data)
       let inforData = [...data?.data?.ledger]
       const dateIn = [...data?.data?.transactions][0].tr_date
       if ([...data?.data?.files[0].attachments].length == 0) {
@@ -693,6 +687,7 @@ function EditComponentJournal({ id, CloseShoFullScrreen,onloadtransaction }) {
         setThb(rate)
         setJournalNo([...data?.data?.transactions][0].journal_no)
         setEditcurrency([...data?.data?.transactions][0].currency_status)
+        setCurrency_id([...data?.data?.transactions][0].currency_status)
         setTr_id([...data?.data?.transactions][0].tr_id)
         setDefaultValue(moment(dateIn).format("DD-MM-YYYY"))
         let keys = ['currency_code'];
@@ -875,6 +870,7 @@ function EditComponentJournal({ id, CloseShoFullScrreen,onloadtransaction }) {
     })
   }
   const createdata = async () => {
+    console.log("edit")
     let cure;
     let images
     const debit = sumData('debit')
@@ -890,9 +886,11 @@ function EditComponentJournal({ id, CloseShoFullScrreen,onloadtransaction }) {
       maincurrency = '1'
     }
 
+
     if (!file) {
       images = 0
     } else {
+
       let formData = new FormData();
       for (const key of Object.keys(file)) {
         formData.append("file_attachment", file[key]);
@@ -901,6 +899,7 @@ function EditComponentJournal({ id, CloseShoFullScrreen,onloadtransaction }) {
       let profileImageReturnName = await axios.post("/accounting/api/journal-entries/upload", formData);
       images = profileImageReturnName.data;
     }
+
     setIsLoading(true);
     journaldata = {
       journal_no: journalNo,
@@ -915,7 +914,7 @@ function EditComponentJournal({ id, CloseShoFullScrreen,onloadtransaction }) {
       setIsLoading(false);
       setSomething(true)
     } else {
-      console.log("update=",journaldata)
+      console.log("update=", journaldata)
       axios.put("/accounting/api/journal-entries/update", journaldata).then((data) => {
         setDefaultValue('')
         setShowToast(true);
@@ -1015,22 +1014,43 @@ function EditComponentJournal({ id, CloseShoFullScrreen,onloadtransaction }) {
               listImage.length > 0 ? (
                 <div style={{ width: "100%" }}>
                   {
-                    listImage.map((item, index) => (
-                      <div key={index}
-                        style={{
-                          position: "relative",
-                          display: "flex",
-                          marginBottom: 10,
-                          padding: 15,
-                          borderRadius: 20,
-                          flexDirection: "row",
-                          justifyContent: "space-between",
-                          backgroundColor: "#0d6efd",
-                        }}>
-                        <img alt="Logo" src="/assets/images/file-blank-solid-240.png" style={{ width: 60, height: 60, color: "white" }} />
-                        <a href={item} style={{ justifyItems: "center", color: "white", marginTop: 15, fontSize: 20 }}><p>Download</p></a>
-                      </div>
-                    ))
+                    // listImage.map((item, index) => (
+
+                    //   <div key={index}
+                    //     style={{
+                    //       position: "relative",
+                    //       display: "flex",
+                    //       marginBottom: 10,
+                    //       padding: 15,
+                    //       borderRadius: 20,
+                    //       flexDirection: "row",
+                    //       justifyContent: "space-between",
+                    //       backgroundColor: "#0d6efd",
+                    //     }}>
+                    //     <img alt="Logo" src="/assets/images/file-blank-solid-240.png" style={{ width: 60, height: 60, color: "white" }} />
+                    //     <a href={item} style={{ justifyItems: "center", color: "white", marginTop: 15, fontSize: 20 }}><p>Download</p></a>
+                    //   </div>
+                    // ))
+                    listImage.map((item, index) => {
+                      console.log("item=",item)
+
+                      return (
+                        <div key={index}
+                          style={{
+                            position: "relative",
+                            display: "flex",
+                            marginBottom: 10,
+                            padding: 15,
+                            borderRadius: 20,
+                            flexDirection: "row",
+                            justifyContent: "space-between",
+                            backgroundColor: "#0d6efd",
+                          }}>
+                          <img alt="Logo" src="/assets/images/file-blank-solid-240.png" style={{ width: 60, height: 60, color: "white" }} />
+                          <a href={item} style={{ justifyItems: "center", color: "white", marginTop: 15, fontSize: 20 }}><p>Download</p></a>
+                        </div>
+                      )
+                    })
                   }
                 </div>
               ) : null
@@ -1880,13 +1900,13 @@ function ComponentBoxGainsAndLosses({ show, handleClose, rate, onLoadrate, Onloa
   //   setBank_id(e)
   //   setErrbank(false)
   // }
-  const OnTransactionRate = () => {
-    axios.get('/accounting/api/report/selectTransactionRate').then((data) => {
-      setListrate([...data?.data?.results])
-    }).catch((err) => {
-      console.log(err)
-    })
-  }
+  // const OnTransactionRate = () => {
+  //   axios.get('/accounting/api/report/selectTransactionRate').then((data) => {
+  //     setListrate([...data?.data?.results])
+  //   }).catch((err) => {
+  //     console.log(err)
+  //   })
+  // }
   const OnRate = () => {
     setIsCheckRateColor('green')
     setIsCheckExchangeRateColor('black')
@@ -1926,7 +1946,7 @@ function ComponentBoxGainsAndLosses({ show, handleClose, rate, onLoadrate, Onloa
     setIsDisabled(true)
   }
   useEffect(() => {
-    OnTransactionRate();
+    // OnTransactionRate();
   }, [])
 }
 function ComponentRate({ item, data, index, setData }) {

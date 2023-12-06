@@ -243,7 +243,10 @@ export default function Journal() {
   }
   const OnloadSelectCurrencies = (e) => {
     setCurrency(e)
+    
     axios.get(`/accounting/api/chartofaccounts/currency/${e}`).then((data) => {
+      // console.log("ssss=",[...data?.data?.result][0].cy_code)
+      setCurrency_id([...data?.data?.result][0].cy_code)
       setCurrencystatus([...data?.data?.result][0].cy_code)
     }).catch((err) => {
       console.log(err)
@@ -946,7 +949,7 @@ export default function Journal() {
                     </>)
                   }
                 </button>
-                <button
+                {/* <button
                   onClick={createAndNew}
                   onMouseOver={() => setOnSaveNew(true)}
                   onMouseLeave={() => setOnSaveNew(false)}
@@ -969,9 +972,8 @@ export default function Journal() {
                       }
                     </>)
                   }
-                </button>
+                </button> */}
               </div>
-
             </div >
             <div style={{ display: "flex", flexDirection: "column" }}>
               <div style={{ display: "flex", flexDirection: "row" }}>
@@ -1358,6 +1360,9 @@ function RowComponentMobile({ item, index, copyData, paste, showcp, data, blurHa
     setArray([...array, el])
   }
   const getNameList = (c_id, inputIdex = null) => {
+    console.log("GetNameList=",c_id)
+    
+    
 
     axios.get(`/accounting/api/chartofaccounts/all/parents/${c_id}`).then((respone) => {
       if (respone?.data?.message.length > 0) {

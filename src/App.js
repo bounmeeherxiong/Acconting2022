@@ -37,8 +37,7 @@ import ExchangeRate from "./page/ExchangeRate";
 axios.defaults.baseURL = api;
 function App() {
   const [listaccount, setListaccount] = useState([]);
-  const [listaccountType, setListaccountType] = useState([]);
-  const [listaccountdetailType, setListaccountdetailType] = useState([]);
+
   const [listaccountname, setListaccountname] = useState([]);
   const [listReport, setListReport] = useState([]);
   const [id, setid] = useState("")
@@ -74,8 +73,6 @@ function App() {
     axios
       .get("/accounting/api/accounts")
       .then((data) => {
-        console.log("accounts=",data)
-
         setListaccount([...data?.data.result]);
       })
       .catch((err) => {
@@ -86,27 +83,7 @@ function App() {
     setid(id)
     setShowEditJournal(true)
   }
-  const onloadaccountType = () => {
-    axios
-      .get("/accounting/api/accounts-type")
-      .then((data) => {
-        console.log("accounts-type=",data)
-        setListaccountType([...data?.data.result]);
-      })
-      .catch((err) => {
-        console.log(err);
-      });
-  };
-  // const onloadaccountdetailType = () => {
-  //   axios
-  //     .get("/accounting/api/detail-type")
-  //     .then((data) => {
-  //       setListaccountdetailType([...data?.data.result]);
-  //     })
-  //     .catch((err) => {
-  //       console.log(err);
-  //     });
-  // };
+
   const onloadallaccount = () => {
     axios.get("/accounting/api/chartofaccounts/all/accountname").then((data) => {
       setListallaccount([...data?.data?.message])
@@ -122,15 +99,9 @@ function App() {
       console.log(err)
     })
   }
-  // const onloadreportGl = () => {
-  //   axios.get("/accounting/api/report/reportGl").then((data) => {
-  
-  //     setListgl({ ...data?.data })
-  //   })
-  // }
+
   const onloadaccountlistname = () => {
     axios.get("/accounting/api/chartofaccounts").then((data) => {
-      console.log("chartofaccounts=",data)
       setListaccountname([...data?.data.result])
     }).catch((err) => {
       console.log(err)
@@ -149,7 +120,6 @@ const OnloadgainAndLoss = () => {
   axios
     .get("/accounting/api/loss-gain/getgainAndLoss")
     .then((data) => {
-      
       setListgandl([...data?.data?.result])
     })
     .catch((err) => {
@@ -198,18 +168,16 @@ const onloadLevelforchartofaccount=()=>{
     setChartofaccountslevels_eight([...data?.data?.levels_eight])
     setChartofaccountslevels_nine([...data?.data?.levels_nine])
     setChartofaccountslevels_ten([...data?.data?.levels_ten])
-  
 
   }).catch((err)=>{
     console.log(err)
   })
 }
-
-
   useEffect(() => {
-    let users = Cookies.get("user");
+    // let users = Cookies.get("user");
     // if(!users){
     //      window.location.assign('https://secure.phongsavanhgroup.com/');
+         
     // }else{
     //   let data = JSON.parse(users)
     //   if (data.token) {
@@ -217,10 +185,8 @@ const onloadLevelforchartofaccount=()=>{
     //   }
     // } 
     onloadaccount();
-    onloadaccountType();
     onloadaccountlistname();
     onloadreportjournalentries();
-
     OnloadgainAndLoss();
     OnLoadgainandlossTransaction()
     OnLoadTotalgainAndLoss();
@@ -228,11 +194,6 @@ const onloadLevelforchartofaccount=()=>{
     onloadChecktrue_and_false();
     onloadLevelforchartofaccount();
     onloadtransaction();
-
-   
-
-
-
  
   }, []); 
   // if(!login){
@@ -242,19 +203,14 @@ const onloadLevelforchartofaccount=()=>{
   //   return(
   //     <Login 
   //     setLogin={setLogin}
-      
   //     />
   //   )
   // }
-  
   return (
     <div>
       <LoginContext.Provider
         value={{
           listaccount,
-          listaccountType,
-          onloadaccountType,
-    
           listaccountname,
           listReport,
           onloadreportjournalentries,
@@ -282,9 +238,7 @@ const onloadLevelforchartofaccount=()=>{
           OnLoadTotalgainAndLoss,
           totalgain,
           rate,
-          // listgl,
-          // setListgl,
-          // onloadreportGl,
+     
           onLoadrate,
           setid,
           loading,
@@ -310,7 +264,6 @@ const onloadLevelforchartofaccount=()=>{
           onloadtransaction
         }}
       >
-        
         <Router>
           <Home>
             <Routes>

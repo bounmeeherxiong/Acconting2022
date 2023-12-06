@@ -58,8 +58,18 @@ export default function Profitandloss() {
     const [gain, setGain] = useState(false);
     const [condi, setCondi] = useState(true)
     const [condition, setCondition] = useState(1)
+    const onloadChecktrue_and_false = () => {
+        axios.get('/accounting/api/balance-sheet/onloadcheck').then((data) => {
+            // console.log("conditions2222=", [...data?.data?.OnloadChecktrue_and_False][0].conditions)
+            setCondi([...data?.data?.OnloadChecktrue_and_False][0].conditions)
+
+        }).catch((err) => {
+            console.log(err)
+        })
+    }
     const OnloadHeading = () => {
         axios.get('/accounting/api/profit-loss/heading').then((data) => {
+       
             setHeadingprofi({ ...data?.data })
             setProfitandloss([...data?.data?.sumBalanceSheet][0].balances)
             setTransact_balance([...data?.data?.sumBalanceSheet][0].transact_balance)
@@ -133,6 +143,7 @@ export default function Profitandloss() {
                 end: defaultValue1
             }
             axios.post('/accounting/api/profit-loss/report/allreports', data).then((data) => {
+                console.log("Search=",data)
                 if ([...data?.data?.childrenFirst][0][0] == 0) {
                     setDataconditions(true)
                 }
@@ -159,6 +170,7 @@ export default function Profitandloss() {
     }
     useEffect(() => {
         OnloadResetCondition()
+        onloadChecktrue_and_false()
         OnloadHeading()
         _searchbydate()
         _searchstartdate()
@@ -479,6 +491,7 @@ export default function Profitandloss() {
                                                     <>
                                                         {
                                                             headingprofi?.headingExpenses && headingprofi?.headingExpenses.map((data, index) => {
+                                                                console.log("data======",data)
                                                                 return (
                                                                     <>
                                                                         <ComponentHeading
@@ -491,6 +504,7 @@ export default function Profitandloss() {
                                                                             exchangegainloss={headingprofi?.ExchangeTotalGainAndLosses}
                                                                             Gotodetailaccount={Gotodetailaccount}
                                                                             ViewUnrealised={ViewUnrealised}
+                                                                            condi={condi}
                                                                             gain={gain}
                                                                             e={condition}
                                                                             conditionsof={conditionsof}
@@ -507,7 +521,7 @@ export default function Profitandloss() {
                                                     NET EARNINGS
                                                 </TableCell>
                                                 {
-                                                     conditionsof== 1 ? (<>
+                                                    conditionsof == 1 ? (<>
                                                         <TableCell align="right" style={{ fontWeight: 'bold' }}>{getFormatNumber(parseFloat(transact_balance))}₭</TableCell>
                                                     </>) : (<>
                                                         <TableCell align="right" style={{ fontWeight: 'bold' }}>{getFormatNumber(parseFloat(profitandloss))}₭</TableCell>
@@ -609,6 +623,12 @@ function ComponentHeadingIncomeShow() {
     )
 }
 function ComponentHeadingIn({ data, childrenFirstFloor, childrenSecondFloor, Gotodetailaccount }) {
+    const filter_first = childrenFirstFloor.filter((el) => el.bs_status == data?.bs_id);
+    const filter_second = childrenSecondFloor.filter((el) => el.bs_status == data?.bs_id);
+    const sum_firstfloor = filter_first.reduce((accumulator, currentItem) => accumulator + parseFloat(currentItem.balances), 0);
+    const sum_seondfloor = filter_second.reduce((accumulator, currentItem) => accumulator + parseFloat(currentItem.balances), 0);
+    const total=(sum_firstfloor+sum_seondfloor)
+   
     const [open, setOpen] = useState(true);
     const handleClick = () => {
         setOpen(!open);
@@ -619,10 +639,10 @@ function ComponentHeadingIn({ data, childrenFirstFloor, childrenSecondFloor, Got
                 <TableCell component="th" scope="row" onClick={() => { handleClick() }} style={{ cursor: 'pointer' }}>{open ? <ExpandLess /> : <ExpandMore />}
                     {data?.bs_name}
                 </TableCell>
-                <TableCell align="right" >
+                <TableCell align="right"  style={{fontWeight:'bold'}}>
                     {
                         open ? (<></>) : (<>
-                            {getFormatNumber(data?.balance)}₭
+                            {getFormatNumber(total)}₭
                         </>)
                     }
                 </TableCell>
@@ -633,14 +653,13 @@ function ComponentHeadingIn({ data, childrenFirstFloor, childrenSecondFloor, Got
                         id={data?.bs_id}
                         childrenFirstFloor={childrenFirstFloor}
                         childrenSecondFloor={childrenSecondFloor}
-                        // TotaldrenFirstFloor={TotaldrenFirstFloor}
                         Gotodetailaccount={Gotodetailaccount}
                     />
                     <TableRow>
                         <TableCell component="th" scope="row" onClick={() => { handleClick() }} style={{ cursor: 'pointer', fontWeight: 'bold' }}>
                             Total: {data?.bs_name}
                         </TableCell>
-                        <TableCell align="right">{getFormatNumber(data?.balance)}₭</TableCell>
+                        <TableCell align="right" style={{fontWeight:'bold'}}>{getFormatNumber(total)}₭</TableCell>
 
                     </TableRow>
 
@@ -679,31 +698,33 @@ function ComponentIncomeFirst({ id, childrenFirstFloor, childrenSecondFloor, Got
         </>
     )
 }
-function TableCellComponentIncome({ data, childrenSecondFloor, id, Gotodetailaccount }) {
+
+function TableCellComponentIncome({ data, id, childrenSecondFloor, Gotodetailaccount }) {
     const [checkvalues, setCheckvalues] = useState(0)
     const [open, setOpen] = useState(true);
-    const [netTotal, setNetTotal] = useState(0)
-    // if (TotaldrenFirstFloor === null) return <></>
-    // const filter = TotaldrenFirstFloor.filter((el) => el.id === id);
-    // if (filter.length === 0) return <></>;
     const handleClick = () => {
         setOpen(!open);
     };
-    const OnSumTotal = (e) => {
-        let data = {
-            c_id: e
-        }
-        axios.post("/accounting/api/balance-sheet/sumtotal", data).then((data) => {
 
-            setNetTotal([...data?.data?.data][0].balances)
-        }).catch((err) => {
-            console.log(err)
-        })
-    }
+    function sumBalances(childrenSecondFloor, parentId) {
+        const children = childrenSecondFloor.filter(item => item.parents=== parentId);
+        if (children.length === 0) {
+          return 0;
+        }
+        let totalBalance = 0;
+        for (const child of children) {
+          totalBalance += parseFloat(child.balances)  + parseFloat(sumBalances(childrenSecondFloor, child.c_id));
+        }
+        return totalBalance;
+      }
+      const sum = sumBalances(childrenSecondFloor, id);
+      const net_total =parseFloat(sum) + parseFloat(data?.balances)
+      
+
     return (
         <>
             <TableRow>
-                <TableCell onClick={() => { handleClick(); OnSumTotal(data?.c_id) }} style={{ cursor: 'pointer', paddingLeft: 30 }}>
+                <TableCell onClick={() => { handleClick()}} style={{ cursor: 'pointer', paddingLeft: 30 }}>
                     {
                         checkvalues === 0 ? (<></>) : (<>{open ? <ExpandLess /> : <ExpandMore />}</>)
                     }
@@ -714,7 +735,7 @@ function TableCellComponentIncome({ data, childrenSecondFloor, id, Gotodetailacc
                         <>
                             <TableCell align="right" style={{ cursor: 'pointer' }} onClick={() => { Gotodetailaccount(data?.c_uid) }}>{getFormatNumber(data?.balances)}₭</TableCell>
                         </>) : (<>
-                            <TableCell align="right">{getFormatNumber(netTotal)}₭</TableCell>
+                            <TableCell align="right">{getFormatNumber(net_total)}₭</TableCell>
                         </>)
                 }
             </TableRow>
@@ -724,7 +745,6 @@ function TableCellComponentIncome({ data, childrenSecondFloor, id, Gotodetailacc
                         id={data?.c_id}
                         childrenSecondFloor={childrenSecondFloor}
                         setCheckvalues={setCheckvalues}
-                        // TotaldrenSecondFloor={TotaldrenFirstFloor}
                         Gotodetailaccount={Gotodetailaccount}
                     />
                     {
@@ -733,12 +753,9 @@ function TableCellComponentIncome({ data, childrenSecondFloor, id, Gotodetailacc
                                 <TableCell component="th" scope="row" onClick={() => { handleClick() }} style={{ cursor: 'pointer', fontWeight: 'bold', paddingLeft: 30 }}>
                                     Total: {data?.name_eng}
                                 </TableCell>
-                                {/* <TableCell align="right" >
-                                    {getFormatNumber(filter[0].balances)}₭
-                                </TableCell> */}
-
-                                <TableCell align="right" style={{fontWeight:'bold'}}>
-                                   {getFormatNumber(data?.net_total)}
+                            
+                                <TableCell align="right" style={{ fontWeight: 'bold' }}>
+                                    {getFormatNumber(net_total)}₭
                                 </TableCell>
 
                             </TableRow>
@@ -756,7 +773,6 @@ function TableCellComponentIncome({ data, childrenSecondFloor, id, Gotodetailacc
 
 }
 function TableCellComponentIncome1({ childrenSecondFloor, setCheckvalues, id, TotaldrenSecondFloor, Gotodetailaccount }) {
-
     if (childrenSecondFloor === null) return <></>
     const filter = childrenSecondFloor.filter((el) => el.parents == id);
     if (filter.length === 0) return <></>;
@@ -788,7 +804,6 @@ function TableCellComponentIncome1({ childrenSecondFloor, setCheckvalues, id, To
 
         </>
     )
-
 }
 function TableCellComponentIncome2({ data, childrenSecondFloor, TotaldrenSecondFloor, id, Gotodetailaccount }) {
     const [checkvalues, setCheckvalues] = useState(0)
@@ -797,23 +812,24 @@ function TableCellComponentIncome2({ data, childrenSecondFloor, TotaldrenSecondF
     const handleClick = () => {
         setOpen(!open);
     };
-    const OnSumTotal = (e) => {
-        let data = {
-            c_id: e
+    function sumBalances(childrenSecondFloor, parentId) {
+        const children = childrenSecondFloor.filter(item => item.parents=== parentId);
+        if (children.length === 0) {
+          return 0;
         }
-        axios.post("/accounting/api/balance-sheet/sumtotal", data).then((data) => {
-            setNetTotal([...data?.data?.data][0].balances)
-        }).catch((err) => {
-            console.log(err)
-        })
-    }
-    if (TotaldrenSecondFloor === null) return <></>
-    // const filter = TotaldrenSecondFloor.filter((el) => el.id === id);
-    // if (filter.length === 0) return <></>;
+        let totalBalance = 0;
+        for (const child of children) {
+          totalBalance += parseFloat(child.balances)  + parseFloat(sumBalances(childrenSecondFloor, child.c_id));
+        }
+        return totalBalance;
+      }
+      const sum = sumBalances(childrenSecondFloor, id);
+      const net_total =parseFloat(sum) + parseFloat(data?.balances)
+
     return (
         <>
             <TableRow>
-                <TableCell onClick={() => { handleClick(); OnSumTotal(data?.c_id) }} style={{ cursor: 'pointer', paddingLeft: 40 }}>
+                <TableCell onClick={() => { handleClick(); }} style={{ cursor: 'pointer', paddingLeft: 40 }}>
                     {
                         checkvalues === 0 ? (<></>) : (<>
                             {open ? <ExpandLess /> : <ExpandMore />}
@@ -827,7 +843,7 @@ function TableCellComponentIncome2({ data, childrenSecondFloor, TotaldrenSecondF
 
                     </>) : (<>
 
-                        <TableCell align="right" style={{ cursor: 'pointer' }} onClick={() => { Gotodetailaccount(data?.c_uid) }}> {getFormatNumber(netTotal)}₭</TableCell>
+                        <TableCell align="right" style={{ cursor: 'pointer' }} onClick={() => { Gotodetailaccount(data?.c_uid) }}> {getFormatNumber(net_total)}₭</TableCell>
                     </>)
                 }
             </TableRow>
@@ -846,11 +862,9 @@ function TableCellComponentIncome2({ data, childrenSecondFloor, TotaldrenSecondF
                                 <TableCell component="th" scope="row" style={{ paddingLeft: 40, fontWeight: "bold" }} >
                                     Total:  {data?.name_eng}
                                 </TableCell>
-                                {/* <TableCell align="right">
-                                    {getFormatNumber(filter[0].balances)}₭
-                                </TableCell> */}
-                                <TableCell align="right" style={{fontWeight:'bold'}}>
-                                   {getFormatNumber(data?.net_total)}
+ 
+                                <TableCell align="right" style={{ fontWeight: 'bold' }}>
+                                    {getFormatNumber(net_total)}
                                 </TableCell>
                             </TableRow>
                         </>)
@@ -901,23 +915,24 @@ function TableCellComponentIncome4({ data, childrenSecondFloor, TotaldrenSecondF
     const handleClick = () => {
         setOpen(!open);
     };
-    const OnSumTotal = (e) => {
-        let data = {
-            c_id: e
+    function sumBalances(childrenSecondFloor, parentId) {
+        const children = childrenSecondFloor.filter(item => item.parents=== parentId);
+        if (children.length === 0) {
+          return 0;
         }
-        axios.post("/accounting/api/balance-sheet/sumtotal", data).then((data) => {
-            setNetTotal([...data?.data?.data][0].balances)
-        }).catch((err) => {
-            console.log(err)
-        })
-    }
-    // if (TotaldrenSecondFloor === null) return <></>
-    // const filter = TotaldrenSecondFloor.filter((el) => el.id === id);
-    // if (filter.length === 0) return <></>;
+        let totalBalance = 0;
+        for (const child of children) {
+          totalBalance += parseFloat(child.balances)  + parseFloat(sumBalances(childrenSecondFloor, child.c_id));
+        }
+        return totalBalance;
+      }
+      const sum = sumBalances(childrenSecondFloor, id);
+      const net_total =parseFloat(sum) + parseFloat(data?.balances)
+      
     return (
         <>
             <TableRow>
-                <TableCell onClick={() => { handleClick(); OnSumTotal(data?.c_id) }} style={{ cursor: 'pointer', paddingLeft: 50 }}>
+                <TableCell onClick={() => { handleClick();}} style={{ cursor: 'pointer', paddingLeft: 50 }}>
                     {
                         checkvalues === 0 ? (<></>) : (<>
                             {open ? <ExpandLess /> : <ExpandMore />}
@@ -931,7 +946,7 @@ function TableCellComponentIncome4({ data, childrenSecondFloor, TotaldrenSecondF
                         open ? (<>
                             {getFormatNumber(data?.balances)}₭
                         </>) : (<>
-                            {getFormatNumber(netTotal)}₭
+                            {getFormatNumber(net_total)}₭
                         </>)
                     }
                 </TableCell>
@@ -953,12 +968,10 @@ function TableCellComponentIncome4({ data, childrenSecondFloor, TotaldrenSecondF
                                 <TableCell component="th" scope="row" style={{ paddingLeft: 50, fontWeight: "bold" }} >
                                     Total:  {data?.name_eng}
                                 </TableCell>
-                                {/* <TableCell align="right">
-                                    {getFormatNumber(filter[0].balances)}₭
-                                </TableCell> */}
+                              
 
-                                <TableCell align="right" style={{fontWeight:'bold'}}>
-                                   {getFormatNumber(data?.net_total)}
+                                <TableCell align="right" style={{ fontWeight: 'bold' }}>
+                                    {getFormatNumber(net_total)}
                                 </TableCell>
                             </TableRow>
                         </>)
@@ -1009,23 +1022,24 @@ function TableCellComponentIncome6({ data, childrenSecondFloor, TotaldrenSecondF
     const handleClick = () => {
         setOpen(!open);
     };
-    const OnSumTotal = (e) => {
-        let data = {
-            c_id: e
+    function sumBalances(childrenSecondFloor, parentId) {
+        const children = childrenSecondFloor.filter(item => item.parents=== parentId);
+        if (children.length === 0) {
+          return 0;
         }
-        axios.post("/accounting/api/balance-sheet/sumtotal", data).then((data) => {
-            setNetTotal([...data?.data?.data][0].balances)
-        }).catch((err) => {
-            console.log(err)
-        })
-    }
-    if (TotaldrenSecondFloor === null) return <></>
-    // const filter = TotaldrenSecondFloor.filter((el) => el.id === id);
-    // if (filter.length === 0) return <></>;
+        let totalBalance = 0;
+        for (const child of children) {
+          totalBalance += parseFloat(child.balances)  + parseFloat(sumBalances(childrenSecondFloor, child.c_id));
+        }
+        return totalBalance;
+      }
+      const sum = sumBalances(childrenSecondFloor, id);
+      const net_total =parseFloat(sum) + parseFloat(data?.balances)
+
     return (
         <>
             <TableRow>
-                <TableCell onClick={() => { handleClick(); OnSumTotal(data?.c_id) }} style={{ cursor: 'pointer', paddingLeft: 60 }}>
+                <TableCell onClick={() => { handleClick() }} style={{ cursor: 'pointer', paddingLeft: 60 }}>
                     {
                         checkvalues === 0 ? (<></>) : (<>
                             {open ? <ExpandLess /> : <ExpandMore />}
@@ -1039,7 +1053,7 @@ function TableCellComponentIncome6({ data, childrenSecondFloor, TotaldrenSecondF
                         open ? (<>
                             {getFormatNumber(data?.balances)}₭
                         </>) : (<>
-                            {getFormatNumber(netTotal)}₭
+                            {getFormatNumber(net_total)}₭
                         </>)
                     }
                 </TableCell>
@@ -1061,11 +1075,9 @@ function TableCellComponentIncome6({ data, childrenSecondFloor, TotaldrenSecondF
                                 <TableCell component="th" scope="row" style={{ paddingLeft: 60, fontWeight: "bold" }} >
                                     Total:  {data?.name_eng}
                                 </TableCell>
-                                {/* <TableCell align="right" >
-                                    {getFormatNumber(filter[0].balances)}₭
-                                </TableCell> */}
-                                <TableCell align="right" style={{fontWeight:'bold'}}>
-                                   {getFormatNumber(data?.net_total)}
+                                
+                                <TableCell align="right" style={{ fontWeight: 'bold' }}>
+                                    {getFormatNumber(net_total)}
                                 </TableCell>
                             </TableRow>
                         </>)
@@ -1115,23 +1127,26 @@ function TableCellComponentIncome8({ data, childrenSecondFloor, TotaldrenSecondF
     const handleClick = () => {
         setOpen(!open);
     };
-    const OnSumTotal = (e) => {
-        let data = {
-            c_id: e
+    function sumBalances(childrenSecondFloor, parentId) {
+        const children = childrenSecondFloor.filter(item => item.parents=== parentId);
+        if (children.length === 0) {
+          return 0;
         }
-        axios.post("/accounting/api/balance-sheet/sumtotal", data).then((data) => {
-            setNetTotal([...data?.data?.data][0].balances)
-        }).catch((err) => {
-            console.log(err)
-        })
-    }
+        let totalBalance = 0;
+        for (const child of children) {
+          totalBalance += parseFloat(child.balances)  + parseFloat(sumBalances(childrenSecondFloor, child.c_id));
+        }
+        return totalBalance;
+      }
+      const sum = sumBalances(childrenSecondFloor, id);
+      const net_total =parseFloat(sum) + parseFloat(data?.balances)
+    
     if (TotaldrenSecondFloor === null) return <></>
-    // const filter = TotaldrenSecondFloor.filter((el) => el.id === id);
-    // if (filter.length === 0) return <></>;
+
     return (
         <>
             <TableRow>
-                <TableCell onClick={() => { handleClick(); OnSumTotal(data?.c_id) }} style={{ cursor: 'pointer', paddingLeft: 70 }}>
+                <TableCell onClick={() => { handleClick();}} style={{ cursor: 'pointer', paddingLeft: 70 }}>
                     {
                         checkvalues === 0 ? (<></>) : (<>
                             {open ? <ExpandLess /> : <ExpandMore />}
@@ -1145,7 +1160,7 @@ function TableCellComponentIncome8({ data, childrenSecondFloor, TotaldrenSecondF
                         open ? (<>
                             {getFormatNumber(data?.balances)}₭
                         </>) : (<>
-                            {getFormatNumber(netTotal)}₭
+                            {getFormatNumber(net_total)}₭
                         </>)
                     }
                 </TableCell>
@@ -1167,11 +1182,9 @@ function TableCellComponentIncome8({ data, childrenSecondFloor, TotaldrenSecondF
                                 <TableCell component="th" scope="row" style={{ paddingLeft: 70, fontWeight: "bold" }} >
                                     Total:  {data?.name_eng}
                                 </TableCell>
-                                {/* <TableCell align="right" >
-                                    {getFormatNumber(filter[0].balances)}₭
-                                </TableCell> */}
-                                <TableCell align="right" style={{fontWeight:'bold'}}>
-                                   {getFormatNumber(data?.net_total)}
+                               
+                                <TableCell align="right" style={{ fontWeight: 'bold' }}>
+                                    {getFormatNumber(net_total)}
                                 </TableCell>
                             </TableRow>
                         </>)
@@ -1224,23 +1237,24 @@ function TableCellComponentIncome10({ data, childrenSecondFloor, TotaldrenSecond
     const handleClick = () => {
         setOpen(!open);
     };
-    const OnSumTotal = (e) => {
-        let data = {
-            c_id: e
+    function sumBalances(childrenSecondFloor, parentId) {
+        const children = childrenSecondFloor.filter(item => item.parents=== parentId);
+        if (children.length === 0) {
+          return 0;
         }
-        axios.post("/accounting/api/balance-sheet/sumtotal", data).then((data) => {
-            setNetTotal([...data?.data?.data][0].balances)
-        }).catch((err) => {
-            console.log(err)
-        })
-    }
-    // if (TotaldrenSecondFloor === null) return <></>
-    // const filter = TotaldrenSecondFloor.filter((el) => el.id === id);
-    // if (filter.length === 0) return <></>;
+        let totalBalance = 0;
+        for (const child of children) {
+          totalBalance += parseFloat(child.balances)  + parseFloat(sumBalances(childrenSecondFloor, child.c_id));
+        }
+        return totalBalance;
+      }
+      const sum = sumBalances(childrenSecondFloor, id);
+      const net_total =parseFloat(sum) + parseFloat(data?.balances)
+   
     return (
         <>
             <TableRow>
-                <TableCell onClick={() => { handleClick(); OnSumTotal(data?.c_id) }} style={{ cursor: 'pointer', paddingLeft: 80 }}>
+                <TableCell onClick={() => { handleClick() }} style={{ cursor: 'pointer', paddingLeft: 80 }}>
                     {
                         checkvalues === 0 ? (<></>) : (<>
                             {open ? <ExpandLess /> : <ExpandMore />}
@@ -1254,7 +1268,7 @@ function TableCellComponentIncome10({ data, childrenSecondFloor, TotaldrenSecond
                         open ? (<>
                             {getFormatNumber(data?.balances)}₭
                         </>) : (<>
-                            {getFormatNumber(netTotal)}₭
+                            {getFormatNumber(net_total)}₭
                         </>)
                     }
                 </TableCell>
@@ -1274,11 +1288,9 @@ function TableCellComponentIncome10({ data, childrenSecondFloor, TotaldrenSecond
                                 <TableCell component="th" scope="row" style={{ paddingLeft: 80, fontWeight: "bold" }} >
                                     Total:  {data?.name_eng}
                                 </TableCell>
-                                {/* <TableCell align="right" >
-                                    {getFormatNumber(filter[0].balances)}₭
-                                </TableCell> */}
-                                <TableCell align="right" style={{fontWeight:'bold'}}>
-                                   {getFormatNumber(data?.net_total)}
+                               
+                                <TableCell align="right" style={{ fontWeight: 'bold' }}>
+                                    {getFormatNumber(net_total)}
                                 </TableCell>
                             </TableRow>
                         </>)
@@ -1330,23 +1342,24 @@ function TableCellComponentIncome12({ data, childrenSecondFloor, TotaldrenSecond
     const handleClick = () => {
         setOpen(!open);
     };
-    const OnSumTotal = (e) => {
-        let data = {
-            c_id: e
+    function sumBalances(childrenSecondFloor, parentId) {
+        const children = childrenSecondFloor.filter(item => item.parents=== parentId);
+        if (children.length === 0) {
+          return 0;
         }
-        axios.post("/accounting/api/balance-sheet/sumtotal", data).then((data) => {
-            setNetTotal([...data?.data?.data][0].balances)
-        }).catch((err) => {
-            console.log(err)
-        })
-    }
-    // if (TotaldrenSecondFloor === null) return <></>
-    // const filter = TotaldrenSecondFloor.filter((el) => el.id === id);
-    // if (filter.length === 0) return <></>;
+        let totalBalance = 0;
+        for (const child of children) {
+          totalBalance += parseFloat(child.balances)  + parseFloat(sumBalances(childrenSecondFloor, child.c_id));
+        }
+        return totalBalance;
+      }
+      const sum = sumBalances(childrenSecondFloor, id);
+      const net_total =parseFloat(sum) + parseFloat(data?.balances)
+   
     return (
         <>
             <TableRow>
-                <TableCell onClick={() => { handleClick(); OnSumTotal(data?.c_id) }} style={{ cursor: 'pointer', paddingLeft: 90 }}>
+                <TableCell onClick={() => { handleClick();  }} style={{ cursor: 'pointer', paddingLeft: 90 }}>
                     {
                         checkvalues === 0 ? (<></>) : (<>
                             {open ? <ExpandLess /> : <ExpandMore />}
@@ -1360,7 +1373,7 @@ function TableCellComponentIncome12({ data, childrenSecondFloor, TotaldrenSecond
                         open ? (<>
                             {getFormatNumber(data?.balances)}
                         </>) : (<>
-                            {getFormatNumber(netTotal)}
+                            {getFormatNumber(net_total)}
                         </>)
                     }
                 </TableCell>
@@ -1369,14 +1382,19 @@ function TableCellComponentIncome12({ data, childrenSecondFloor, TotaldrenSecond
         </>
     )
 }
-function ComponentHeading({ data, childrenFirstFloor, conditionsof, childrenSecondFloor, totalgain, Gotodetailaccount, ViewUnrealised, gain, exchangegainloss, e }) {
+
+function ComponentHeading({ data, childrenFirstFloor,condi, conditionsof, childrenSecondFloor, totalgain, Gotodetailaccount, ViewUnrealised, gain, exchangegainloss, e }) {
+    const filter_first = childrenFirstFloor.filter((el) => el.bs_status == data?.bs_id);
+    const filter_second = childrenSecondFloor.filter((el) => el.bs_status == data?.bs_id);
+    const sum_firstfloor = filter_first.reduce((accumulator, currentItem) => accumulator + parseFloat(currentItem.balances), 0);
+    const sum_seondfloor = filter_second.reduce((accumulator, currentItem) => accumulator + parseFloat(currentItem.balances), 0);
+    const total = (sum_firstfloor + sum_seondfloor)
     const [open, setOpen] = useState(true);
     const handleClick = () => {
         setOpen(!open);
     };
     if (exchangegainloss === null) return <></>
     const datafilter = exchangegainloss.filter((el) => el.bs_id === data?.bs_id);
-
     return (
         <>
             <TableRow>
@@ -1386,25 +1404,32 @@ function ComponentHeading({ data, childrenFirstFloor, conditionsof, childrenSeco
 
                 <TableCell align="right">
                     {
-                        open ? (<></>) : (<>
-                            {getFormatNumber(data?.balance)}₭
+                        open ? (<></>) : (
+                        <>   
+                            {
+                                datafilter?.length === 0 ? (<>
+                                 {getFormatNumber(parseFloat(total))}₭
+                                </>):(
+                                
+                                <>
+                                 {getFormatNumber(parseFloat(total) - parseFloat(datafilter[0].balance))}₭
+                                </>)
+                            }
+                           
                         </>)
                     }
                 </TableCell>
             </TableRow>
-
             {
                 open ? (<>
-
                     <ComponentExpenseFirst
-
                         id={data?.bs_id}
                         childrenFirstFloor={childrenFirstFloor}
                         childrenSecondFloor={childrenSecondFloor}
-                        // TotaldrenFirstFloor={TotaldrenFirstFloor}
                         totalgain={totalgain}
                         Gotodetailaccount={Gotodetailaccount}
                         ViewUnrealised={ViewUnrealised}
+                        condi={condi}
                         gain={gain}
                         conditionsof={conditionsof}
                         e={e}
@@ -1420,11 +1445,19 @@ function ComponentHeading({ data, childrenFirstFloor, conditionsof, childrenSeco
                             </>) : (
                                 <>
                                     {
-                                        datafilter.length === 0 ? (<>
-                                            <TableCell align="right" >{getFormatNumber(data?.balance)}₭</TableCell>
-                                        </>) : (<>
-                                            <TableCell align="right" >{getFormatNumber(data?.balance - datafilter[0].balance)}₭</TableCell>
-                                        </>)
+                                        gain === true ? (<>
+                                            <TableCell align="right" >{getFormatNumber(total)}₭</TableCell>
+                                        </>) : (
+                                            <>
+                                                {
+                                                    datafilter.length === 0 ? (<>
+                                                        <TableCell align="right" style={{ fontWeight: 'bold' }} >{getFormatNumber(total)}₭</TableCell>
+                                                    </>) : (<>
+                                                        <TableCell align="right" style={{ fontWeight: 'bold' }}>{getFormatNumber(parseFloat(total) - parseFloat(datafilter[0].balance))}₭</TableCell>
+                                                    </>)
+                                                }
+
+                                            </>)
                                     }
 
                                 </>)
@@ -1432,29 +1465,6 @@ function ComponentHeading({ data, childrenFirstFloor, conditionsof, childrenSeco
                     </TableRow>
                 </>) : null
             }
-            {/* {
-                show == true ? (<>
-                    <TableRow>
-                        <TableCell component="th" scope="row" style={{ cursor: 'pointer' }}>{open ? <ExpandLess /> : <ExpandMore />}
-                            Other Expenses
-                        </TableCell>
-
-                        <TableCell align="right" style={{ fontWeight: 'bold', fontSize: 20 }}>
-                        </TableCell>
-
-                    </TableRow>
-                    {
-                        open ? (<>
-                            <UnrealisedGainorLoss
-                                totalgain={totalgain}
-                            />
-                        </>) : null
-
-                    }
-
-
-                </>) : null
-            } */}
 
         </>
     )
@@ -1477,59 +1487,14 @@ function UnrealisedGainorLoss({ totalgain }) {
         </TableRow>
     </>)
 }
-function ComponentExpenseFirst({ id, childrenFirstFloor, conditionsof, childrenSecondFloor, rows, Gotodetailaccount, ViewUnrealised, gain, e }) {
+function  ComponentExpenseFirst({ id, childrenFirstFloor, condi,conditionsof, childrenSecondFloor, rows, Gotodetailaccount, ViewUnrealised, gain, e }) {
     if (childrenFirstFloor === null) return <></>
     const filter = childrenFirstFloor.filter((el) => el.bs_id === id);
 
 
-    // const datafilter = rows.filter((el) => el.id === id);
-    // let tax;
-    // if (datafilter.length === 0) {
-
-    //     tax = ''
-    // } else {
-
-    //     tax = datafilter[0].name_eng
-
-    // }
     return (
         <>
-            {/* {
-                gain === '' ? (<>
-                </>) : (<>
-                    <TableRow>
-                        <TableCell style={{ cursor: 'pointer', paddingLeft: 30 }}>
-                            {
-                                gain
-                            }
-                        </TableCell>
-                        {
-                            totalgain === null ? (<>
-                                <TableCell align="right">0.00 </TableCell>
-                            </>) : (<>
-                                <TableCell align="right">{getFormatNumber(-1 * parseFloat(totalgain))}</TableCell>
-                            </>)
-                        }
 
-                    </TableRow>
-
-                </>)
-            } */}
-            {/* {
-                tax === '' ? (<>
-                </>) : (<>
-                    <TableRow>
-                        <TableCell style={{ cursor: 'pointer', paddingLeft: 30 }}>
-                            {
-                                tax
-                            }
-                        </TableCell>
-                        <TableCell align="right" style={{ fontWeight: 'bold', cursor: 'pointer' }} onClick={() => { ViewUnrealised() }} >10%</TableCell>
-
-                    </TableRow>
-
-                </>)   
-            } */}
             {
                 filter && filter.map((data, index) => {
 
@@ -1540,9 +1505,11 @@ function ComponentExpenseFirst({ id, childrenFirstFloor, conditionsof, childrenS
                                 key={index}
                                 childrenSecondFloor={childrenSecondFloor}
                                 // TotaldrenFirstFloor={TotaldrenFirstFloor}
+                                
                                 id={data?.c_id}
                                 ViewUnrealised={ViewUnrealised}
                                 Gotodetailaccount={Gotodetailaccount}
+                                condi={condi}
                                 gain={gain}
                                 e={e}
                                 conditionsof={conditionsof}
@@ -1554,31 +1521,27 @@ function ComponentExpenseFirst({ id, childrenFirstFloor, conditionsof, childrenS
         </>
     )
 }
-function TableCellComponentExpense({ data, childrenSecondFloor, conditionsof, id, Gotodetailaccount, ViewUnrealised, gain, e }) {
 
+function TableCellComponentExpense({ data, childrenSecondFloor,id, conditionsof,condi, Gotodetailaccount, ViewUnrealised, gain, e }) {
     const [checkvalues, setCheckvalues] = useState(0)
-    const [netTotal1, setNetTotal1] = useState(0)
     const [open, setOpen] = useState(true);
-    // if (TotaldrenFirstFloor === null) return <></>
-    // const filter = TotaldrenFirstFloor.filter((el) => el.id === id);
-
-
-
-    // if (filter.length === 0) return <></>;
     const handleClick = () => {
         setOpen(!open);
     };
-    const OnSumTotal = (e) => {
-        let data = {
-            c_id: e
-        }
-        axios.post("/accounting/api/balance-sheet/sumtotal", data).then((data) => {
 
-            setNetTotal1([...data?.data?.data][0].balances)
-        }).catch((err) => {
-            console.log(err)
-        })
-    }
+    function sumBalances(childrenSecondFloor, parentId) {
+        const children = childrenSecondFloor.filter(item => item.parents=== parentId);
+        if (children.length === 0) {
+          return 0;
+        }
+        let totalBalance = 0;
+        for (const child of children) {
+          totalBalance += parseFloat(child.balances)  + parseFloat(sumBalances(childrenSecondFloor, child.c_id));
+        }
+        return totalBalance;
+      }
+      const sum = sumBalances(childrenSecondFloor, id);
+      const net_total =parseFloat(sum) + parseFloat(data?.balances)
     return (
         <>
             <TableRow>
@@ -1586,7 +1549,7 @@ function TableCellComponentExpense({ data, childrenSecondFloor, conditionsof, id
                     data?.statu_auto_GainAndLoss == 1 || data?.statu_auto_GainAndLoss == 2 ? (<>
                         {
                             gain == true ? (<>
-                                <TableCell onClick={() => { handleClick(); OnSumTotal(data?.c_id) }} style={{ cursor: 'pointer', paddingLeft: 30 }}>
+                                <TableCell onClick={() => { handleClick() }} style={{ cursor: 'pointer', paddingLeft: 30 }}>
                                     {
                                         checkvalues === 0 ? (<></>) : (<>
                                             {open ? <ExpandLess /> : <ExpandMore />}
@@ -1598,41 +1561,60 @@ function TableCellComponentExpense({ data, childrenSecondFloor, conditionsof, id
                             </>) : null
                         }
                     </>) : (<>
-                        <TableCell onClick={() => { handleClick(); OnSumTotal(data?.c_id) }} style={{ cursor: 'pointer', paddingLeft: 30 }}>
+                        <TableCell onClick={() => { handleClick();}} style={{ cursor: 'pointer', paddingLeft: 30 }}>
                             {
                                 checkvalues === 0 ? (<></>) : (<>
                                     {open ? <ExpandLess /> : <ExpandMore />}
                                 </>)
                             }
-                            {data?.name_eng}
+                            {data?.name_eng} 
                         </TableCell>
                     </>)
                 }
                 {
                     data?.p_and_l == 3 || data?.p_and_l == 4 ? (
                         <>
-                            {conditionsof == 2 ? (<>
-                                <TableCell align="right" style={{ cursor: 'pointer', color: 'red' }} onClick={() => { ViewUnrealised(e) }}>
+                            {conditionsof == 2 ? (
+                                <>
                                     {
-                                        open ? (
+                                        condi == 2 ? (
+                                        <>
+                                            <TableCell align="right" style={{ cursor: 'pointer', color: 'red' }} onClick={() => { ViewUnrealised(2) }}>
+                                                {
+                                                    open ? (
+                                                        <>
+                                                            {getFormatNumber(data?.bs_amount)}₭
+
+                                                        </>
+                                                    ) : (<>
+                                                        {getFormatNumber(net_total)}₭
+                                                    </>)
+                                                }
+                                            </TableCell>
+                                        </>) : (
                                             <>
-                                                {getFormatNumber(data?.bs_amount)}₭
+                                                <TableCell align="right" style={{ cursor: 'pointer', color: 'red' }} onClick={() => { ViewUnrealised(e) }}>
+                                                    {
+                                                        open ? (
+                                                            <>
+                                                                {getFormatNumber(data?.bs_amount)}₭
 
-                                            </>
-                                        ) : (<>
-                                            {getFormatNumber(netTotal1)}₭
-                                        </>)
+                                                            </>
+                                                        ) : (<>
+                                                            {getFormatNumber(net_total)}₭
+                                                        </>)
+                                                    }
+                                                </TableCell>
+
+                                            </>)
                                     }
-                                </TableCell>
+                                </>) : (<>
 
+                                    <TableCell align="right" style={{ cursor: 'pointer', color: 'red' }}> 0.00
 
-                            </>) : (<>
+                                    </TableCell>
 
-                                <TableCell align="right" style={{ cursor: 'pointer', color: 'red' }}> 0.00
-                                    
-                                </TableCell>
-
-                            </>)}
+                                </>)}
 
                         </>) : (
                         <>
@@ -1645,11 +1627,11 @@ function TableCellComponentExpense({ data, childrenSecondFloor, conditionsof, id
                                                     {
                                                         open ? (
                                                             <>
-                                                                {getFormatNumber(data?.balances)}₭
+                                                            {getFormatNumber(data?.balances)}₭
 
                                                             </>
                                                         ) : (<>
-                                                            {getFormatNumber(netTotal1)}₭
+                                                            {getFormatNumber(net_total)}₭
                                                         </>)
                                                     }
                                                 </TableCell>
@@ -1663,10 +1645,9 @@ function TableCellComponentExpense({ data, childrenSecondFloor, conditionsof, id
                                             open ? (
                                                 <>
                                                     {getFormatNumber(data?.balances)}₭
-
                                                 </>
                                             ) : (<>
-                                                {getFormatNumber(netTotal1)}₭
+                                                {getFormatNumber(net_total)}₭
                                             </>)
                                         }
                                     </TableCell>
@@ -1684,7 +1665,6 @@ function TableCellComponentExpense({ data, childrenSecondFloor, conditionsof, id
                         id={data?.c_id}
                         childrenSecondFloor={childrenSecondFloor}
                         setCheckvalues={setCheckvalues}
-                        // TotaldrenSecondFloor={TotaldrenFirstFloor}
                         Gotodetailaccount={Gotodetailaccount}
                     />
                     {
@@ -1697,11 +1677,9 @@ function TableCellComponentExpense({ data, childrenSecondFloor, conditionsof, id
                                         <TableCell component="th" scope="row" onClick={() => { handleClick() }} style={{ cursor: 'pointer', fontWeight: 'bold', paddingLeft: 30 }}>
                                             Total: {data?.name_eng}
                                         </TableCell>
-                                        {/* <TableCell align="right"  >
-                                            {getFormatNumber(filter[0].balances)}₭
-                                        </TableCell> */}
-                                        <TableCell align="right" style={{fontWeight:'bold'}}>
-                                        {getFormatNumber(data?.net_total)}
+                                       
+                                        <TableCell align="right" style={{ fontWeight: 'bold' }}>
+                                            {getFormatNumber(net_total)}₭
                                         </TableCell>
                                     </TableRow>
 
@@ -1760,23 +1738,24 @@ function TableCellComponentExpense2({ data, childrenSecondFloor, TotaldrenSecond
     const handleClick = () => {
         setOpen(!open);
     };
-    const OnSumTotal = (e) => {
-        let data = {
-            c_id: e
+    function sumBalances(childrenSecondFloor, parentId) {
+        const children = childrenSecondFloor.filter(item => item.parents=== parentId);
+        if (children.length === 0) {
+          return 0;
         }
-        axios.post("/accounting/api/balance-sheet/sumtotal", data).then((data) => {
-            setNetTotal([...data?.data?.data][0].balances)
-        }).catch((err) => {
-            console.log(err)
-        })
-    }
-    // if (TotaldrenSecondFloor === null) return <></>
-    // const filter = TotaldrenSecondFloor.filter((el) => el.id === id);
-    // if (filter.length === 0) return <></>;
+        let totalBalance = 0;
+        for (const child of children) {
+          totalBalance += parseFloat(child.balances)  + parseFloat(sumBalances(childrenSecondFloor, child.c_id));
+        }
+        return totalBalance;
+      }
+      const sum = sumBalances(childrenSecondFloor, id);
+      const net_total =parseFloat(sum) + parseFloat(data?.balances)
+
     return (
         <>
             <TableRow>
-                <TableCell onClick={() => { handleClick(); OnSumTotal(data?.c_id) }} style={{ cursor: 'pointer', paddingLeft: 40 }}>
+                <TableCell onClick={() => { handleClick() }} style={{ cursor: 'pointer', paddingLeft: 40 }}>
                     {
                         checkvalues === 0 ? (<></>) : (<>
                             {open ? <ExpandLess /> : <ExpandMore />}
@@ -1790,12 +1769,10 @@ function TableCellComponentExpense2({ data, childrenSecondFloor, TotaldrenSecond
                         open ? (<>
                             {getFormatNumber(data?.balances)}₭
                         </>) : (<>
-                            {getFormatNumber(netTotal)}₭
+                            {getFormatNumber(net_total)}₭
                         </>)
                     }
                 </TableCell>
-
-
             </TableRow>
             {
                 open ? (<>
@@ -1812,12 +1789,8 @@ function TableCellComponentExpense2({ data, childrenSecondFloor, TotaldrenSecond
                                 <TableCell component="th" scope="row" style={{ paddingLeft: 40, fontWeight: "bold" }} >
                                     Total:  {data?.name_eng}
                                 </TableCell>
-                                {/* <TableCell align="right"  >
-                                    {getFormatNumber(filter[0].balances)}₭
-                                </TableCell> */}
-
-                                <TableCell align="right" style={{fontWeight:'bold'}}>
-                                   {getFormatNumber(data?.net_total)}
+                                <TableCell align="right" style={{ fontWeight: 'bold' }}>
+                                    {getFormatNumber(net_total)}₭
                                 </TableCell>
                             </TableRow>
                         </>)
@@ -1874,23 +1847,25 @@ function TableCellComponentExpense4({ data, childrenSecondFloor, TotaldrenSecond
     const handleClick = () => {
         setOpen(!open);
     };
-    const OnSumTotal = (e) => {
-        let data = {
-            c_id: e
+
+    function sumBalances(childrenSecondFloor, parentId) {
+        const children = childrenSecondFloor.filter(item => item.parents=== parentId);
+        if (children.length === 0) {
+          return 0;
         }
-        axios.post("/accounting/api/balance-sheet/sumtotal", data).then((data) => {
-            setNetTotal([...data?.data?.data][0].balances)
-        }).catch((err) => {
-            console.log(err)
-        })
-    }
-    // if (TotaldrenSecondFloor === null) return <></>
-    // const filter = TotaldrenSecondFloor.filter((el) => el.id === id);
-    // if (filter.length === 0) return <></>;
+        let totalBalance = 0;
+        for (const child of children) {
+          totalBalance += parseFloat(child.balances)  + parseFloat(sumBalances(childrenSecondFloor, child.c_id));
+        }
+        return totalBalance;
+      }
+      const sum = sumBalances(childrenSecondFloor, id);
+      const net_total =parseFloat(sum) + parseFloat(data?.balances)
+    
     return (
         <>
             <TableRow>
-                <TableCell onClick={() => { handleClick(); OnSumTotal(data?.c_id) }} style={{ cursor: 'pointer', paddingLeft: 50 }}>
+                <TableCell onClick={() => { handleClick(); }} style={{ cursor: 'pointer', paddingLeft: 50 }}>
 
                     {
                         checkvalues === 0 ? (<></>) : (<>
@@ -1905,7 +1880,7 @@ function TableCellComponentExpense4({ data, childrenSecondFloor, TotaldrenSecond
                         open ? (<>
                             {getFormatNumber(data?.balances)}₭
                         </>) : (<>
-                            {getFormatNumber(netTotal)}₭
+                            {getFormatNumber(net_total)}₭
                         </>)
                     }</TableCell>
             </TableRow>
@@ -1924,11 +1899,9 @@ function TableCellComponentExpense4({ data, childrenSecondFloor, TotaldrenSecond
                                 <TableCell component="th" scope="row" style={{ paddingLeft: 50, fontWeight: "bold" }} >
                                     Total:  {data?.name_eng}
                                 </TableCell>
-                                {/* <TableCell align="right"  >
-                                    {getFormatNumber(filter[0].balances)}₭
-                                </TableCell> */}
-                                <TableCell align="right" style={{fontWeight:'bold'}}>
-                                   {getFormatNumber(data?.net_total)}
+                              
+                                <TableCell align="right" style={{ fontWeight: 'bold' }}>
+                                    {getFormatNumber(net_total)}
                                 </TableCell>
                             </TableRow>
                         </>)
@@ -1981,23 +1954,24 @@ function TableCellComponentExpense6({ data, childrenSecondFloor, TotaldrenSecond
     const handleClick = () => {
         setOpen(!open);
     };
-    const OnSumTotal = (e) => {
-        let data = {
-            c_id: e
+    function sumBalances(childrenSecondFloor, parentId) {
+        const children = childrenSecondFloor.filter(item => item.parents=== parentId);
+        if (children.length === 0) {
+          return 0;
         }
-        axios.post("/accounting/api/balance-sheet/sumtotal", data).then((data) => {
-            setNetTotal([...data?.data?.data][0].balances)
-        }).catch((err) => {
-            console.log(err)
-        })
-    }
-    // if (TotaldrenSecondFloor === null) return <></>
-    // const filter = TotaldrenSecondFloor.filter((el) => el.id === id);
-    // if (filter.length === 0) return <></>;
+        let totalBalance = 0;
+        for (const child of children) {
+          totalBalance += parseFloat(child.balances)  + parseFloat(sumBalances(childrenSecondFloor, child.c_id));
+        }
+        return totalBalance;
+      }
+      const sum = sumBalances(childrenSecondFloor, id);
+      const net_total =parseFloat(sum) + parseFloat(data?.balances)
+    
     return (
         <>
             <TableRow>
-                <TableCell onClick={() => { handleClick(); OnSumTotal(data?.c_id) }} style={{ cursor: 'pointer', paddingLeft: 70 }}>
+                <TableCell onClick={() => { handleClick()}} style={{ cursor: 'pointer', paddingLeft: 70 }}>
 
                     {
                         checkvalues === 0 ? (<></>) : (<>
@@ -2012,7 +1986,7 @@ function TableCellComponentExpense6({ data, childrenSecondFloor, TotaldrenSecond
                         open ? (<>
                             {getFormatNumber(data?.balances)}₭
                         </>) : (<>
-                            {getFormatNumber(netTotal)}₭
+                            {getFormatNumber(net_total)}₭
                         </>)
                     }₭</TableCell>
             </TableRow>
@@ -2031,11 +2005,9 @@ function TableCellComponentExpense6({ data, childrenSecondFloor, TotaldrenSecond
                                 <TableCell component="th" scope="row" style={{ paddingLeft: 70, fontWeight: "bold" }} >
                                     Total:  {data?.name_eng}
                                 </TableCell>
-                                {/* <TableCell align="right"  >
-                                    {getFormatNumber(filter[0].balances)}₭
-                                </TableCell> */}
-                                <TableCell align="right" style={{fontWeight:'bold'}}>
-                                   {getFormatNumber(data?.net_total)}
+                               
+                                <TableCell align="right" style={{ fontWeight: 'bold' }}>
+                                    {getFormatNumber(net_total)}
                                 </TableCell>
                             </TableRow>
                         </>)
@@ -2089,23 +2061,24 @@ function TableCellComponentExpense8({ data, childrenSecondFloor, TotaldrenSecond
     const handleClick = () => {
         setOpen(!open);
     };
-    const OnSumTotal = (e) => {
-        let data = {
-            c_id: e
+    function sumBalances(childrenSecondFloor, parentId) {
+        const children = childrenSecondFloor.filter(item => item.parents=== parentId);
+        if (children.length === 0) {
+          return 0;
         }
-        axios.post("/accounting/api/balance-sheet/sumtotal", data).then((data) => {
-            setNetTotal([...data?.data?.data][0].balances)
-        }).catch((err) => {
-            console.log(err)
-        })
-    }
-    // if (TotaldrenSecondFloor === null) return <></>
-    // const filter = TotaldrenSecondFloor.filter((el) => el.id === id);
-    // if (filter.length === 0) return <></>;
+        let totalBalance = 0;
+        for (const child of children) {
+          totalBalance += parseFloat(child.balances)  + parseFloat(sumBalances(childrenSecondFloor, child.c_id));
+        }
+        return totalBalance;
+      }
+      const sum = sumBalances(childrenSecondFloor, id);
+      const net_total =parseFloat(sum) + parseFloat(data?.balances)
+   
     return (
         <>
             <TableRow>
-                <TableCell onClick={() => { handleClick(); OnSumTotal(data?.c_id) }} style={{ cursor: 'pointer', paddingLeft: 80 }}>
+                <TableCell onClick={() => { handleClick();}} style={{ cursor: 'pointer', paddingLeft: 80 }}>
 
                     {
                         checkvalues === 0 ? (<></>) : (<>
@@ -2120,7 +2093,7 @@ function TableCellComponentExpense8({ data, childrenSecondFloor, TotaldrenSecond
                         open ? (<>
                             {getFormatNumber(data?.balances)}
                         </>) : (<>
-                            {getFormatNumber(netTotal)}
+                            {getFormatNumber(net_total)}
                         </>)
                     }₭</TableCell>
             </TableRow>
@@ -2139,11 +2112,9 @@ function TableCellComponentExpense8({ data, childrenSecondFloor, TotaldrenSecond
                                 <TableCell component="th" scope="row" style={{ paddingLeft: 80, fontWeight: "bold" }} >
                                     Total:  {data?.name_eng}
                                 </TableCell>
-                                {/* <TableCell align="right" >
-                                    {getFormatNumber(filter[0].balances)}₭
-                                </TableCell> */}
-                                <TableCell align="right" style={{fontWeight:'bold'}}>
-                                   {getFormatNumber(data?.net_total)}
+                               
+                                <TableCell align="right" style={{ fontWeight: 'bold' }}>
+                                    {getFormatNumber(net_total)}
                                 </TableCell>
                             </TableRow>
                         </>)
@@ -2197,23 +2168,25 @@ function TableCellComponentExpense10({ data, childrenSecondFloor, TotaldrenSecon
     const handleClick = () => {
         setOpen(!open);
     };
-    const OnSumTotal = (e) => {
-        let data = {
-            c_id: e
+
+    function sumBalances(childrenSecondFloor, parentId) {
+        const children = childrenSecondFloor.filter(item => item.parents=== parentId);
+        if (children.length === 0) {
+          return 0;
         }
-        axios.post("/accounting/api/balance-sheet/sumtotal", data).then((data) => {
-            setNetTotal([...data?.data?.data][0].balances)
-        }).catch((err) => {
-            console.log(err)
-        })
-    }
-    // if (TotaldrenSecondFloor === null) return <></>
-    // const filter = TotaldrenSecondFloor.filter((el) => el.id === id);
-    // if (filter.length === 0) return <></>;
+        let totalBalance = 0;
+        for (const child of children) {
+          totalBalance += parseFloat(child.balances)  + parseFloat(sumBalances(childrenSecondFloor, child.c_id));
+        }
+        return totalBalance;
+      }
+      const sum = sumBalances(childrenSecondFloor, id);
+      const net_total =parseFloat(sum) + parseFloat(data?.balances)
+    
     return (
         <>
             <TableRow>
-                <TableCell onClick={() => { handleClick(); OnSumTotal(data?.c_id) }} style={{ cursor: 'pointer', paddingLeft: 90 }}>
+                <TableCell onClick={() => { handleClick();}} style={{ cursor: 'pointer', paddingLeft: 90 }}>
 
                     {
                         checkvalues === 0 ? (<></>) : (<>
@@ -2228,7 +2201,7 @@ function TableCellComponentExpense10({ data, childrenSecondFloor, TotaldrenSecon
                         open ? (<>
                             {getFormatNumber(data?.balances)}₭
                         </>) : (<>
-                            {getFormatNumber(netTotal)}₭
+                            {getFormatNumber(net_total)}₭
                         </>)
                     }
 
@@ -2249,11 +2222,9 @@ function TableCellComponentExpense10({ data, childrenSecondFloor, TotaldrenSecon
                                 <TableCell component="th" scope="row" style={{ paddingLeft: 90, fontWeight: "bold" }} >
                                     Total:  {data?.name_eng}
                                 </TableCell>
-                                {/* <TableCell align="right"  >
-                                    {getFormatNumber(filter[0].balances)}₭
-                                </TableCell> */}
-                                <TableCell align="right" style={{fontWeight:'bold'}}>
-                                   {getFormatNumber(data?.net_total)}
+                               
+                                <TableCell align="right" style={{ fontWeight: 'bold' }}>
+                                    {getFormatNumber(data?.net_total)}
                                 </TableCell>
                             </TableRow>
                         </>)
@@ -2306,23 +2277,23 @@ function TableCellComponentExpense12({ data, childrenSecondFloor, TotaldrenSecon
     const handleClick = () => {
         setOpen(!open);
     };
-    const OnSumTotal = (e) => {
-        let data = {
-            c_id: e
+    function sumBalances(childrenSecondFloor, parentId) {
+        const children = childrenSecondFloor.filter(item => item.parents=== parentId);
+        if (children.length === 0) {
+          return 0;
         }
-        axios.post("/accounting/api/balance-sheet/sumtotal", data).then((data) => {
-            setNetTotal([...data?.data?.data][0].balances)
-        }).catch((err) => {
-            console.log(err)
-        })
-    }
-    // if (TotaldrenSecondFloor === null) return <></>
-    // const filter = TotaldrenSecondFloor.filter((el) => el.id === id);
-    // if (filter.length === 0) return <></>;
+        let totalBalance = 0;
+        for (const child of children) {
+          totalBalance += parseFloat(child.balances)  + parseFloat(sumBalances(childrenSecondFloor, child.c_id));
+        }
+        return totalBalance;
+      }
+      const sum = sumBalances(childrenSecondFloor, id);
+      const net_total =parseFloat(sum) + parseFloat(data?.balances)
     return (
         <>
             <TableRow>
-                <TableCell onClick={() => { handleClick(); OnSumTotal(data?.c_id) }} style={{ cursor: 'pointer', paddingLeft: 100 }}>
+                <TableCell onClick={() => { handleClick(); }} style={{ cursor: 'pointer', paddingLeft: 100 }}>
 
                     {
                         checkvalues === 0 ? (<></>) : (<>
@@ -2337,7 +2308,7 @@ function TableCellComponentExpense12({ data, childrenSecondFloor, TotaldrenSecon
                         open ? (<>
                             {getFormatNumber(data?.balances)}₭
                         </>) : (<>
-                            {getFormatNumber(netTotal)}₭
+                            {getFormatNumber(net_total)}₭
                         </>)
                     }₭</TableCell>
             </TableRow>
@@ -2356,11 +2327,9 @@ function TableCellComponentExpense12({ data, childrenSecondFloor, TotaldrenSecon
                                 <TableCell component="th" scope="row" style={{ paddingLeft: 100, fontWeight: "bold" }} >
                                     Total:  {data?.name_eng}
                                 </TableCell>
-                                {/* <TableCell align="right"  >
-                                    {getFormatNumber(filter[0].balances)}₭
-                                </TableCell> */}
-                                <TableCell align="right" style={{fontWeight:'bold'}}>
-                                   {getFormatNumber(data?.net_total)}
+                               
+                                <TableCell align="right" style={{ fontWeight: 'bold' }}>
+                                    {getFormatNumber(net_total)}
                                 </TableCell>
                             </TableRow>
                         </>)
@@ -2401,8 +2370,6 @@ function TableCellComponentExpense13({ childrenSecondFloor, setCheckvalues, id, 
                     )
                 })
             }
-
-
         </>
     )
 
@@ -2414,23 +2381,23 @@ function TableCellComponentExpense14({ data, childrenSecondFloor, TotaldrenSecon
     const handleClick = () => {
         setOpen(!open);
     };
-    const OnSumTotal = (e) => {
-        let data = {
-            c_id: e
+    function sumBalances(childrenSecondFloor, parentId) {
+        const children = childrenSecondFloor.filter(item => item.parents=== parentId);
+        if (children.length === 0) {
+          return 0;
         }
-        axios.post("/accounting/api/balance-sheet/sumtotal", data).then((data) => {
-            setNetTotal([...data?.data?.data][0].balances)
-        }).catch((err) => {
-            console.log(err)
-        })
-    }
-    // if (TotaldrenSecondFloor === null) return <></>
-    // const filter = TotaldrenSecondFloor.filter((el) => el.id === id);
-    // if (filter.length === 0) return <></>;
+        let totalBalance = 0;
+        for (const child of children) {
+          totalBalance += parseFloat(child.balances)  + parseFloat(sumBalances(childrenSecondFloor, child.c_id));
+        }
+        return totalBalance;
+      }
+      const sum = sumBalances(childrenSecondFloor, id);
+      const net_total =parseFloat(sum) + parseFloat(data?.balances)
     return (
         <>
             <TableRow>
-                <TableCell onClick={() => { handleClick(); OnSumTotal(data?.c_id) }} style={{ cursor: 'pointer', paddingLeft: 110 }}>
+                <TableCell onClick={() => { handleClick()}} style={{ cursor: 'pointer', paddingLeft: 110 }}>
 
                     {
                         checkvalues === 0 ? (<></>) : (<>
@@ -2445,7 +2412,7 @@ function TableCellComponentExpense14({ data, childrenSecondFloor, TotaldrenSecon
                         open ? (<>
                             {getFormatNumber(data?.balances)}₭
                         </>) : (<>
-                            {getFormatNumber(netTotal)}₭
+                            {getFormatNumber(net_total)}₭
                         </>)
                     }₭</TableCell>
             </TableRow>
@@ -2463,11 +2430,9 @@ function TableCellComponentExpense14({ data, childrenSecondFloor, TotaldrenSecon
                                 <TableCell component="th" scope="row" style={{ paddingLeft: 110, fontWeight: "bold" }} >
                                     Total:  {data?.name_eng}
                                 </TableCell>
-                                {/* <TableCell align="right"  >
-                                    {getFormatNumber(filter[0].balances)}₭
-                                </TableCell> */}
-                                <TableCell align="right" style={{fontWeight:'bold'}}>
-                                   {getFormatNumber(data?.net_total)}
+                               
+                                <TableCell align="right" style={{ fontWeight: 'bold' }}>
+                                    {getFormatNumber(net_total)}
                                 </TableCell>
                             </TableRow>
                         </>)

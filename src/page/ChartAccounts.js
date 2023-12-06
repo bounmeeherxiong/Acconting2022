@@ -278,7 +278,7 @@ export default function ChartAccounts() {
   const handleChange = event => {
     if (event.target.checked) {
       setDisblebtn(false);
-      console.log("true")
+   
       setPrentid(prentid)
 
     } else {
@@ -315,14 +315,10 @@ export default function ChartAccounts() {
   }, [ac_type]);
 
   const _ongetCurrencyvalues = (e) => {
-    console.log("e=", e)
-
     setErrselectcurrency('')
     setErrorcurrency('')
     setCurrency(e)
     axios.get(`/accounting/api/chartofaccounts/currency/${e}`).then((data) => {
-
-
       setCurrencystatus([...data?.data?.result][0].cy_code)
     }).catch((err) => {
       console.log(err)
@@ -367,7 +363,7 @@ export default function ChartAccounts() {
     // })
   }
   const listsubaccountname = (ac_type) => {
-    console.log("dddd=", ac_type)
+   
     if (!ac_type) {
     } else {
       axios.get(`/accounting/api/chartofaccounts/all/${ac_type}`).then((data) => {
@@ -551,7 +547,7 @@ export default function ChartAccounts() {
   }
   // funcction Delete
   const DeletedChartAaccount = (c_id) => {
-    console.log("delete=", c_id)
+    
 
     axios.delete(`/accounting/api/chartofaccounts/delete/${c_id}`).then((data) => {
 
@@ -565,7 +561,6 @@ export default function ChartAccounts() {
   }
   // function CreateChartAccount
   const CreateChartAccount = () => {
-
     let createdate;
 
     if (!ac_type) {
@@ -657,12 +652,11 @@ export default function ChartAccounts() {
       c_rate: exchangeRate,
       bank_id: listbank
     }
-    console.log("Insert data=", data)
     axios
       .post("/accounting/api/chartofaccounts/create", data)
       .then((data) => {
         onloadallaccount();
-        onloadreportGl();
+        // onloadreportGl();
         setAc_type('');
         setShowUpdate(false);
         setConditionsdata(false)
@@ -689,7 +683,6 @@ export default function ChartAccounts() {
         setDebit('')
         credit('')
         setListbank('')
-
       }
       ).catch((err) => {
         console.log(err)
@@ -904,7 +897,6 @@ export default function ChartAccounts() {
       currency_uid: currency,
       bank_id: listbank
     }
-
     axios.post("/accounting/api/chartofaccounts/update", data).then((data) => {
       handleClose(false)
       onloadallaccount();
@@ -968,6 +960,7 @@ export default function ChartAccounts() {
     });
   }
   const _onsearchaccountid = (ac_type) => {
+    console.log("ac_type=",ac_type)
     setAc_type(ac_type)
     setErrac_type(false)
     let id = listaccountid.filter((el) => el.uid.includes(ac_type));
@@ -2447,7 +2440,7 @@ export default function ChartAccounts() {
                   </>)
                 }
               </button>
-              <button
+              {/* <button
                 onClick={CreateAddnewChartAccount}
                 onMouseOver={() => setOnSaveNew(true)}
                 onMouseLeave={() => setOnSaveNew(false)}
@@ -2471,7 +2464,7 @@ export default function ChartAccounts() {
                     }
                   </>)
                 }
-              </button>
+              </button> */}
             </>
 
           )}
@@ -2704,8 +2697,6 @@ export default function ChartAccounts() {
                               _ongetCurrencyvalues={_ongetCurrencyvalues}
                               getstutas={getstutas}
                               _onsearchaccountid={_onsearchaccountid}
-
-
                             />
 
                           </>
@@ -4090,7 +4081,6 @@ function RowEditComponentfirst(
               }}
               onMouseOver={() => setActive(1)}
               onMouseLeave={() => setActive(null)}
-
             >
               <ListItem button style={{ color: "" }}
                 onClick={() => {

@@ -15,7 +15,7 @@ import { getFormatNumber } from "../constants/functions"
 import ReactToPrint from "react-to-print";
 import Button from '@material-ui/core/Button';
 import PrintIcon from '@material-ui/icons/Print';
-
+import Spinner from 'react-bootstrap/Spinner';
 import ArrowBackIcon from "@material-ui/icons/ArrowBack";
 
 import axios from "axios";
@@ -50,22 +50,24 @@ export default function ViewUnrealisedgain_or_loss() {
     const [gain_Loss, setgain_loss] = useState(false)
     const [showSetting, setShowSetting] = useState(false)
     const [searchlist, setSeachlist] = useState([])
+    const [loading, setLoading] = useState(false);
     const [searchtotal, setSearchtotal] = useState([])
     const OnloadListData = () => {
         axios.get('/accounting/api/listLossAndGain/getList').then((data) => {
-            console.log("ListData=", data)
 
             setListTotal([...data?.data?.totalGainAndLoss])
             setList({ ...data?.data })
+
         }).catch((err) => {
             console.log(err)
         })
     }
     const OnloadSearchListData = () => {
         axios.get('/accounting/api/listLossAndGain/callLossAndgain').then((data) => {
-            
+            console.log("callLo=",data)
             setSearchtotal([...data?.data?.totalGainAndLoss])
             setSeachlist({ ...data?.data })
+            setLoading(true)
         }).catch((err) => {
             console.log(err)
         })
@@ -86,7 +88,7 @@ export default function ViewUnrealisedgain_or_loss() {
     }, [])
 
     const goback = () => {
-        navigate("/Profitandloss");
+        navigate("/Profitandloss/2");
     }
     return (
         <>
@@ -303,69 +305,86 @@ export default function ViewUnrealisedgain_or_loss() {
                                 </TableHead>
                             </Table>
                         </TableContainer>
-                    </>) : (<>
-                        <TableContainer component={Paper}>
-                            <Table aria-label="collapsible table" size='small'>
-                                <TableHead>
-                                    <TableRow>
-                                        <TableCell style={{ fontWeight: 'bold' }}>Unrealised Gains & Losses</TableCell>
-                                        <TableCell></TableCell>
-                                        <TableCell align="right"></TableCell>
-                                        <TableCell align="right"></TableCell>
-                                        <TableCell align="right"></TableCell>
-                                        <TableCell align="right"></TableCell>
-                                        <TableCell align="right"></TableCell>
-                                        <TableCell align="right">gain/loss</TableCell>
-                                    </TableRow>
-                                </TableHead>
-                                <TableBody>
-                                    {
-                                        searchlist.fistList && searchlist.fistList.map((data, index) => {
-                                            return (
-                                                <>
-                                                    <TableCellComponent
-                                                        key={index}
-                                                        data={data}
-                                                        gain_losses={data.p_and_l_status}
-                                                        secondList={searchlist.secondList}
-                                                        balances={balances}
-                                                        currentbalances={currentbalances}
-                                                        foreignbalance={foreignbalance}
-                                                        rate={rate}
-                                                        gain_Loss={gain_Loss}
-                                                    />
-                                                </>
-                                            )
-                                        })
-                                    }
+                    </>) : (
+                    <>
+                        {
+                            loading ? (
+                                <>
+                                    <TableContainer component={Paper}>
+                                        <Table aria-label="collapsible table" size='small'>
+                                            <TableHead>
+                                                <TableRow>
+                                                    <TableCell style={{ fontWeight: 'bold' }}>Unrealised Gains & Losses</TableCell>
+                                                    <TableCell></TableCell>
+                                                    <TableCell align="right"></TableCell>
+                                                    <TableCell align="right"></TableCell>
+                                                    <TableCell align="right"></TableCell>
+                                                    <TableCell align="right"></TableCell>
+                                                    <TableCell align="right"></TableCell>
+                                                    <TableCell align="right">gain/loss</TableCell>
+                                                </TableRow>
+                                            </TableHead>
+                                            <TableBody>
+                                                {
+                                                    searchlist.fistList && searchlist.fistList.map((data, index) => {
+                                                        return (
+                                                            <>
+                                                                <TableCellComponent
+                                                                    key={index}
+                                                                    data={data}
+                                                                    gain_losses={data.p_and_l_status}
+                                                                    secondList={searchlist.secondList}
+                                                                    balances={balances}
+                                                                    currentbalances={currentbalances}
+                                                                    foreignbalance={foreignbalance}
+                                                                    rate={rate}
+                                                                    gain_Loss={gain_Loss}
+                                                                />
+                                                            </>
+                                                        )
+                                                    })
+                                                }
 
-                                </TableBody>
-                                <TableHead>
-                                    {
-                                        searchtotal && searchtotal.map((data, index) => {
-                                            return (
-                                                <>
-                                                    <TableRow key={index}>
-                                                        <TableCell>{data?.name_eng}</TableCell>
-                                                        <TableCell></TableCell>
-                                                        <TableCell align="right"></TableCell>
-                                                        <TableCell align="right"></TableCell>
-                                                        <TableCell align="right"></TableCell>
-                                                        <TableCell align="right"></TableCell>
-                                                        <TableCell align="right"></TableCell>
-                                                        <TableCell align="right">{getFormatNumber(data?.bs_amount)} ₭ </TableCell>
-                                                    </TableRow>
+                                            </TableBody>
+                                            <TableHead>
+                                                {
+                                                    searchtotal && searchtotal.map((data, index) => {
+                                                        return (
+                                                            <>
+                                                                <TableRow key={index}>
+                                                                    <TableCell>{data?.name_eng}</TableCell>
+                                                                    <TableCell></TableCell>
+                                                                    <TableCell align="right"></TableCell>
+                                                                    <TableCell align="right"></TableCell>
+                                                                    <TableCell align="right"></TableCell>
+                                                                    <TableCell align="right"></TableCell>
+                                                                    <TableCell align="right"></TableCell>
+                                                                    <TableCell align="right">{getFormatNumber(data?.bs_amount)} ₭ </TableCell>
+                                                                </TableRow>
 
-                                                </>
-                                            )
-                                        })
-                                    }
+                                                            </>
+                                                        )
+                                                    })
+                                                }
 
-                                </TableHead>
-                            </Table>
-                        </TableContainer>
+                                            </TableHead>
+                                        </Table>
+                                    </TableContainer>
 
-                    </>)
+                                </>) : (
+                                <>
+                                    <>
+                                        <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+                                            <Spinner animation="border" variant="primary" style={{ width: 100, height: 100, marginTop: 100 }} />
+                                        </div>
+                                    </>
+
+                                </>)
+                        }
+
+
+                    </>
+                )
             }
 
         </>

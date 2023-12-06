@@ -61,9 +61,7 @@ export default function ReportGL() {
   }
   const _onLoad = () => {
     axios.get(`/accounting/api/report/runreport/${id}`).then((data) => {
-      console.log("runreport=",data)
       setFirst([...data?.data?.firstFloor])
-
       setChildren([...data?.data?.children])
     }).catch((err) => {
       console.log(err)

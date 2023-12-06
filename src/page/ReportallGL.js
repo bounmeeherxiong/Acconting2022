@@ -33,7 +33,7 @@ export default function ReportallGL() {
   let componentRef = useRef(null)
   const navigate = useNavigate();
   const {
-    listaccountname, EditJournal, 
+    listaccountname, EditJournal,
     // listgl, setListgl, onloadreportGl
   } = useContext(LoginContext);
   const goback = () => {
@@ -105,7 +105,7 @@ export default function ReportallGL() {
     axios.get("/accounting/api/report/reportGl").then((data) => {
       setListgl({ ...data?.data })
       setLoading(true)
-    }).catch((err)=>{
+    }).catch((err) => {
       console.log(err)
     })
   }
@@ -134,7 +134,7 @@ export default function ReportallGL() {
   }
   const Onloadreset1 = () => {
     axios.get('/accounting/api/report/createResetExchange_gl').then((data) => {
-       onloadAutomaticGl();
+      onloadAutomaticGl();
       onloadreportGl()
       OnloadResetCondition()
     }).catch((err) => {
@@ -221,12 +221,16 @@ export default function ReportallGL() {
   const handleClick = () => {
     setOpen(!open);
   };
+  const handleBlur = () => {
+    if (active == null) {
+    } else {
+      setShowSetting(false)
+    }
+  };
   const _onShow = (e) => {
     if (e == "custom") {
       setAccount(false)
       setAlldates(false)
-
-
     } else if (e == "all") {
       setAlldates(true)
     } else if (e == "today") {
@@ -253,6 +257,7 @@ export default function ReportallGL() {
         }
       }
       axios.post("/accounting/api/report/reportGlbydatetwo", data).then((data) => {
+        console.log("Search=",data)
         setListgl({ ...data?.data })
       }).catch((err) => {
         console.log(err)
@@ -300,6 +305,7 @@ export default function ReportallGL() {
     setLoading(false)
     if (getvalues == "all") {
       axios.get('/accounting/api/report/reportGlAlldate').then((data) => {
+        console.log("data=", data)
         setListgl({ ...data?.data })
         setLoading(true)
       }).catch((err) => {
@@ -323,7 +329,7 @@ export default function ReportallGL() {
       }
       axios.post("/accounting/api/report/reportGlbydatetwo", data).then((data) => {
         console.log("successully")
-        console.log("Search=",data)
+        console.log("Search=", data)
         setListgl({ ...data?.data })
         setLoading(true)
       }).catch((err) => {
@@ -377,7 +383,7 @@ export default function ReportallGL() {
     _searchbydate();
     onLoadExchangeRates();
   }, [])
-  
+
   // useEffect(() => {
   //   if (listcondition !== 0) {
   //     setTimeout(() => {
@@ -387,15 +393,15 @@ export default function ReportallGL() {
   // }, [])
   return (
     <>
-      <div>
+      {/* <div>
         <h2>General Ledger Report</h2>
         <ChevronLeftIcon style={{ color: "#3f51b5", cursor: "pointer" }} />
         <span style={{ color: "#3f51b5", cursor: "pointer" }}
           onClick={() => { goback() }}
         >Back to report list</span><br />
-      </div>
-      <span>Report period</span><br />
-      <div style={{ display: 'flex', flexDirection: "row", width: "100%", justifyContent: 'space-between' }} >
+      </div> */}
+      {/* <span>Report period</span><br /> */}
+      {/* <div style={{ display: 'flex', flexDirection: "row", width: "100%", justifyContent: 'space-between' }} >
         <div style={{ width: '100%', display: 'flex', flexDirection: 'row' }}>
           <select
             onChange={(e) => _onShow(e.target.value)}
@@ -770,7 +776,341 @@ export default function ReportallGL() {
             ) : null
           }
         </div>
+      </div> */}
+
+      <div style={{ display: 'flex', top: 64, flexDirection: 'column', width: "100%", backgroundColor: 'white', position: 'fixed', zIndex: 100 }} >
+        <div>
+          <h2 style={{ fontWeight: 'bold' }}>General Ledger Report</h2>
+          <ChevronLeftIcon style={{ color: "#3f51b5", cursor: "pointer" }} />
+        </div>
+        <div style={{ display: 'flex', width: '100%', flexDirection: 'row' }}>
+          <select
+            onChange={(e) => _onShow(e.target.value)}
+            value={getvalues}
+            style={{
+              border: '1px solid #ccc',
+              height: 30,
+              borderRadius: 3,
+              width: 200,
+              outline: 'none'
+            }}
+          >
+            <option value="thismonth">This Month-to-date</option>
+            <option value="all">All Dates</option>
+            <option value="custom">Custom</option>
+          </select>
+          {
+            alldates == false ? (
+              <>
+                <input
+                  type="text"
+                  defaultValue={defaultValue}
+                  onChange={(e) => setDefaultValue(e.target.value)}
+                  style={{
+                    border: '1px solid #ccc',
+                    height: 30,
+                    borderRadius: 3,
+                    width: 100,
+                    paddingLeft: 10,
+                    marginLeft: 25,
+                    textAlign: "right",
+                    borderRight: "none",
+                  }}
+                />
+                <input
+                  type="date"
+                  onChange={(e) => { _searchstartdate(e.target.value) }}
+                  style={{
+                    border: '1px solid #ccc',
+                    height: 30,
+                    borderRadius: 3,
+                    width: 30,
+                    paddingLeft: 10,
+                  }}
+                />
+                <span style={{ marginLeft: 10, paddingTop: 5 }}>To</span>
+                <input
+                  type="text"
+                  defaultValue={defaultValue1}
+                  onChange={(e) => setDefaultValue1(e.target.value)}
+                  style={{
+                    border: '1px solid #ccc',
+                    height: 30,
+                    borderRadius: 3,
+                    width: 100,
+                    paddingLeft: 10,
+                    marginLeft: 25,
+                    textAlign: "right",
+                    borderRight: "none",
+                  }}
+                />
+                <input
+                  type="date"
+                  onChange={(e) => { _searchbydate(e.target.value) }}
+                  style={{
+                    border: '1px solid #ccc',
+                    height: 30,
+                    borderRadius: 3,
+                    width: 30,
+                    paddingLeft: 10,
+                  }}
+                />
+              </>) : null
+          }
+          <button
+            style={{
+              backgroundColor: "#3f51b5",
+              border: "none",
+              height: 30,
+              borderRadius: 2,
+              paddingLeft: 10,
+              paddingRight: 10,
+              color: "white",
+              alignItems: "center",
+              marginLeft: 10,
+            }}
+            onClick={() => Search()}
+          >
+
+            Run Report
+          </button>
+          {
+            listcondition == 1 ? (
+              <>
+                <button
+                  style={{
+                    backgroundColor: "red",
+                    border: "none",
+                    height: 30,
+                    borderRadius: 2,
+                    paddingLeft: 10,
+                    paddingRight: 10,
+                    color: "white",
+                    alignItems: "center",
+                    marginLeft: 10,
+                  }}
+                  onClick={() => Onloadreset1()}
+                >
+                  Reset
+                </button>
+
+              </>
+            ) : (
+              <>
+                <button
+                  style={{
+                    backgroundColor: "#3f51b5",
+                    border: "none",
+                    height: 30,
+                    borderRadius: 2,
+                    paddingLeft: 10,
+                    paddingRight: 10,
+                    color: "white",
+                    alignItems: "center",
+                    marginLeft: 10,
+                  }}
+                  onClick={() => Onloadreset()}
+                >
+                  Reset
+                </button>
+
+              </>
+            )
+          }
+          <button
+            style={{
+              backgroundColor: "#3f51b5",
+              border: "none",
+              height: 30,
+              borderRadius: 2,
+              paddingLeft: 10,
+              paddingRight: 10,
+              color: "white",
+              alignItems: "center",
+              marginLeft: 10,
+            }}
+            onClick={() => { ReportExchange() }}
+          >
+            <AddIcon />
+            Report Exchange
+          </button>
+          <ReactToPrint
+            trigger={() => <button
+              style={{
+                backgroundColor: "#3f51b5",
+                border: "none",
+                height: 30,
+                borderRadius: 2,
+                paddingLeft: 10,
+                paddingRight: 10,
+                color: "white",
+                alignItems: "center",
+                marginLeft: 10,
+              }}
+            >
+              < PrintIcon />
+            </button>}
+            content={() => componentRef}
+            style={{ marginRight: 10 }}
+          />
+          <button
+            onClick={() => { Setting() }}
+            style={{
+              backgroundColor: "#3f51b5",
+              border: "none",
+              height: 30,
+              borderRadius: 2,
+              paddingLeft: 10,
+              paddingRight: 10,
+              color: "white",
+              alignItems: "center",
+              marginLeft: 10,
+            }}
+          >
+            <SettingsIcon style={{ cursor: 'pointer' }}
+            />
+          </button>
+          {showSetting ?
+            (
+              <>
+                <div style={{
+                  backgroundColor: 'white',
+                  position: 'absolute',
+                  right: 30,
+                  border: '1px solid #ccc',
+                  borderRadius: 3,
+                  width: 300,
+                  height: 250,
+                  marginRight: 430,
+                  marginTop: 40,
+                  cursor: 'pointer'
+
+                }}
+                  tabIndex={0}
+                  onBlur={handleBlur}
+                >
+                  <h4 style={{ marginTop: 20, marginLeft: 10 }}>Display density</h4>
+                  <div style={{ height: 20 }}></div>
+                  <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between', cursor: 'pointer' }}>
+                    <div style={{ marginLeft: 20, display: 'flex', flexDirection: 'row' }}
+                      onClick={() => { Ondebit() }}
+                      onMouseOver={() => setActive(null)}
+                      onMouseLeave={() => setActive('')}
+
+                    >
+                      <input type="checkbox"
+                        checked={showdebit}
+
+                      />
+                      <small style={{ marginLeft: 5, marginTop: 2 }}>Debit</small>
+                    </div>
+                    <div style={{ display: 'flex', flexDirection: 'row', marginTop: 2, marginRight: 79 }}
+                      onClick={() => { Oncredit() }}
+                      onMouseOver={() => setActive(null)}
+                      onMouseLeave={() => setActive('')}
+
+                    >
+                      <input type="checkbox"
+                        checked={showcredit}
+
+                      />
+                      <small style={{ marginLeft: 5, marginTop: 2 }}>Credit</small>
+                    </div>
+                  </div>
+                  <div style={{ height: 10 }}></div>
+                  <div style={{ display: "flex", flexDirection: 'row', justifyContent: 'space-between' }}>
+                    <div style={{ display: 'flex', flexDirection: 'row', marginLeft: 20 }}
+                      onClick={() => { OnForeigndebit() }}
+                      onMouseOver={() => setActive(null)}
+                      onMouseLeave={() => setActive('')}
+                    >
+                      <input type="checkbox"
+                        checked={foreigndebit}
+
+                      />
+                      <small style={{ marginLeft: 5, marginTop: 2 }}>Foreign Debit</small>
+                    </div>
+                    <div style={{ display: "flex", flexDirection: 'row', marginRight: 33 }}
+                      onClick={() => { Onforeigncredit() }}
+                      onMouseOver={() => setActive(null)}
+                      onMouseLeave={() => setActive('')}
+
+                    >
+                      <input type="checkbox"
+                        checked={foreigncredit}
+
+                      />
+                      <small style={{ marginLeft: 5, marginTop: 2 }}>Foreign Credit</small>
+                    </div>
+                  </div>
+                  <div style={{ height: 10 }}></div>
+                  <div style={{ display: "flex", flexDirection: 'row', justifyContent: 'space-between' }}>
+                    <div style={{ display: 'flex', flexDirection: 'row', marginLeft: 20 }}
+                      onClick={() => { Onforeignamount() }}
+                      onMouseOver={() => setActive(null)}
+                      onMouseLeave={() => setActive('')}
+                    >
+                      <input type="checkbox"
+                        checked={foreignamount}
+                      />
+                      <small style={{ marginLeft: 5, marginTop: 2 }}>Foreign Amount</small>
+                    </div>
+                    <div style={{ marginRight: 21, display: 'flex', flexDirection: 'row' }}
+                      onClick={() => { OnForeignbalance() }}
+                      onMouseOver={() => setActive(null)}
+                      onMouseLeave={() => setActive('')}
+                    >
+                      <input type="checkbox" checked={foreignbalance} />
+                      <small style={{ marginLeft: 5, marginTop: 2 }}>Foreign Balance</small>
+                    </div>
+                  </div>
+                  <div style={{ height: 10 }}></div>
+                  <div style={{ display: "flex", flexDirection: 'row', justifyContent: 'space-between' }}>
+                    <div style={{ display: 'flex', flexDirection: 'row', marginLeft: 20 }}
+                      onClick={() => { OnRate() }}
+                      onMouseOver={() => setActive(null)}
+                      onMouseLeave={() => setActive('')}
+                    >
+                      <input type="checkbox" checked={rate} />
+                      <small style={{ marginLeft: 5, marginTop: 2 }}>Rate</small>
+                    </div>
+                    <div style={{ display: 'flex', flexDirection: 'row', marginRight: 26 }}
+                      onClick={() => { OnExchangerate() }}
+                      onMouseOver={() => setActive(null)}
+                      onMouseLeave={() => setActive('')}
+                    >
+                      <input type="checkbox" />
+                      <small style={{ marginLeft: 5, marginTop: 2 }}>Exchange Rate</small>
+                    </div>
+                  </div>
+                  <div style={{ height: 10 }}></div>
+                  <div style={{ display: "flex", flexDirection: 'row', justifyContent: 'space-between' }}>
+                    <div style={{ display: 'flex', flexDirection: 'row', marginLeft: 20 }}
+                      onClick={() => { OnGain_loss() }}
+                      onMouseOver={() => setActive(null)}
+                      onMouseLeave={() => setActive('')}
+
+                    >
+                      <input type="checkbox" checked={gain_Loss} />
+                      <small style={{ marginLeft: 5, marginTop: 2 }}>Gain/Loss</small>
+                    </div>
+                    <div style={{ display: 'flex', flexDirection: 'row', marginRight: 22 }}
+
+                      onClick={() => { OnCurrentBalance() }}
+                      onMouseOver={() => setActive(null)}
+                      onMouseLeave={() => setActive('')}
+                    >
+                      <input type="checkbox" checked={currentbalance} />
+                      <small style={{ marginLeft: 5, marginTop: 2 }}>Current balance</small>
+                    </div>
+                  </div>
+                </div>
+              </>
+            ) : null
+          }
+        </div>
       </div>
+
       <Modal show={show} onHide={handleClose} style={{ paddingTop: 50 }} >
         <Modal.Header closeButton >
           <Modal.Title>
@@ -943,12 +1283,12 @@ export default function ReportallGL() {
           </Card>
         </>
       )}
-      <div style={{ height: 20 }}></div>
+      <div style={{ height: 100 }}></div>
       {
-        loading  ? (
+        loading ? (
           <>
 
-<TableContainer ref={(el) => (componentRef = el)}>
+            <TableContainer ref={(el) => (componentRef = el)}>
               <Table className={classes.table} aria-label="sticky table" size="small">
                 <TableHead>
                   <TableRow>
@@ -1055,7 +1395,7 @@ export default function ReportallGL() {
             <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
               <Spinner animation="border" variant="primary" style={{ width: 100, height: 100, marginTop: 100 }} />
             </div>
- 
+
 
           </>
         )
@@ -1254,10 +1594,16 @@ function RowComponent({ id, name_eng, OnEditJournal, total1, childrenFirstFloor,
   if (childrenFirstFloor === null) return <></>
   const filter = childrenFirstFloor.filter((el) => el.ch_id == id);
   if (filter.length === 0) return <></>;
+  const updatedData = [...filter].sort((a, b) => new Date(a.createdate) - new Date(b.createdate));
+  updatedData.forEach((data, index) => {
+    data.balances = parseFloat(data.amout) + (index > 0 ? updatedData[index - 1].balances : 0);
+    data.foreign_balances = parseFloat(data.foreign_amount) + (index > 0 ? updatedData[index - 1].foreign_balances : 0);
+
+  });
   return (
     <>
       {
-        filter.map((data, index) => {
+        updatedData && updatedData.map((data, index) => {
           if (data?.begining_balance != 0) {
             total1 += parseFloat(data?.amout)
           }
@@ -1321,9 +1667,7 @@ function RowComponent({ id, name_eng, OnEditJournal, total1, childrenFirstFloor,
                         ) : (<>
                           <TableCell align="right" style={{ cursor: "pointer" }}></TableCell>
                         </>)
-
                       }
-
                     </>) : null
                 }
 
@@ -1764,15 +2108,25 @@ function TableCellComponent({ data, level, index, second, OnEditJournal, childre
 function SecondRowComponent({ id, name_eng, level, OnEditJournal, childrenSecondFloor, showdebit, showcredit, foreigndebit, foreigncredit, foreignamount, foreignbalance, rate, exchangerate, gain_Loss, currentbalance, OnShowAatumaticTransaction }) {
   let debittotal = 0;
   let credittoal = 0;
-
   if (childrenSecondFloor === null) return <></>
   const filter = childrenSecondFloor.filter((el) => el.ch_id == id);
   var total = 0;
   if (filter.length === 0) return <></>;
+
+  // const sortedData = [...data4].sort((a, b) => new Date(a.date) - new Date(b.date));
+
+
+
+  const updatedData = [...filter].sort((a, b) => new Date(a.createdate) - new Date(b.createdate));
+  updatedData.forEach((data, index) => {
+    data.balances = parseFloat(data.amout) + (index > 0 ? updatedData[index - 1].balances : 0);
+    data.foreign_balances = parseFloat(data.foreign_amount) + (index > 0 ? updatedData[index - 1].foreign_balances : 0);
+
+  });
   return (
     <>
       {
-        filter.map((data, index) => {
+        updatedData && updatedData.map((data, index) => {
           if (data?.begining_balance != '0') {
             total += parseFloat(data.amout)
           }
@@ -1810,9 +2164,9 @@ function SecondRowComponent({ id, name_eng, level, OnEditJournal, childrenSecond
 
                 {
                   data?.begining_balance == '0' ? (<>
-                    <TableCell align="right" onClick={() => { OnEditJournal(data?.tr_id) }} style={{ cursor: "pointer" }}></TableCell></>) :
+                    <TableCell align="right" style={{ cursor: "pointer" }}></TableCell></>) :
                     (<>
-                      <TableCell align="right" onClick={() => { OnEditJournal(data?.tr_id) }} style={{ cursor: "pointer" }}>{getFormatNumber(data?.amout)}₭</TableCell>
+                      <TableCell align="right" style={{ cursor: "pointer" }}>{getFormatNumber(data?.amout)}₭</TableCell>
                     </>)
                 }
                 <TableCell align="right" onClick={() => { OnEditJournal(data?.tr_id) }} style={{ cursor: "pointer" }}>{getFormatNumber(data?.balances)}₭</TableCell>
@@ -1820,14 +2174,13 @@ function SecondRowComponent({ id, name_eng, level, OnEditJournal, childrenSecond
                   currentbalance === true ? (
                     <>
                       {
-                        data?.foreign_code === 'USD' || data?.foreign_code === 'THB' ? (
+                        data?.foreign_code === 'USD' || data?.foreign_code == 'THB' ? (
                           <>
-                            <TableCell align="right" style={{ cursor: "pointer", color: "red" }} onClick={() => { OnShowAatumaticTransaction(data?.automatic_status) }}>{getFormatNumber(data?.total_balanaces)}₭</TableCell>
-                          </>
-                        ) : (<>
-                          <TableCell align="right" style={{ cursor: "pointer" }}></TableCell>
-                        </>)
-
+                            <TableCell align="right" style={{ cursor: "pointer", color: 'red' }} >{getFormatNumber(data?.foreign_balances * data?.money_rate)}k</TableCell>
+                          </>) : (
+                          <>
+                            <TableCell align="right" style={{ cursor: "pointer" }} ></TableCell>
+                          </>)
                       }
 
                     </>) : null
@@ -1929,11 +2282,11 @@ function SecondRowComponent({ id, name_eng, level, OnEditJournal, childrenSecond
                               {
                                 data?.foreign_code === 'USD' ? (
                                   <>
-                                    <TableCell align="right" style={{ cursor: "pointer" }} >{getFormatNumber(data?.current_balance)}$</TableCell>
+                                    <TableCell align="right" style={{ cursor: "pointer" }} >{getFormatNumber(data?.foreign_balances)}$</TableCell>
                                   </>
                                 ) : (
                                   <>
-                                    <TableCell align="right" style={{ cursor: "pointer" }} >{getFormatNumber(data?.current_balance)}฿</TableCell>
+                                    <TableCell align="right" style={{ cursor: "pointer" }} >{getFormatNumber(data?.foreign_balances)}฿</TableCell>
                                   </>
                                 )
                               }
@@ -1953,12 +2306,9 @@ function SecondRowComponent({ id, name_eng, level, OnEditJournal, childrenSecond
                         data?.foreign_code === 'USD' || data?.foreign_code === 'THB' ? (
                           <>
                             <TableCell align="right" style={{ cursor: "pointer", color: '#0d6efd' }} >
-
-
                               {
                                 data?.money_rate
                               }
-
                             </TableCell>
                           </>
                         ) : (
@@ -1995,7 +2345,7 @@ function SecondRowComponent({ id, name_eng, level, OnEditJournal, childrenSecond
                       {
                         data?.foreign_code === 'USD' || data?.foreign_code === 'THB' ? (
                           <>
-                            <TableCell align="right" style={{ cursor: "pointer", color: 'red' }} onClick={() => { OnShowAatumaticTransaction(data?.automatic_status) }} >{getFormatNumber(data?.gain_loss)}₭</TableCell>
+                            <TableCell align="right" style={{ cursor: "pointer" }} >{getFormatNumber((data?.foreign_balances * data?.money_rate) - (data?.balances))}₭</TableCell>
                           </>
                         ) : (
                           <>

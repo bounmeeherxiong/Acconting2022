@@ -138,10 +138,12 @@ export default function ReportTrialbalances() {
                 start,
                 end
             }
+    
             axios.post("/accounting/api/reportbydate/searchreport", data).then((data) => {
+               
                 setListTrailbalance({...data?.data})
             }).catch((err) => {
-                console.log(err)
+                console.log(err) 
             })
         }
     }

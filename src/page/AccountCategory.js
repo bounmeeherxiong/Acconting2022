@@ -19,6 +19,7 @@ import { makeStyles } from "@material-ui/core/styles";
 import { Toast } from "react-bootstrap";
 import CheckCircleIcon from '@material-ui/icons/CheckCircle';
 import WarningIcon from '@material-ui/icons/Warning';
+import httpErrorHandler from "../middleware/httpErrorHandler";
 import axios from "axios";
 const useStyles = makeStyles({
   table: {
@@ -35,6 +36,7 @@ export default function AccountCategory() {
   const [name_eng, setName_eng] = useState("");
   const [uid, setUid] = useState("");
   const [main_type_name, setMain_type_name] = useState("");
+  const [listaccountType, setListaccountType] = useState([]);
   const [showUpdate, setShowUpdate] = useState(false);
   const classes = useStyles();
   const handleClose = () => {
@@ -49,8 +51,20 @@ export default function AccountCategory() {
   }
   const handleShow = () => setShow(true);
   const handleshow1 = () => setShows(true)
-  const { listaccount, listaccountType, onloadaccountType } =
+  const { listaccount } =
     useContext(LoginContext);
+    
+
+    const onloadaccountType = () => {
+      axios
+        .get("/accounting/api/accounts-type")
+        .then((data) => {
+          setListaccountType([...data?.data.result]);
+        })
+        .catch((err) => {
+          console.log(err);
+        });
+    };
   const createaccountType = () => {
     setLoading(true)
     if (!main_type) {
@@ -319,8 +333,8 @@ export default function AccountCategory() {
                     <TableCell align="left" style={{ width: 250 }}>
                       {data?.created_at}
                     </TableCell>
-                    {/* <TableCell align="right">
-                      <DeleteIcon style={{ cursor: "pointer" }} onClick={() => { handleshow1(); setUid(data.type_uid); }} />
+                    <TableCell align="right">
+                      {/* <DeleteIcon style={{ cursor: "pointer" }} onClick={() => { handleshow1(); setUid(data.type_uid); }} />
                       <EditIcon style={{ cursor: "pointer" }} onClick={() => {
                         handleShow();
                         setName_eng(data?.type_name_eng);
@@ -328,8 +342,8 @@ export default function AccountCategory() {
                         setUid(data.type_uid);
                         setShowUpdate(true);
                         setMain_type_name(data.account_name)
-                      }} />
-                    </TableCell> */}
+                      }} /> */}
+                    </TableCell>
                   </TableRow>
                 ))}
             </TableBody>
